@@ -1,0 +1,222 @@
+<!-- =====================================================
+     Cardiothoracic Theatre Viewer
+     Version 2.4.0
+     ===================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Cardiac Theatre Dashboard</title>
+<meta name="theme-color" content="#005EB8">
+
+<link rel="stylesheet" href="styles.css">
+     <link rel="stylesheet" href="clinical.css">
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#005EB8">
+
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<meta name="apple-mobile-web-app-title" content="CT Dashboard">
+</head>
+
+
+<body class="loading">
+     <div id="splash-screen">
+
+    <div class="splash-content">
+
+       <img src="icons/icon-512.png"
+     alt="Cardiac Theatre Dashboard"
+     class="splash-logo">
+
+        <h1>Cardiac Theatre Dashboard</h1>
+
+        <p>Derriford Hospital, Plymouth</p>
+
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <p class="loading-text">
+            Loading latest published rota...
+        </p>
+
+    </div>
+
+</div>
+<header class="hero-header">
+
+    <div class="hero-banner">
+
+       <div class="hero-left">
+
+    <h1>
+        🫀 Cardiac Theatre<br>
+        Dashboard
+    </h1>
+
+    <p class="hero-subtitle">
+        University Hospitals Plymouth NHS Trust
+    </p>
+
+</div>
+<div class="hero-right">
+
+    <img
+        src="cardiac-logo.png"
+        alt="Cardiac Theatres Logo"
+        class="hero-logo">
+
+</div>
+        
+
+        
+
+    
+
+   
+
+</header>
+<nav class="toolbar">
+
+    <button id="prevWeek" class="nav-arrow">◀</button>
+
+    <div class="week-picker">
+
+        <select id="weekSelect">
+            <option>Loading...</option>
+        </select>
+
+    </div>
+
+    <button id="nextWeek" class="nav-arrow">▶</button>
+
+</nav>
+<div class="day-tabs">
+
+    <button class="day-tab active" data-day="Monday">Mon</button>
+    <button class="day-tab" data-day="Tuesday">Tue</button>
+    <button class="day-tab" data-day="Wednesday">Wed</button>
+    <button class="day-tab" data-day="Thursday">Thu</button>
+    <button class="day-tab" data-day="Friday">Fri</button>
+   <button class="day-tab" data-day="Saturday">Sat/Sun</button>
+
+</div>
+<section id="statusBar">
+
+    <div id="loading" class="hidden">
+        🫀 Loading Published Rota...
+    </div>
+
+    <div id="error" class="hidden">
+        Unable to load rota.
+    </div>
+
+</section>
+
+
+<main id="rotaContainer">
+
+</main>
+
+
+<footer>
+
+    <span class="live-indicator">🟢 LIVE</span>
+
+    <span id="appVersion">
+        Cardiac Theatre Dashboard
+    </span>
+
+    <button id="refreshAppBtn" title="Refresh Dashboard">
+        🔄
+    </button>
+
+</footer>
+<script src="version.js"></script>
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="viewer-utils.js"></script>
+<script src="viewer.js"></script>
+<script src="print.js"></script>
+<script src="app.js"></script>
+<script>
+document.getElementById("appVersion").textContent =
+   `Cardiac Theatre Dashboard v${window.APP_VERSION}`;
+</script>
+    <script>
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", async () => {
+
+        try {
+
+           const registration =
+    await navigator.serviceWorker.register("./service-worker.js");
+
+// Force the browser to check for a newer service worker
+await registration.update();
+
+console.log("Service Worker registered");
+            function checkForWaitingWorker() {
+
+                if (registration.waiting) {
+
+                    console.log("🚀 Update ready");
+
+                    if (window.UpdateUI) {
+                        UpdateUI.show();
+                    }
+
+                }
+
+            }
+
+            checkForWaitingWorker();
+
+            registration.addEventListener("updatefound", () => {
+
+                const newWorker = registration.installing;
+
+                if (!newWorker) return;
+
+                newWorker.addEventListener("statechange", () => {
+
+                    if (
+                        newWorker.state === "installed" &&
+                        navigator.serviceWorker.controller
+                    ) {
+
+                        checkForWaitingWorker();
+
+                    }
+
+                });
+
+            });
+
+        } catch (err) {
+
+            console.error("Service Worker registration failed:", err);
+
+        }
+
+    });
+
+}
+</script>
+
+         
+</body>
+</html>
