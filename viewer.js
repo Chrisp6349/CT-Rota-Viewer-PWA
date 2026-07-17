@@ -1,9 +1,12 @@
-
-
 /* =====================================================
    Cardiothoracic Theatre Viewer
    viewer.js
    Dashboard V2
+   -----------------------------------------------------
+   Renders one day of the published rota into the page:
+   theatre cards, on-call panel, support panel, and the
+   combined weekend cover view. Called by app.js with
+   the data fetched via api.js.
    ===================================================== */
 
 class Viewer {
@@ -58,8 +61,7 @@ const value = data.days[day];
 
 if (!value) return;
 
-// Weekend detection
-// Weekend detection
+// Weekend view: Saturday and Sunday render together as one cover page
 const isWeekend = day === "Saturday" || day === "Sunday";
 
 if (isWeekend) {
@@ -126,6 +128,12 @@ return;
 
         (value.theatres || []).forEach(theatre => {
 
+            // Skip hidden theatres before doing anything else.
+            // (Note: the current publisher never sends `hidden` -
+            // this is future-proofing, kept from the original.)
+            if (theatre.hidden) return;
+
+            // Map each theatre to its card colour and short label
             let colour = "theatre1";
 
             switch (theatre.theatre) {
@@ -154,8 +162,6 @@ return;
                     colour = "cathlab";
                     break;
             }
-
-            if (theatre.hidden) return;
 
             html += `
             <div class="card theatre-card">
