@@ -1,6 +1,7 @@
 <!-- =====================================================
      Cardiothoracic Theatre Viewer
-     Version 2.4.0
+     (version number lives in version.js - the footer and
+      the service worker cache both read it from there)
      ===================================================== -->
 
 <!DOCTYPE html>
@@ -16,8 +17,6 @@
 <link rel="stylesheet" href="styles.css">
      <link rel="stylesheet" href="clinical.css">
 <link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#005EB8">
 
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
@@ -79,13 +78,8 @@
         class="hero-logo">
 
 </div>
-        
 
-        
-
-    
-
-   
+    </div><!-- /.hero-banner -->
 
 </header>
 <nav class="toolbar">
@@ -167,13 +161,9 @@ if ("serviceWorker" in navigator) {
 
 // Force the browser to check for a newer service worker
 await registration.update();
-
-console.log("Service Worker registered");
             function checkForWaitingWorker() {
 
                 if (registration.waiting) {
-
-                    console.log("🚀 Update ready");
 
                     if (window.UpdateUI) {
                         UpdateUI.show();
@@ -217,6 +207,5 @@ console.log("Service Worker registered");
 }
 </script>
 
-         
 </body>
 </html>
