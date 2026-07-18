@@ -95,4 +95,151 @@ if (localStorage.getItem("theme") === "dark") {
 </header>
 <nav class="toolbar">
 
-    
+    <button id="prevWeek" class="nav-arrow">◀</button>
+
+    <div class="week-picker">
+
+        <select id="weekSelect">
+            <option>Loading...</option>
+        </select>
+
+    </div>
+
+    <button id="nextWeek" class="nav-arrow">▶</button>
+
+</nav>
+<div class="day-tabs">
+
+    <button class="day-tab active" data-day="Monday">Mon</button>
+    <button class="day-tab" data-day="Tuesday">Tue</button>
+    <button class="day-tab" data-day="Wednesday">Wed</button>
+    <button class="day-tab" data-day="Thursday">Thu</button>
+    <button class="day-tab" data-day="Friday">Fri</button>
+   <button class="day-tab" data-day="Saturday">Sat/Sun</button>
+
+</div>
+<div id="onCallNowMount"></div>
+
+<div class="feature-row">
+    <button id="myWeekBtn" class="feature-btn" onclick="MyWeek.open()">⭐ My Week</button>
+    <a class="feature-btn" href="tv.html" target="_blank" rel="noopener">📺 Wall Board</a>
+    <button id="themeBtn" class="feature-btn" onclick="toggleTheme()">🌓 Dark Mode</button>
+</div>
+
+<section id="statusBar">
+
+    <div id="loading" class="hidden">
+        🫀 Loading Published Rota...
+    </div>
+
+    <div id="error" class="hidden">
+        Unable to load rota.
+    </div>
+
+</section>
+
+
+<main id="rotaContainer">
+
+</main>
+
+
+<footer>
+
+    <span class="live-indicator">🟢 LIVE</span>
+
+    <span id="appVersion">
+        Cardiac Theatre Dashboard
+    </span>
+
+    <button id="refreshAppBtn" title="Refresh Dashboard">
+        🔄
+    </button>
+
+</footer>
+<script src="version.js"></script>
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="viewer-utils.js"></script>
+<script src="viewer.js"></script>
+<script src="print.js"></script>
+<script src="oncall-now.js"></script>
+<script src="myweek.js"></script>
+<script>
+/* Dark mode toggle - preference stored per device */
+function toggleTheme() {
+    const dark = document.documentElement.dataset.theme === "dark";
+    if (dark) {
+        delete document.documentElement.dataset.theme;
+        localStorage.removeItem("theme");
+    } else {
+        document.documentElement.dataset.theme = "dark";
+        localStorage.setItem("theme", "dark");
+    }
+}
+</script>
+<script src="app.js"></script>
+<script>
+document.getElementById("appVersion").textContent =
+   `Cardiac Theatre Dashboard v${window.APP_VERSION}`;
+</script>
+    <script>
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", async () => {
+
+        try {
+
+           const registration =
+    await navigator.serviceWorker.register("./service-worker.js");
+
+// Force the browser to check for a newer service worker
+await registration.update();
+            function checkForWaitingWorker() {
+
+                if (registration.waiting) {
+
+                    if (window.UpdateUI) {
+                        UpdateUI.show();
+                    }
+
+                }
+
+            }
+
+            checkForWaitingWorker();
+
+            registration.addEventListener("updatefound", () => {
+
+                const newWorker = registration.installing;
+
+                if (!newWorker) return;
+
+                newWorker.addEventListener("statechange", () => {
+
+                    if (
+                        newWorker.state === "installed" &&
+                        navigator.serviceWorker.controller
+                    ) {
+
+                        checkForWaitingWorker();
+
+                    }
+
+                });
+
+            });
+
+        } catch (err) {
+
+            console.error("Service Worker registration failed:", err);
+
+        }
+
+    });
+
+}
+</script>
+
+</body>
+</html>
