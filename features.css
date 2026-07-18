@@ -350,3 +350,13 @@ body.tv {
 
 @media (max-width: 1100px) { #tvGrid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px)  { #tvGrid { grid-template-columns: 1fr; } .tv-clock { font-size: 40px; } }
+
+/* Dark-mode fix: the weekend day wrapper was picking up a card
+   background, drawing a faint box around each day's cards. It's a
+   layout container, not a card - keep it invisible. */
+html[data-theme="dark"] .weekend-card {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
