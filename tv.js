@@ -43,9 +43,9 @@ async function tvLoad() {
         if (s.weekend) {
             ocPeople = `${oc.odp1 || oc.odp || "-"}${oc.session1 ? " (" + oc.session1 + ")" : ""}` +
                        (oc.odp2 ? ` · ${oc.odp2}${oc.session2 ? " (" + oc.session2 + ")" : ""}` : "") +
-                       ` &nbsp;|&nbsp; 👨‍⚕️ ${oc.anaesthetist || "-"}`;
+                       ` &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
         } else {
-            ocPeople = `${oc.odp || "-"}${oc.fromHome ? " 🏠" : ""} &nbsp;|&nbsp; 👨‍⚕️ ${oc.anaesthetist || "-"}`;
+            ocPeople = `${oc.odp || "-"}${oc.fromHome ? " 🏠" : ""} &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
         }
         document.getElementById("tvOnCall").innerHTML = `
             <div class="tv-oncall ${s.active ? "tv-oncall-active" : ""}">
@@ -64,7 +64,7 @@ async function tvLoad() {
                 <div class="tv-card tv-wide">
                     <div class="tv-card-head">🛡️ WEEKEND COVER — ${day.toUpperCase()}</div>
                     <div class="tv-card-body">
-                        <div class="tv-line">📋 Waiting List: ${wl.odp || "-"} &nbsp;|&nbsp; 👨‍⚕️ ${wl.anaesthetist || "-"}</div>
+                        <div class="tv-line">📋 Waiting List: ${wl.odp || "-"} &nbsp;|&nbsp; ${wl.anaesthetist ? anaesEmoji(wl.anaesthetist) : "👨‍⚕️"} ${wl.anaesthetist || "-"}</div>
                     </div>
                 </div>`;
         } else {
@@ -77,7 +77,7 @@ async function tvLoad() {
                         ${empty ? `<div class="tv-line tv-dim">No allocation</div>` : `
                             ${t.odp1 ? `<div class="tv-line">👤 ${t.odp1}</div>` : ""}
                             ${t.odp2 ? `<div class="tv-line">👤 ${t.odp2}</div>` : ""}
-                            ${t.anaesthetist ? `<div class="tv-line">👨‍⚕️ ${t.anaesthetist}</div>` : ""}
+                            ${t.anaesthetist ? `<div class="tv-line">${anaesEmoji(t.anaesthetist)} ${t.anaesthetist}</div>` : ""}
                             ${t.list ? `<div class="tv-line tv-list">📋 ${t.list}</div>` : ""}
                         `}
                     </div>
