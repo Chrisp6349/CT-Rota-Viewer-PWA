@@ -16,6 +16,7 @@
 
 <link rel="stylesheet" href="styles.css">
      <link rel="stylesheet" href="clinical.css">
+<link rel="stylesheet" href="features.css">
 <link rel="manifest" href="manifest.json">
 
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -25,6 +26,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
 <meta name="apple-mobile-web-app-title" content="CT Dashboard">
+<script>
+/* Apply saved dark-mode preference before first paint */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.dataset.theme = "dark";
+}
+</script>
 </head>
 
 
@@ -40,6 +47,10 @@
         <h1>Cardiac Theatre Dashboard</h1>
 
         <p>Derriford Hospital, Plymouth</p>
+
+        <svg class="splash-ecg" viewBox="0 0 240 44" aria-hidden="true">
+            <path d="M0 22 H60 L70 22 76 8 84 36 92 14 98 22 H140 L150 22 156 10 164 34 172 16 178 22 H240"/>
+        </svg>
 
         <div class="loader">
             <span></span>
@@ -84,128 +95,4 @@
 </header>
 <nav class="toolbar">
 
-    <button id="prevWeek" class="nav-arrow">◀</button>
-
-    <div class="week-picker">
-
-        <select id="weekSelect">
-            <option>Loading...</option>
-        </select>
-
-    </div>
-
-    <button id="nextWeek" class="nav-arrow">▶</button>
-
-</nav>
-<div class="day-tabs">
-
-    <button class="day-tab active" data-day="Monday">Mon</button>
-    <button class="day-tab" data-day="Tuesday">Tue</button>
-    <button class="day-tab" data-day="Wednesday">Wed</button>
-    <button class="day-tab" data-day="Thursday">Thu</button>
-    <button class="day-tab" data-day="Friday">Fri</button>
-   <button class="day-tab" data-day="Saturday">Sat/Sun</button>
-
-</div>
-<section id="statusBar">
-
-    <div id="loading" class="hidden">
-        🫀 Loading Published Rota...
-    </div>
-
-    <div id="error" class="hidden">
-        Unable to load rota.
-    </div>
-
-</section>
-
-
-<main id="rotaContainer">
-
-</main>
-
-
-<footer>
-
-    <span class="live-indicator">🟢 LIVE</span>
-
-    <span id="appVersion">
-        Cardiac Theatre Dashboard
-    </span>
-
-    <button id="refreshAppBtn" title="Refresh Dashboard">
-        🔄
-    </button>
-
-</footer>
-<script src="version.js"></script>
-<script src="config.js"></script>
-<script src="api.js"></script>
-<script src="viewer-utils.js"></script>
-<script src="viewer.js"></script>
-<script src="print.js"></script>
-<script src="app.js"></script>
-<script>
-document.getElementById("appVersion").textContent =
-   `Cardiac Theatre Dashboard v${window.APP_VERSION}`;
-</script>
-    <script>
-if ("serviceWorker" in navigator) {
-
-    window.addEventListener("load", async () => {
-
-        try {
-
-           const registration =
-    await navigator.serviceWorker.register("./service-worker.js");
-
-// Force the browser to check for a newer service worker
-await registration.update();
-            function checkForWaitingWorker() {
-
-                if (registration.waiting) {
-
-                    if (window.UpdateUI) {
-                        UpdateUI.show();
-                    }
-
-                }
-
-            }
-
-            checkForWaitingWorker();
-
-            registration.addEventListener("updatefound", () => {
-
-                const newWorker = registration.installing;
-
-                if (!newWorker) return;
-
-                newWorker.addEventListener("statechange", () => {
-
-                    if (
-                        newWorker.state === "installed" &&
-                        navigator.serviceWorker.controller
-                    ) {
-
-                        checkForWaitingWorker();
-
-                    }
-
-                });
-
-            });
-
-        } catch (err) {
-
-            console.error("Service Worker registration failed:", err);
-
-        }
-
-    });
-
-}
-</script>
-
-</body>
-</html>
+    
