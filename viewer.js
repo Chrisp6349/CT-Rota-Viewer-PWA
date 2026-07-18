@@ -133,4 +133,306 @@ return;
             // this is future-proofing, kept from the original.)
             if (theatre.hidden) return;
 
-            // Map each
+            // Map each theatre to its card colour and short label.
+            // IMPORTANT: computed locally, never written back into the
+            // data - other features (My Week, the TV board) read the
+            // same object and rely on the original names.
+            let colour = "theatre1";
+            let label = theatre.theatre;
+
+            switch (theatre.theatre) {
+
+                case "Theatre 1":
+                    colour = "theatre1";
+                    label = "CT1";
+                    break;
+
+                case "Theatre 2":
+                    colour = "theatre2";
+                    label = "CT2";
+                    break;
+
+                case "Theatre 4":
+                    colour = "theatre4";
+                    label = "CT4";
+                    break;
+
+                case "Theatre 5":
+                    colour = "theatre5";
+                    label = "CT5";
+                    break;
+
+                case "Cath Lab":
+                    colour = "cathlab";
+                    label = "CATH LAB";
+                    break;
+            }
+
+            html += `
+            <div class="card theatre-card">
+
+               <div class="card-header ${colour}">
+    ${label}
+</div>
+
+                <div class="card-body compact-card">
+            `;
+
+            if (
+                !theatre.odp1 &&
+                !theatre.odp2 &&
+                !theatre.anaesthetist &&
+                !theatre.list
+            ) {
+
+                html += `
+                    <div class="info">
+                        No allocation
+                    </div>
+                `;
+
+            } else {
+
+                if (theatre.odp1)
+                    html += `<div class="person">👤 ${theatre.odp1}</div>`;
+
+                if (theatre.odp2)
+                    html += `<div class="person">👤 ${theatre.odp2}</div>`;
+
+                if (theatre.anaesthetist)
+                    html += `<div class="info">👨‍⚕️ ${theatre.anaesthetist}</div>`;
+
+                if (theatre.list)
+                    html += `<div class="info">📋 ${theatre.list}</div>`;
+            }
+
+            html += `
+                </div>
+            </div>
+            `;
+        });
+
+             html += `
+
+    </div>
+
+    <div class="dashboard-row">
+
+        <div class="card dashboard-panel">
+
+            <div class="card-header oncall-header">
+                🚨 ON CALL
+            </div>
+
+            <div class="card-body oncall-body">
+
+                <div class="oncall-person">
+                    👤 ${value.onCall?.odp || "No allocation"}
+                </div>
+                ${
+    value.onCall?.extra
+    ? `<div class="info">🟡 ${value.onCall.extra}</div>`
+    : ``
+}
+                ${
+                    value.onCall?.fromHome
+                    ? `<div class="from-home">🏠 FROM HOME</div>`
+                    : ``
+                }
+
+                <div class="oncall-anaesthetist">
+                    👨‍⚕️ ${value.onCall?.anaesthetist || "-"}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card dashboard-panel">
+
+            <div class="card-header support-header">
+                👥 SUPPORT
+            </div>
+
+            <div class="card-body">
+
+              ${
+    value.support?.odp1
+        ? `<div class="person">👤 ${value.support.odp1}</div>`
+        : ``
+}
+
+${
+    value.support?.odp2
+        ? `<div class="person">👤 ${value.support.odp2}</div>`
+        : ``
+}
+
+${
+    value.support?.odp3
+        ? `<div class="person">👤 ${value.support.odp3}</div>`
+        : ``
+}
+
+${
+    !value.support?.odp1 &&
+    !value.support?.odp2 &&
+    !value.support?.odp3
+        ? `<div class="info">No allocation</div>`
+        : ``
+}
+                ${
+                    value.support?.list
+                    ? `<div class="info">📋 ${value.support.list}</div>`
+                    : ``
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+<button id="fullWeekButton" class="full-week-view">
+
+    <h3>📄 Full Week View</h3>
+
+    <p>View complete weekly rota</p>
+
+</button>
+
+</section>
+`;
+
+        container.innerHTML = html;
+
+const fullWeekButton = document.getElementById("fullWeekButton");
+
+if (fullWeekButton) {
+
+  fullWeekButton.addEventListener("click", function () {
+
+    sessionStorage.setItem("viewerWeek", data.week);
+    sessionStorage.setItem("viewerDay", window.selectedDay);
+
+    window.location.assign(
+        `week.html?week=${encodeURIComponent(data.week)}`
+    );
+
+});
+}  Viewer.updateDayTabs(data);
+    }
+static renderWeekendDay(day, value){
+
+    return `
+
+<div class="weekend-card">
+
+    <div class="weekend-title">
+        ${day}
+    </div>
+
+    <div class="dashboard-row">
+
+        <div class="card dashboard-panel">
+
+            <div class="card-header oncall-header">
+                🚨 ON CALL
+            </div>
+
+            <div class="card-body">
+
+               <div class="person">
+    ${value.onCall?.session1 ? value.onCall.session1 + " " : ""}👤
+    ${value.onCall?.odp1 || value.onCall?.odp || "-"}
+</div>
+
+${
+    value.onCall?.odp2
+    ? `<div class="person">
+        ${value.onCall?.session2 ? value.onCall.session2 + " " : ""}👤
+        ${value.onCall.odp2}
+      </div>`
+    : ""
+}
+
+                <div class="info">
+                    👨‍⚕️ ${value.onCall?.anaesthetist || "-"}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card dashboard-panel">
+
+            <div class="card-header support-header">
+                📋 WAITING LIST
+            </div>
+
+            <div class="card-body">
+
+                <div class="person">
+                    👤 ${value.waitingList?.odp || "-"}
+                </div>
+
+                <div class="info">
+                    👨‍⚕️ ${value.waitingList?.anaesthetist || "-"}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+`;
+
+
+}
+
+static updateDayTabs(data) {
+
+    document.querySelectorAll(".day-tab").forEach(btn => {
+
+        btn.classList.toggle(
+            "active",
+            (btn.dataset.day === "Saturday" &&
+                (window.selectedDay === "Saturday" ||
+                 window.selectedDay === "Sunday")) ||
+            btn.dataset.day === window.selectedDay
+        );
+
+       btn.onclick = () => {
+
+    const container = document.getElementById("rotaContainer");
+
+    container.classList.add("fade-out");
+
+    setTimeout(() => {
+
+        window.selectedDay = btn.dataset.day;
+
+        Viewer.render(data);
+
+        container.classList.remove("fade-out");
+        container.classList.add("fade-in");
+
+        setTimeout(() => {
+            container.classList.remove("fade-in");
+        }, 200);
+
+    }, 200);
+
+};
+
+    });
+
+
+
+}
+}
