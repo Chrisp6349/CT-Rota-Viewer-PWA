@@ -70,7 +70,7 @@ class WeekView {
                     ${empty ? `<span class="wk-empty">—</span>` : `
                         ${t.odp1 ? `<span class="wk-odp">${t.odp1}</span>` : ""}
                         ${t.odp2 ? `<span class="wk-odp">${t.odp2}</span>` : ""}
-                        ${t.anaesthetist ? `<span class="wk-anaes">👨‍⚕️ ${t.anaesthetist}</span>` : ""}
+                        ${t.anaesthetist ? `<span class="wk-anaes">${anaesEmoji(t.anaesthetist)} ${t.anaesthetist}</span>` : ""}
                         ${t.list ? `<span class="wk-list">${t.list}</span>` : ""}
                     `}
                 </span>
@@ -100,7 +100,7 @@ class WeekView {
                     ${oc.odp ? `<span class="wk-odp">${oc.odp}</span>` : `<span class="wk-empty">—</span>`}
                     ${oc.extra ? `<span class="wk-flag">${oc.extra}</span>` : ""}
                     ${oc.fromHome ? `<span class="wk-flag">🏠 FROM HOME</span>` : ""}
-                    ${oc.anaesthetist ? `<span class="wk-anaes">👨‍⚕️ ${oc.anaesthetist}</span>` : ""}
+                    ${oc.anaesthetist ? `<span class="wk-anaes">${anaesEmoji(oc.anaesthetist)} ${oc.anaesthetist}</span>` : ""}
                 </span>
             </div>`;
 
@@ -133,7 +133,7 @@ class WeekView {
                         ? `<span class="wk-odp">${oc.odp1 || oc.odp}${oc.session1 ? ` <em>${oc.session1}</em>` : ""}</span>`
                         : `<span class="wk-empty">—</span>`}
                     ${oc.odp2 ? `<span class="wk-odp">${oc.odp2}${oc.session2 ? ` <em>${oc.session2}</em>` : ""}</span>` : ""}
-                    ${oc.anaesthetist ? `<span class="wk-anaes">👨‍⚕️ ${oc.anaesthetist}</span>` : ""}
+                    ${oc.anaesthetist ? `<span class="wk-anaes">${anaesEmoji(oc.anaesthetist)} ${oc.anaesthetist}</span>` : ""}
                 </span>
             </div>
 
@@ -141,7 +141,7 @@ class WeekView {
                 <span class="wk-tag">W/LIST</span>
                 <span class="wk-cell">
                     ${wl.odp ? `<span class="wk-odp">${wl.odp}</span>` : `<span class="wk-empty">—</span>`}
-                    ${wl.anaesthetist ? `<span class="wk-anaes">👨‍⚕️ ${wl.anaesthetist}</span>` : ""}
+                    ${wl.anaesthetist ? `<span class="wk-anaes">${anaesEmoji(wl.anaesthetist)} ${wl.anaesthetist}</span>` : ""}
                 </span>
             </div>
         </div>`;
