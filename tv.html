@@ -1,0 +1,40 @@
+<!-- =====================================================
+     Cardiothoracic Theatre Viewer - TV / wall-board mode
+     Big type, no interaction, auto-refreshing. Open this
+     page on a spare screen in the department and leave it.
+     ===================================================== -->
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardiac Theatres - Wall Board</title>
+<meta name="theme-color" content="#003087">
+<link rel="stylesheet" href="features.css">
+</head>
+<body class="tv">
+
+<header class="tv-header">
+    <div>
+        <h1>🫀 Cardiac Theatres</h1>
+        <p id="tvDate"></p>
+    </div>
+    <div class="tv-clock" id="tvClock">--:--</div>
+</header>
+
+<div id="tvOnCall"></div>
+
+<main id="tvGrid"></main>
+
+<footer class="tv-footer">
+    <span id="tvUpdated">Loading…</span>
+    <span>Derriford Hospital · Cardiothoracic Theatres</span>
+</footer>
+
+<script src="version.js"></script>
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="oncall-now.js"></script>
+<script src="tv.js"></script>
+</body>
+</html>
