@@ -1,129 +1,241 @@
-body{
+/* =====================================================
+   Cardiothoracic Theatre Viewer
+   week.css
+   -----------------------------------------------------
+   Week-at-a-glance board. Five weekday columns of
+   colour-coded theatre rows; weekend cover strip below.
+   Colour stripes match the daily dashboard's theatre
+   colours so the two views read as one system.
+   ===================================================== */
 
-    margin:0;
+:root {
+    --wk-t1:   #005EB8;   /* CT1  - NHS blue      */
+    --wk-t2:   #00A9CE;   /* CT2  - aqua          */
+    --wk-t4:   #007F3B;   /* CT4  - green         */
+    --wk-t5:   #7C2855;   /* CT5  - aubergine     */
+    --wk-cath: #ED8B00;   /* Cath - orange        */
+    --wk-red:  #DA291C;
 
-    padding:20px;
-
-    background:#f5f7fa;
-
-    font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
+    --wk-ink:      #212B32;
+    --wk-ink-soft: #4C6272;
+    --wk-line:     #E1E6EA;
+    --wk-surface:  #FFFFFF;
+    --wk-page:     #F4F6F8;
 }
 
-.week-header{
+* { box-sizing: border-box; }
 
-    text-align:center;
-
-    margin-bottom:20px;
+body {
+    margin: 0;
+    padding: 16px;
+    background: var(--wk-page);
+    color: var(--wk-ink);
+    font-family: Arial, -apple-system, "Segoe UI", Helvetica, sans-serif;
 }
 
-.back-button{
+/* ------------------------------------------------------
+   Header
+   ------------------------------------------------------ */
 
-    text-decoration:none;
+.week-header { text-align: center; margin-bottom: 16px; }
 
-    color:#005EB8;
-
-    font-weight:700;
-
-    display:inline-block;
-
-    margin-bottom:20px;
-
+.back-button {
+    text-decoration: none;
+    color: #005EB8;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 12px;
 }
 
-.week-header h1{
+.week-header h1 { margin: 0; color: #005EB8; font-size: 24px; }
+#weekTitle { margin-top: 4px; color: var(--wk-ink-soft); font-weight: 600; }
 
-    margin:0;
+.wk-loading, .wk-error { text-align: center; color: var(--wk-ink-soft); font-size: 17px; }
 
-    color:#005EB8;
+/* ------------------------------------------------------
+   Weekday columns
+   ------------------------------------------------------ */
+
+.wk-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-items: start;
+    max-width: 1500px;
+    margin: 0 auto;
 }
 
-#weekTitle{
-
-    margin-top:6px;
-
-    color:#666;
+.wk-day {
+    background: var(--wk-surface);
+    border: 1px solid var(--wk-line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(33,43,50,.07);
 }
 
-.week-card{
-
-    background:white;
-
-    border-radius:18px;
-
-    overflow:hidden;
-
-    margin-bottom:16px;
-
-    box-shadow:0 6px 16px rgba(0,0,0,.08);
+.wk-day-head {
+    background: #003087;
+    color: #fff;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
 }
 
-.week-card-header{
+.wk-day-name { font-weight: 800; font-size: 15px; }
+.wk-day-date { font-size: 12px; color: #B8D4F0; font-weight: 700; white-space: nowrap; }
 
-    background:#005EB8;
+/* Today's column glows */
+.wk-today { box-shadow: 0 0 0 3px #ED8B00, 0 3px 12px rgba(237,139,0,.25); }
+.wk-today .wk-day-head { background: #B45F00; }
+.wk-today .wk-day-date { color: #FFE2B8; }
 
-    color:white;
+.wk-day-body { display: flex; flex-direction: column; }
 
-    padding:12px;
+/* ------------------------------------------------------
+   Rows: one per theatre, plus support and on-call
+   ------------------------------------------------------ */
 
-    font-size:20px;
-
-    font-weight:700;
-
-    text-align:center;
+.wk-row {
+    display: flex;
+    gap: 8px;
+    padding: 7px 10px 7px 8px;
+    border-bottom: 1px solid var(--wk-line);
+    border-left: 4px solid transparent;
+    align-items: flex-start;
 }
 
-.week-card-body{
+.wk-row:last-child { border-bottom: none; }
 
-    padding:12px;
+.wk-t1   { border-left-color: var(--wk-t1); }
+.wk-t2   { border-left-color: var(--wk-t2); }
+.wk-t4   { border-left-color: var(--wk-t4); }
+.wk-t5   { border-left-color: var(--wk-t5); }
+.wk-cath { border-left-color: var(--wk-cath); }
+
+.wk-support { border-left-color: #4C6272; background: #F4F6F8; }
+
+.wk-oncall {
+    border-left-color: var(--wk-red);
+    background: #FBF0EF;
 }
 
-.rota-row{
+.wk-wlist { border-left-color: #005EB8; background: #F0F6FB; }
 
-    display:flex;
-
-    justify-content:space-between;
-
-    padding:10px 0;
-
-    border-bottom:1px solid #eee;
+.wk-tag {
+    flex: none;
+    width: 58px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    color: var(--wk-ink-soft);
+    padding-top: 3px;
 }
 
-.rota-row:last-child{
+.wk-t1 .wk-tag   { color: var(--wk-t1); }
+.wk-t2 .wk-tag   { color: var(--wk-t2); }
+.wk-t4 .wk-tag   { color: var(--wk-t4); }
+.wk-t5 .wk-tag   { color: var(--wk-t5); }
+.wk-cath .wk-tag { color: var(--wk-cath); }
+.wk-oncall .wk-tag { color: var(--wk-red); }
 
-    border-bottom:none;
+.wk-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 8px;
+    align-items: baseline;
+    min-width: 0;
 }
 
-.location{
+.wk-odp   { font-weight: 800; font-size: 13.5px; }
+.wk-odp em { font-style: normal; font-size: 11px; color: var(--wk-ink-soft); font-weight: 800; }
+.wk-anaes { font-weight: 600; font-size: 12.5px; color: var(--wk-ink-soft); }
+.wk-list  {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    color: #fff;
+    background: #7A8794;
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+}
+.wk-flag {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--wk-red);
+    background: #FBDFDC;
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+}
+.wk-empty { color: #A6B1BB; font-weight: 700; }
 
-    font-weight:700;
+/* ------------------------------------------------------
+   Weekend strip
+   ------------------------------------------------------ */
+
+.wk-weekend {
+    max-width: 1500px;
+    margin: 14px auto 0;
+    background: var(--wk-surface);
+    border: 1px solid var(--wk-line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(33,43,50,.07);
 }
 
-.staff{
-
-    text-align:right;
+.wk-wend-head {
+    background: var(--wk-red);
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .05em;
+    padding: 10px 14px;
 }
 
-.rota-divider{
-
-    height:1px;
-
-    background:#ddd;
-
-    margin:10px 0;
+.wk-wend-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
-.oncall{
+.wk-wend-half { border-right: 1px solid var(--wk-line); }
+.wk-wend-half:last-child { border-right: none; }
 
-    color:#b71c1c;
+.wk-wend-half.wk-today { box-shadow: inset 0 0 0 3px #ED8B00; }
+
+.wk-wend-day {
+    font-weight: 800;
+    padding: 8px 12px 2px;
+    color: #005EB8;
 }
 
-.support{
+/* ------------------------------------------------------
+   Dark mode (shares the dashboard's stored preference)
+   ------------------------------------------------------ */
 
-    color:#2e7d32;
+html[data-theme="dark"] body { background: #10161f; color: #E4E9EF; }
+
+html[data-theme="dark"] .wk-day,
+html[data-theme="dark"] .wk-weekend { background: #1B2430; border-color: #3A4656; }
+
+html[data-theme="dark"] .wk-row { border-bottom-color: #2A3542; }
+html[data-theme="dark"] .wk-support { background: #232E3C; }
+html[data-theme="dark"] .wk-oncall  { background: #3A2022; }
+html[data-theme="dark"] .wk-wlist   { background: #1E2C3C; }
+html[data-theme="dark"] .wk-anaes,
+html[data-theme="dark"] .wk-tag { color: #93A1B1; }
+html[data-theme="dark"] .wk-empty { color: #5B6B7D; }
+html[data-theme="dark"] #weekTitle { color: #93A1B1; }
+html[data-theme="dark"] .wk-flag { background: #4A2528; }
+
+/* ------------------------------------------------------
+   Smaller screens: 5 -> 2 -> 1 columns
+   ------------------------------------------------------ */
+
+@media (max-width: 1150px) { .wk-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  {
+    .wk-grid { grid-template-columns: 1fr; }
+    .wk-wend-body { grid-template-columns: 1fr; }
+    .wk-wend-half { border-right: none; border-bottom: 1px solid var(--wk-line); }
 }
