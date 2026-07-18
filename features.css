@@ -360,3 +360,11 @@ html[data-theme="dark"] .weekend-card {
     border: none;
 }
 
+/* Dark-mode fix: the Full Week View button kept its light styling */
+html[data-theme="dark"] .full-week-view {
+    background: #1B2430;
+    border-color: #3A4656;
+    color: #E4E9EF;
+}
+html[data-theme="dark"] .full-week-view h3 { color: #7FB8E8; }
+html[data-theme="dark"] .full-week-view p  { color: #93A1B1; }
