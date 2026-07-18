@@ -200,7 +200,7 @@ return;
                     html += `<div class="person">👤 ${theatre.odp2}</div>`;
 
                 if (theatre.anaesthetist)
-                    html += `<div class="info">👨‍⚕️ ${theatre.anaesthetist}</div>`;
+                    html += `<div class="info">${anaesEmoji(theatre.anaesthetist)} ${theatre.anaesthetist}</div>`;
 
                 if (theatre.list)
                     html += `<div class="info">📋 ${theatre.list}</div>`;
@@ -241,7 +241,7 @@ return;
                 }
 
                 <div class="oncall-anaesthetist">
-                    👨‍⚕️ ${value.onCall?.anaesthetist || "-"}
+                    ${value.onCall?.anaesthetist ? anaesEmoji(value.onCall.anaesthetist) + " " + value.onCall.anaesthetist : "👨‍⚕️ -"}
                 </div>
 
             </div>
@@ -357,7 +357,7 @@ ${
 }
 
                 <div class="info">
-                    👨‍⚕️ ${value.onCall?.anaesthetist || "-"}
+                    ${value.onCall?.anaesthetist ? anaesEmoji(value.onCall.anaesthetist) + " " + value.onCall.anaesthetist : "👨‍⚕️ -"}
                 </div>
 
             </div>
@@ -377,7 +377,7 @@ ${
                 </div>
 
                 <div class="info">
-                    👨‍⚕️ ${value.waitingList?.anaesthetist || "-"}
+                    ${value.waitingList?.anaesthetist ? anaesEmoji(value.waitingList.anaesthetist) + " " + value.waitingList.anaesthetist : "👨‍⚕️ -"}
                 </div>
 
             </div>
