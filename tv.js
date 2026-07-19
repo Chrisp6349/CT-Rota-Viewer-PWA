@@ -44,11 +44,14 @@ async function tvLoad() {
 
         const oc = ocValue.onCall || {};
         let ocPeople;
-        if (s.weekend) {
-            ocPeople = `${oc.odp1 || oc.odp || "-"}${oc.session1 ? " (" + oc.session1 + ")" : ""}` +
-                       (oc.odp2 ? ` · ${oc.odp2}${oc.session2 ? " (" + oc.session2 + ")" : ""}` : "") +
-                       ` &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
+                if (s.weekend) {
+            const onDuty = OnCallNow.weekendOnDuty(oc, s.segment);
+            ocPeople = (onDuty.length
+                    ? onDuty.map(e => `${e.name}${e.session && e.session !== "ALL DAY" ? " (" + e.session + ")" : ""}`).join(" · ")
+                    : "-") +
+                ` &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
         } else {
+
             ocPeople = `${oc.odp || "-"}${oc.fromHome ? " 🏠" : ""} &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
         }
         document.getElementById("tvOnCall").innerHTML = `
