@@ -64,7 +64,63 @@ if (!value) return;
 // Weekend view: Saturday and Sunday render together as one cover page
 const isWeekend = day === "Saturday" || day === "Sunday";
 
+// Bank holiday view: no operating lists run, so instead of the normal
+// theatre grid, show a weekend-style cover page with just the on-call
+// team. (Bank holiday dates live in config.js.)
+if (!isWeekend && typeof isBankHoliday === "function") {
+
+    const bhDate = new Date(data.week);
+    const bhOffsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4 };
+    bhDate.setDate(bhDate.getDate() + (bhOffsets[day] || 0));
+    const bhIso = bhDate.toISOString().split("T")[0];
+
+    if (isBankHoliday(bhIso)) {
+
+        const bhDisplay = bhDate.toLocaleDateString("en-GB",
+            { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const oc = value.onCall || {};
+
+        container.innerHTML = `
+    <section class="daySection dashboard-layout">
+
+        <div class="day-header">
+            <h2 class="day-heading">🎉 BANK HOLIDAY COVER</h2>
+            <div class="day-date">${bhDisplay}</div>
+        </div>
+
+        <div class="dashboard-row">
+
+            <div class="card dashboard-panel">
+                <div class="card-header oncall-header">🚨 ON CALL</div>
+                <div class="card-body oncall-body">
+                    <div class="oncall-person">👤 ${oc.odp || "No allocation"}</div>
+                    ${oc.extra ? `<div class="info">🟡 ${oc.extra}</div>` : ``}
+                    ${oc.fromHome ? `<div class="from-home">🏠 FROM HOME</div>` : ``}
+                    <div class="oncall-anaesthetist">
+                        ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) + " " + oc.anaesthetist : "👨‍⚕️ -"}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card dashboard-panel">
+                <div class="card-header support-header">📋 LISTS</div>
+                <div class="card-body">
+                    <div class="info">No operating lists today — Bank Holiday</div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+`;
+
+        Viewer.updateDayTabs(data);
+        return;
+    }
+}
+
 if (isWeekend) {
+
 
     const saturday = data.days["Saturday"] || {};
     const sunday = data.days["Sunday"] || {};
