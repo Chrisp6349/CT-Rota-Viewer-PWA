@@ -5,9 +5,11 @@
    The "ON CALL NOW" hero card.
 
    Department on-call hours (every handover at 06:30):
-     - Mon-Fri:  19:00 -> 06:30 next morning (incl. Fri night)
-     - Saturday: 06:30 Sat -> 06:30 Sun
-     - Sunday:   06:30 Sun -> 06:30 Mon
+     - Mon-Fri:      19:00 -> 06:30 next morning (incl. Fri night)
+     - Bank holiday: 06:30 -> 06:30 next morning (like a weekend)
+     - Saturday:     06:30 Sat -> 06:30 Sun
+     - Sunday:       06:30 Sun -> 06:30 Mon
+     - Weekend AM/PM split: AM 06:30-18:30, PM 18:30-06:30
 
    Outside those hours (weekday daytime) the card shows
    TONIGHT'S cover as upcoming instead. The card only
@@ -43,30 +45,41 @@ class OnCallNow {
 
         const NIGHT_START = 19 * 60;           // weekday on-call starts 19:00
         const HANDOVER    = 6 * 60 + 30;       // every handover is at 06:30
+        const SEG_SWITCH  = 18 * 60 + 30;      // weekend AM->PM switch 18:30
 
-        // Department cover rules:
-        //   Mon-Fri:   that day's on-call runs 19:00 -> 06:30 next morning
-        //              (including Friday -> Saturday 06:30)
-        //   Saturday:  weekend cover runs Sat 06:30 -> Sun 06:30
-        //   Sunday:    weekend cover runs Sun 06:30 -> Mon 06:30
+        // Weekend AM/PM segment for the current moment:
+        // AM = 06:30-18:30, PM = 18:30-06:30 next morning
+        const segment = (mins >= HANDOVER && mins < SEG_SWITCH) ? "AM" : "PM";
+
+        // ISO dates of today and yesterday, for bank holiday checks
+        const iso = (d) => d.toISOString().split("T")[0];
+        const todayIso = iso(now);
+        const yd = new Date(now); yd.setDate(yd.getDate() - 1);
+        const yesterdayIso = iso(yd);
+        const bh = (typeof isBankHoliday === "function");
 
         // Before 06:30: still on the PREVIOUS day's cover
         if (mins < HANDOVER) {
-            if (day === 1)   // early Monday -> Sunday's weekend cover
-                return { active: true, label: "ON CALL NOW", dayKey: "Sunday", weekend: true };
-            if (day === 0)   // early Sunday -> Saturday's weekend cover
-                return { active: true, label: "ON CALL NOW", dayKey: "Saturday", weekend: true };
+            if (day === 1)   // early Monday -> Sunday's weekend cover (PM segment)
+                return { active: true, label: "ON CALL NOW", dayKey: "Sunday", weekend: true, segment: "PM" };
+            if (day === 0)   // early Sunday -> Saturday's weekend cover (PM segment)
+                return { active: true, label: "ON CALL NOW", dayKey: "Saturday", weekend: true, segment: "PM" };
             if (day === 6)   // early Saturday -> Friday's weekday on-call
                 return { active: true, label: "ON CALL NOW", dayKey: "Friday", weekend: false };
             // early Tue-Fri -> previous weekday's on-call
             return { active: true, label: "ON CALL NOW", dayKey: names[day - 1], weekend: false };
         }
 
-        // From 06:30 at the weekend: that day's 24-hour cover is live
+        // From 06:30 at the weekend: that day's cover is live, in segments
         if (day === 6)
-            return { active: true, label: "ON CALL NOW", dayKey: "Saturday", weekend: true };
+            return { active: true, label: "ON CALL NOW", dayKey: "Saturday", weekend: true, segment };
         if (day === 0)
-            return { active: true, label: "ON CALL NOW", dayKey: "Sunday", weekend: true };
+            return { active: true, label: "ON CALL NOW", dayKey: "Sunday", weekend: true, segment };
+
+        // Bank holiday weekday: cover runs 06:30 -> 06:30 like a weekend,
+        // using that weekday's on-call entry - so it's live all day
+        if (bh && isBankHoliday(todayIso))
+            return { active: true, label: "ON CALL NOW", dayKey: names[day], weekend: false };
 
         // Weekday evening: tonight's cover is live
         if (mins >= NIGHT_START)
@@ -74,6 +87,22 @@ class OnCallNow {
 
         // Weekday daytime: show tonight's cover as upcoming
         return { active: false, label: "TONIGHT'S ON CALL", dayKey: names[day], weekend: false };
+    }
+
+    // For a weekend on-call entry, returns only the people whose
+    // session covers the given segment ("AM"/"PM"). "ALL DAY" or a
+    // blank session covers both segments.
+    static weekendOnDuty(oc, segment) {
+        const entries = [
+            { name: oc.odp1 || oc.odp, session: String(oc.session1 || "").toUpperCase() },
+            { name: oc.odp2, session: String(oc.session2 || "").toUpperCase() }
+        ].filter(e => e.name);
+
+        const onDuty = entries.filter(e =>
+            e.session === segment || e.session === "ALL DAY" || e.session === "");
+
+        // If nothing matches the segment (odd data), fall back to all
+        return onDuty.length ? onDuty : entries;
     }
 
     // Renders (or hides) the hero card for the given rota
@@ -98,9 +127,14 @@ class OnCallNow {
 
         if (s.weekend) {
             const oc = value.onCall || {};
-            people += `<div class="now-person">👤 ${oc.odp1 || oc.odp || "-"}${oc.session1 ? ` <span class="now-session">${oc.session1}</span>` : ""}</div>`;
-            if (oc.odp2)
-                people += `<div class="now-person">👤 ${oc.odp2}${oc.session2 ? ` <span class="now-session">${oc.session2}</span>` : ""}</div>`;
+            const onDuty = OnCallNow.weekendOnDuty(oc, s.segment);
+            if (onDuty.length) {
+                onDuty.forEach(e => {
+                    people += `<div class="now-person">👤 ${e.name}${e.session && e.session !== "ALL DAY" ? ` <span class="now-session">${e.session}</span>` : ""}</div>`;
+                });
+            } else {
+                people += `<div class="now-person">👤 -</div>`;
+            }
             people += `<div class="now-anaes">${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}</div>`;
         } else {
             const oc = value.onCall || {};
