@@ -156,11 +156,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
     }
 
-    // Startup: archive list first (so the dropdown is ready), then
-    // the latest rota
+       // Startup: archive list first (so the dropdown is ready).
+    // If we're returning from the Full Week view, restore exactly the
+    // week and day tab that were on screen when it was opened
+    // (viewer.js saves them just before navigating). Otherwise show
+    // the latest published rota as normal.
     await loadArchive();
-    await showLatest();
+
+    const returnWeek = sessionStorage.getItem("viewerWeek");
+    const returnDay = sessionStorage.getItem("viewerDay");
+    sessionStorage.removeItem("viewerWeek");
+    sessionStorage.removeItem("viewerDay");
+
+    if (returnWeek) {
+        const idx = publishedWeeks.findIndex(w => w.week === returnWeek);
+        if (idx >= 0) {
+            currentIndex = idx;
+            if (weekSelect) weekSelect.selectedIndex = idx;
+        }
+        window.selectedDay = returnDay || "Monday";
+        await showWeek(returnWeek);
+        hideSplash();
+    } else {
+        await showLatest();
+    }
 });
+
 
 /* ==========================================
    Smart update system
