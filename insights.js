@@ -270,9 +270,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
         });
 
-        theatreIntelligence.showCurrent();
+       theatreIntelligence.showCurrent();
 
-    });
+document.querySelectorAll(".dot").forEach((dot, i) => {
+    dot.classList.toggle("active", i === theatreIntelligence.index);
+});
 
     function closePanel() {
 
@@ -290,12 +292,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
     overlay.addEventListener("click", closePanel);
 
-    document
-        .getElementById("nextInsightBtn")
-        .addEventListener("click", () => {
+   document
+    .getElementById("nextInsightBtn")
+    .addEventListener("click", () => {
 
-            theatreIntelligence.next();
+        theatreIntelligence.next();
 
-        });
+    });
+
+document
+    .getElementById("prevInsightBtn")
+    .addEventListener("click", () => {
+
+        theatreIntelligence.previous();
+
+    });
 
 });
