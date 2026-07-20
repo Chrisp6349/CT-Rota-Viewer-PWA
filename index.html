@@ -161,19 +161,39 @@ if (localStorage.getItem("theme") === "dark") {
 
     </div>
 
-    <div class="insight-card">
+   <div class="insight-card">
 
-        <div class="insight-icon">⭐</div>
+    <div class="insight-icon">🧠</div>
 
-        <h3 id="insightTitle">
-            Today's Highlight
-        </h3>
+    <h3 id="insightTitle">Loading...</h3>
 
-        <p id="insightText">
-            Insights will appear here...
-        </p>
+    <div id="snapshotGrid" class="snapshot-grid hidden">
+
+        <div class="snapshot-item">
+            <span class="snapshot-number" id="statSessions">0</span>
+            <span class="snapshot-label">🏥 Sessions</span>
+        </div>
+
+        <div class="snapshot-item">
+            <span class="snapshot-number" id="statODPs">0</span>
+            <span class="snapshot-label">👥 ODPs</span>
+        </div>
+
+        <div class="snapshot-item">
+            <span class="snapshot-number" id="statOnCalls">0</span>
+            <span class="snapshot-label">🚨 On Calls</span>
+        </div>
+
+        <div class="snapshot-item">
+            <span class="snapshot-number" id="statBusy">-</span>
+            <span class="snapshot-label">⭐ Busiest</span>
+        </div>
 
     </div>
+
+    <p id="insightText"></p>
+
+</div>
 
     <button id="nextInsightBtn" class="feature-btn">
         ✨ Next Insight
