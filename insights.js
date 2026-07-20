@@ -2,32 +2,60 @@ class TheatreIntelligence {
 
     constructor() {
         this.index = 0;
+        this.insights = [];
+    }
 
-        this.insights = [
+    generateInsights() {
+
+        const rota = window.currentRota;
+
+        if (!rota || !rota.days) {
+            return [{
+                icon: "⚠️",
+                title: "No Data",
+                text: "No rota has been loaded yet."
+            }];
+        }
+
+        let totalLists = 0;
+        let busiestDay = "";
+        let busiestCount = 0;
+
+        for (const [day, value] of Object.entries(rota.days)) {
+
+            const count = (value.theatres || []).filter(t =>
+                t.odp1 || t.odp2 || t.anaesthetist || t.list
+            ).length;
+
+            totalLists += count;
+
+            if (count > busiestCount) {
+                busiestCount = count;
+                busiestDay = day;
+            }
+        }
+
+        return [
+            {
+                icon: "📅",
+                title: "Weekly Summary",
+                text: `There are ${totalLists} allocated theatre sessions this week.`
+            },
             {
                 icon: "⭐",
-                title: "Today's Highlight",
-                text: "Welcome to Theatre Intelligence."
-            },
-            {
-                icon: "💡",
-                title: "Interesting Fact",
-                text: "This panel will automatically analyse the current rota."
-            },
-            {
-                icon: "🤝",
-                title: "Team Insight",
-                text: "Future versions will recognise staff pairings and trends."
-            },
-            {
-                icon: "📈",
-                title: "Workload",
-                text: "You'll soon be able to see who's covering the most lists."
+                title: "Busiest Day",
+                text: `${busiestDay} has the busiest schedule with ${busiestCount} allocated theatres.`
             }
         ];
     }
 
     showCurrent() {
+
+        this.insights = this.generateInsights();
+
+        if (this.index >= this.insights.length) {
+            this.index = 0;
+        }
 
         const insight = this.insights[this.index];
 
@@ -82,7 +110,7 @@ window.addEventListener("DOMContentLoaded", () => {
             panel.classList.add("hidden");
             overlay.classList.add("hidden");
 
-        },300);
+        }, 300);
 
     }
 
