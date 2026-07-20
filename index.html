@@ -123,15 +123,62 @@ if (localStorage.getItem("theme") === "dark") {
 
 <div class="feature-row">
     <button id="myWeekBtn" class="feature-btn" onclick="MyWeek.open()">⭐ My Week</button>
-       <a class="feature-btn" href="tv.html">📺 Wall Board</a>
-    <button class="feature-btn" onclick="goToCalendar()">📅 On Call Calendar</button>
 
+    <button id="insightsBtn" class="feature-btn">
+        🧠 Insights
+    </button>
 
-    <button id="themeBtn" class="feature-btn" onclick="toggleTheme()">🌓 Dark Mode</button>
+    <a class="feature-btn" href="tv.html">📺 Wall Board</a>
 
+    <button class="feature-btn" onclick="goToCalendar()">
+        📅 On Call Calendar
+    </button>
+
+    <button id="themeBtn" class="feature-btn" onclick="toggleTheme()">
+        🌓 Dark Mode
+    </button>
 </div>
 
 <section id="statusBar">
+
+     <!-- ===============================
+     Insights Panel
+================================ -->
+<div id="insightsOverlay" class="insights-overlay hidden"></div>
+
+<section id="insightsPanel" class="insights-panel hidden">
+
+    <div class="insights-handle"></div>
+
+    <div class="insights-header">
+
+        <h2>🧠 Theatre Intelligence</h2>
+
+        <p id="insightsGreeting">
+            Good afternoon — here's what stood out this week.
+        </p>
+
+    </div>
+
+    <div class="insight-card">
+
+        <div class="insight-icon">⭐</div>
+
+        <h3 id="insightTitle">
+            Today's Highlight
+        </h3>
+
+        <p id="insightText">
+            Insights will appear here...
+        </p>
+
+    </div>
+
+    <button id="nextInsightBtn" class="feature-btn">
+        ✨ Next Insight
+    </button>
+
+</section>
 
     <div id="loading" class="hidden">
         🫀 Loading Published Rota...
