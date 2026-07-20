@@ -1,0 +1,46 @@
+<!-- =====================================================
+     Cardiothoracic Theatre Viewer - Month calendar
+     A month-at-a-glance grid of on-call cover, rendered
+     by calendar.js. Tap any day to jump to that week.
+     ===================================================== -->
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On-Call Calendar</title>
+<meta name="theme-color" content="#005EB8">
+<link rel="stylesheet" href="calendar.css">
+<script>
+/* Same dark-mode preference as the dashboard, applied before paint */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.dataset.theme = "dark";
+}
+</script>
+</head>
+<body>
+
+<header class="cal-header">
+    <a href="index.html" class="cal-back">← Daily Dashboard</a>
+    <h1>On-Call Calendar</h1>
+    <div class="cal-nav">
+        <button id="calPrev" class="cal-navbtn" aria-label="Previous month">◀</button>
+        <span id="calMonthLabel">Loading…</span>
+        <button id="calNext" class="cal-navbtn" aria-label="Next month">▶</button>
+    </div>
+</header>
+
+<main id="calContainer">
+    <p class="cal-loading">🫀 Loading calendar…</p>
+</main>
+
+<p class="cal-note" id="calNote"></p>
+
+<script src="version.js"></script>
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="oncall-now.js"></script>
+<script src="calendar.js"></script>
+
+</body>
+</html>
