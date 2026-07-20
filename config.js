@@ -23,6 +23,36 @@ const BANK_HOLIDAYS = [
 function isBankHoliday(iso) {
     return BANK_HOLIDAYS.includes(iso);
 }
+// Full names for anaesthetists' initials, used only in Insights fun
+// facts where there's room to spell things out (everywhere else in
+// the app stays compact with initials, e.g. theatre cards).
+const ANAES_NAMES = {
+    "SE": "Sean",
+    "PJ": "Patrycja",
+    "CD": "Craig D",
+    "CH": "Craig H",
+    "TG": "Tharanga",
+    "JH": "Jenny",
+    "NM": "Nilofer",
+    "PMR": "Pete",
+    "VR": "Vlad",
+    "ZB": "Zuzana",
+    "JA": "Jonathan",
+    "TB": "Theresa",
+    "MC": "Michelle",
+    "SB": "Steve B",
+    "AMINU": "Aminu",
+    "JC": "James",
+    "LC": "Leena"
+};
+
+// Returns the full name for an anaesthetist's initials, or the
+// initials themselves if not found in the list above
+function anaesName(initials) {
+    const key = String(initials).trim();
+    return ANAES_NAMES[key] || key;
+}
+
 
 // Anaesthetists shown with the female doctor emoji
 const FEMALE_ANAES = ["ZB", "NM", "LC", "PJ", "JH", "TB", "MC"];
