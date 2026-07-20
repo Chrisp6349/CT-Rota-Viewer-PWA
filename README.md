@@ -29,9 +29,14 @@ All routine changes happen in **`config.js`** (then bump `version.js`):
 
 | When | What to edit |
 |---|---|
+| New ODP joins or leaves | Add/remove the name in `ODP_NAMES` |
 | New female anaesthetist joins | Add initials to `FEMALE_ANAES` |
 | New year's bank holidays announced | Update the `BANK_HOLIDAYS` date list |
 | Backend/Apps Script URL changes | Update `CONFIG.API_URL` |
+
+`ODP_NAMES` is the list of names shown in the "My Week" picker, so
+everyone can select themselves even on a week they aren't rostered.
+New ODPs must be added here **and** in the Rota Manager's config.
 
 New staff **names** are added in the Rota Manager's config, not here —
 this app picks up names automatically from published data.
