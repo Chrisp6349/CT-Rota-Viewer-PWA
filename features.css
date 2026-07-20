@@ -376,3 +376,37 @@ html[data-theme="dark"] .full-week-view p  { color: #93A1B1; }
     font-weight: 700;
 }
 .tv-back:hover { color: #fff; }
+
+/* ------------------------------------------------------
+   TV wall-board fact ticker
+   ------------------------------------------------------
+   A "did you know" banner that slides in, holds, slides
+   out, then cycles to the next fact - a screensaver-style
+   loop through Theatre Intelligence's fact pool.
+   ------------------------------------------------------ */
+
+.tv-ticker {
+    background: linear-gradient(120deg, #003087, #005EB8);
+    padding: 16px 40px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+}
+
+.tv-ticker-text {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .6s ease, transform .6s ease;
+}
+
+.tv-ticker-text.show {
+    opacity: 1;
+    transform: translateY(0);
+}
