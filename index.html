@@ -196,10 +196,24 @@ if (localStorage.getItem("theme") === "dark") {
 
     </div>
 
-    <button id="nextInsightBtn">
-        ✨ Next Insight
+   <div class="insights-footer">
+
+    <button id="prevInsightBtn" class="insight-nav">
+        ◀
     </button>
 
+    <div id="insightDots" class="insight-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+
+    <button id="nextInsightBtn" class="insight-nav">
+        ▶
+    </button>
+
+</div>
 </section>
 
 <div id="loading" class="hidden">
