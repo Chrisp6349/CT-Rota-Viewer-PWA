@@ -297,3 +297,4 @@ document
     .addEventListener("click", () => {
         theatreIntelligence.previous();
     });
+});
