@@ -38,8 +38,10 @@ class StaffProfiles {
     }
 
     // ---- ODP stats ----
-    static buildOdpStats(rotas, name) {
+       static buildOdpStats(rotas, name) {
+        const todayIso = new Date().toISOString().split("T")[0];
         const theatreCounts = {};
+
         const anaesCounts = {};        // initials -> count, for "worked with most"
         const dayCounts = { Monday:0, Tuesday:0, Wednesday:0, Thursday:0, Friday:0 };
         let sessions = 0, weekdayOnCalls = 0, weekendOnCalls = 0, supportShifts = 0;
@@ -73,7 +75,7 @@ class StaffProfiles {
                     appearedThisWeek = true;
                 }
 
-                const oc = value.onCall || {};
+                               const oc = value.onCall || {};
                 const onThisDay = oc.odp === name || oc.odp1 === name || oc.odp2 === name;
                 if (onThisDay) {
                     appearedThisWeek = true;
@@ -84,9 +86,15 @@ class StaffProfiles {
                         const d = new Date(rota.week);
                         d.setDate(d.getDate() + offset);
                         const iso = d.toISOString().split("T")[0];
-                        if (!lastOnCallDate || iso > lastOnCallDate) lastOnCallDate = iso;
+                        // Only counts as "last on-call" if it's today or in
+                        // the past - a future date within an already-
+                        // published week hasn't happened yet.
+                        if (iso <= todayIso && (!lastOnCallDate || iso > lastOnCallDate)) {
+                            lastOnCallDate = iso;
+                        }
                     }
                 }
+
             });
 
             if (appearedThisWeek && !firstWeek) firstWeek = rota.week;
@@ -102,8 +110,10 @@ class StaffProfiles {
     }
 
     // ---- Anaesthetist stats ----
-    static buildAnaesStats(rotas, initials) {
+       static buildAnaesStats(rotas, initials) {
+        const todayIso = new Date().toISOString().split("T")[0];
         const theatreCounts = {};
+
         const odpCounts = {};          // odp name -> count, for "worked with most"
         const dayCounts = { Monday:0, Tuesday:0, Wednesday:0, Thursday:0, Friday:0 };
         let sessions = 0, weekdayOnCalls = 0, weekendOnCalls = 0;
