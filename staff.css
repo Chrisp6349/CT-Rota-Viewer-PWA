@@ -1,0 +1,213 @@
+/* =====================================================
+   Cardiothoracic Theatre Viewer
+   staff.css
+   -----------------------------------------------------
+   Searchable staff profile page.
+   ===================================================== */
+
+:root {
+    --st-ink: #212B32;
+    --st-ink-soft: #4C6272;
+    --st-line: #E1E6EA;
+    --st-surface: #FFFFFF;
+    --st-page: #F4F6F8;
+    --st-blue: #005EB8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 16px;
+    background: var(--st-page);
+    color: var(--st-ink);
+    font-family: Arial, -apple-system, "Segoe UI", Helvetica, sans-serif;
+}
+
+.staff-header { text-align: center; margin-bottom: 16px; }
+
+.staff-back {
+    text-decoration: none;
+    color: var(--st-blue);
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.staff-header h1 { margin: 0 0 4px; color: var(--st-blue); font-size: 23px; }
+.staff-subtitle { margin: 0; color: var(--st-ink-soft); font-size: 13.5px; }
+
+/* ------------------------------------------------------
+   Search
+   ------------------------------------------------------ */
+
+.staff-search-wrap {
+    position: relative;
+    max-width: 480px;
+    margin: 0 auto 20px;
+}
+
+#staffSearchInput {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    padding: 14px 16px;
+    border-radius: 999px;
+    border: 2px solid var(--st-line);
+    background: var(--st-surface);
+    color: var(--st-ink);
+}
+
+#staffSearchInput:focus {
+    outline: none;
+    border-color: var(--st-blue);
+}
+
+.staff-results {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(100% + 6px);
+    background: var(--st-surface);
+    border: 1px solid var(--st-line);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    overflow: hidden;
+    z-index: 20;
+}
+
+.staff-result {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--st-line);
+    color: var(--st-ink);
+    cursor: pointer;
+}
+.staff-result:last-child { border-bottom: none; }
+.staff-result:hover { background: #EDF2F6; }
+
+/* ------------------------------------------------------
+   Profile card
+   ------------------------------------------------------ */
+
+.staff-loading, .staff-empty {
+    text-align: center;
+    color: var(--st-ink-soft);
+    font-size: 15px;
+}
+
+.staff-card {
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--st-surface);
+    border: 1px solid var(--st-line);
+    border-radius: 18px;
+    padding: 24px 26px 30px;
+    box-shadow: 0 2px 10px rgba(33,43,50,.06);
+}
+
+.staff-card h2 {
+    margin: 0 0 18px;
+    color: var(--st-blue);
+    font-size: 22px;
+}
+
+.staff-section {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--st-line);
+}
+.staff-section:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+.staff-section h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: var(--st-ink-soft);
+    letter-spacing: .02em;
+}
+
+.staff-list-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    font-size: 14.5px;
+    border-bottom: 1px solid #F0F3F5;
+}
+.staff-list-row:last-child { border-bottom: none; }
+.staff-list-row span:last-child { font-weight: 700; }
+
+.staff-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+.staff-bar-label { width: 68px; font-size: 13.5px; font-weight: 700; flex: none; }
+.staff-bar-track {
+    flex: 1;
+    height: 10px;
+    border-radius: 999px;
+    background: #EDF2F6;
+    overflow: hidden;
+}
+.staff-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #005EB8, #4da3ff);
+    border-radius: 999px;
+}
+.staff-bar-value { width: 78px; text-align: right; font-size: 13px; color: var(--st-ink-soft); flex: none; }
+
+.staff-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.staff-badge {
+    display: inline-block;
+    background: linear-gradient(120deg, #005EB8, #4da3ff);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 999px;
+}
+
+.hidden { display: none; }
+
+/* ------------------------------------------------------
+   Dark mode
+   ------------------------------------------------------ */
+
+html[data-theme="dark"] body { background: #10161f; color: #E4E9EF; }
+html[data-theme="dark"] #staffSearchInput,
+html[data-theme="dark"] .staff-results,
+html[data-theme="dark"] .staff-card {
+    background: #1B2430; border-color: #3A4656; color: #E4E9EF;
+}
+html[data-theme="dark"] .staff-result { border-bottom-color: #2A3542; color: #E4E9EF; }
+html[data-theme="dark"] .staff-result:hover { background: #232E3C; }
+html[data-theme="dark"] .staff-subtitle,
+html[data-theme="dark"] .staff-section h3,
+html[data-theme="dark"] .staff-bar-value { color: #93A1B1; }
+html[data-theme="dark"] .staff-section { border-top-color: #2A3542; }
+html[data-theme="dark"] .staff-list-row { border-bottom-color: #232E3C; }
+html[data-theme="dark"] .staff-bar-track { background: #232E3C; }
+
+/* ------------------------------------------------------
+   Phones
+   ------------------------------------------------------ */
+
+@media (max-width: 640px) {
+    .staff-card { padding: 18px 16px 22px; }
+    .staff-bar-label { width: 50px; font-size: 12px; }
+    .staff-bar-value { width: 64px; font-size: 12px; }
+}
