@@ -16,7 +16,16 @@ class Calendar {
     static viewYear = 0;
     static viewMonth = 0;         // 0-11
 
-    static iso(d) { return d.toISOString().split("T")[0]; }
+       // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift the date by a day in timezones ahead of UTC (e.g.
+    // British Summer Time), throwing every week key and "today" off by one.
+    static iso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
 
     static mondayOf(d) {
         const m = new Date(d);
