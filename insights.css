@@ -1,0 +1,127 @@
+/* ==========================================
+   INSIGHTS PANEL
+========================================== */
+
+.insights-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    backdrop-filter:blur(4px);
+    opacity:0;
+    visibility:hidden;
+    transition:.28s;
+    z-index:998;
+}
+
+.insights-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.insights-panel{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+
+    background:var(--card-bg,#fff);
+
+    border-radius:28px 28px 0 0;
+
+    padding:18px;
+
+    box-shadow:0 -10px 40px rgba(0,0,0,.25);
+
+    transform:translateY(110%);
+
+    transition:transform .35s cubic-bezier(.2,.9,.2,1);
+
+    z-index:999;
+
+    max-height:82vh;
+
+    overflow:auto;
+}
+
+.insights-panel.show{
+    transform:translateY(0);
+}
+
+.insights-handle{
+
+    width:56px;
+    height:6px;
+
+    background:#d3d3d3;
+
+    border-radius:99px;
+
+    margin:0 auto 18px;
+}
+
+.insights-header h2{
+
+    margin:0;
+
+    font-size:1.4rem;
+}
+
+.insights-header p{
+
+    margin:8px 0 20px;
+
+    opacity:.75;
+}
+
+.insight-card{
+
+    background:linear-gradient(135deg,#005EB8,#2E8BCF);
+
+    color:white;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+
+    margin-bottom:18px;
+}
+
+.insight-icon{
+
+    font-size:42px;
+
+    margin-bottom:10px;
+}
+
+.insight-card h3{
+
+    margin:8px 0;
+}
+
+.insight-card p{
+
+    line-height:1.6;
+}
+
+#nextInsightBtn{
+
+    width:100%;
+}
+
+/* ===========================
+   DARK MODE
+=========================== */
+
+[data-theme="dark"] .insights-panel{
+
+    background:#1d1d1f;
+}
+
+[data-theme="dark"] .insight-card{
+
+    background:linear-gradient(135deg,#0067c5,#4aa3ff);
+}
