@@ -71,7 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             window.selectedDay = defaultDayFor(rota.week);
+                       window.__currentWeek = rota.week;
             Viewer.render(rota);
+
 
             // Feed the newer features
             OnCallNow.update(rota);
@@ -92,7 +94,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             const rota = await RotaAPI.loadWeek(week);
+                       window.__currentWeek = rota.week;
             Viewer.render(rota);
+
 
             // Hero card hides itself on non-current weeks;
             // My Week always reflects the week on screen
