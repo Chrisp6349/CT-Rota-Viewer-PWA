@@ -128,16 +128,18 @@ class TheatreIntelligence {
             });
         });
 
-        // --- Pairing facts ---
+               // --- Pairing facts ---
         Object.entries(stats.pairings).forEach(([key, count]) => {
             if (count < 2) return;   // only surface pairings that have actually repeated
             const [odp, anaes] = key.split("|");
             const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨‍⚕️";
+            const anaesFullName = (typeof anaesName === "function") ? anaesName(anaes) : anaes;
             facts.push({
                 icon: "🤝",
-                text: `${odp} has worked with ${emoji} ${anaes} ${count} times ${since}.`
+                text: `${odp} has worked with ${emoji} ${anaesFullName} ${count} times ${since}.`
             });
         });
+
 
         // --- Busiest theatre overall ---
         const busiestTheatre = TheatreIntelligence.top(stats.theatreCounts);
