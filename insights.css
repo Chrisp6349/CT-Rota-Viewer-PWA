@@ -120,30 +120,6 @@
     line-height: 1.7;
 }
 
-/* ============================
-   Button
-============================ */
-
-#nextInsightBtn {
-    margin: 0 20px 25px;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    background: #005EB8;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-#nextInsightBtn:hover {
-    transform: scale(1.02);
-}
-
-#nextInsightBtn:active {
-    transform: scale(.98);
-}
 
 /* ============================
    Dark Mode
