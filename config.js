@@ -32,3 +32,17 @@ function anaesEmoji(initials) {
     return FEMALE_ANAES.includes(String(initials).trim())
         ? "👩‍⚕️" : "👨‍⚕️";
 }
+// Master list of all ODPs
+const ODP_NAMES = [
+    "Amelia",
+    "Becky",
+    "Chris",
+    "Darren",
+    "Dave",
+    "Greg",
+    "Kristian",
+    "Larry",
+    "Mihaela",
+    "Pierre",
+    "Steve"
+];
