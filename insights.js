@@ -258,54 +258,42 @@ window.addEventListener("DOMContentLoaded", () => {
     const panel = document.getElementById("insightsPanel");
     const overlay = document.getElementById("insightsOverlay");
 
-    document.getElementById("insightsBtn").addEventListener("click", () => {
+   function closePanel() {
 
-        panel.classList.remove("hidden");
-        overlay.classList.remove("hidden");
+    panel.classList.remove("show");
+    overlay.classList.remove("show");
 
-        requestAnimationFrame(() => {
+    setTimeout(() => {
+        panel.classList.add("hidden");
+        overlay.classList.add("hidden");
+    }, 300);
 
-            panel.classList.add("show");
-            overlay.classList.add("show");
+}
 
-        });
+document.getElementById("insightsBtn").addEventListener("click", () => {
 
-       theatreIntelligence.showCurrent();
+    panel.classList.remove("hidden");
+    overlay.classList.remove("hidden");
 
-document.querySelectorAll(".dot").forEach((dot, i) => {
-    dot.classList.toggle("active", i === theatreIntelligence.index);
+    requestAnimationFrame(() => {
+        panel.classList.add("show");
+        overlay.classList.add("show");
+    });
+
+    theatreIntelligence.showCurrent();
+
 });
 
-    function closePanel() {
+overlay.addEventListener("click", closePanel);
 
-        panel.classList.remove("show");
-        overlay.classList.remove("show");
-
-        setTimeout(() => {
-
-            panel.classList.add("hidden");
-            overlay.classList.add("hidden");
-
-        }, 300);
-
-    }
-
-    overlay.addEventListener("click", closePanel);
-
-   document
+document
     .getElementById("nextInsightBtn")
     .addEventListener("click", () => {
-
         theatreIntelligence.next();
-
     });
 
 document
     .getElementById("prevInsightBtn")
     .addEventListener("click", () => {
-
         theatreIntelligence.previous();
-
     });
-
-});
