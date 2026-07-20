@@ -42,12 +42,13 @@ class Viewer {
         return `${days[date.getDay()]} ${d}${suffix} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
 
-   static render(data) {
+  static render(data) {
 
-   
+    // Make the currently loaded rota available to the Insights engine
+    window.currentRota = data;
 
     const container = document.getElementById("rotaContainer");
-        container.innerHTML = "";
+    container.innerHTML = "";
 
       const weekTitle = document.getElementById("weekTitle");
 
