@@ -375,7 +375,7 @@ class TheatreIntelligence {
         const topPairing = TheatreIntelligence.top(stats.pairings);
         if (topPairing && topPairing.count > 1) {
             const [odp, anaes] = topPairing.name.split("|");
-            const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨‍⚕️";
+            const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨";
             const anaesFullName = (typeof anaesName === "function") ? anaesName(anaes) : anaes;
             facts.push({
                 icon: "🏅",
@@ -552,6 +552,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const panel = document.getElementById("insightsPanel");
     const overlay = document.getElementById("insightsOverlay");
+
+    // This file is also loaded on tv.html for the wall-board ticker,
+    // which has no panel/button - only the TheatreIntelligence class
+    // itself is needed there. Skip wiring up the panel UI if it's absent.
+    if (!panel || !overlay || !document.getElementById("insightsBtn")) return;
 
     function closePanel() {
         panel.classList.remove("show");
