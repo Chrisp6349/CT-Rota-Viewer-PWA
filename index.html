@@ -186,6 +186,16 @@ document.getElementById("appVersion").textContent =
 </script>
     <script>
 if ("serviceWorker" in navigator) {
+    // When a new service worker takes control, reload once automatically
+    // so the page is never shown in a half-updated state (which briefly
+    // left the week box saying "Loading" after a version change).
+    let __reloadedForUpdate = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (__reloadedForUpdate) return;
+        __reloadedForUpdate = true;
+        window.location.reload();
+    });
+
 
     window.addEventListener("load", async () => {
 
