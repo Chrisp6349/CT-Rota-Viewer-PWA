@@ -116,6 +116,141 @@ class TheatreIntelligence {
         };
     }
 
+    // Every date (as YYYY-MM-DD) covered by a set of loaded rotas, mapped
+    // to the set of people who worked that day in ANY role - theatre,
+    // support, or on-call (weekday or weekend).
+    static buildDailyWorkMap(rotas) {
+        const dayOffsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3,
+                              Friday:4, Saturday:5, Sunday:6 };
+        const workedOn = {};   // dateIso -> Set(names)
+
+        rotas.forEach(rota => {
+            const weekStart = new Date(rota.week);
+            Object.entries(rota.days || {}).forEach(([day, value]) => {
+                const offset = dayOffsets[day];
+                if (offset === undefined) return;
+
+                const d = new Date(weekStart);
+                d.setDate(d.getDate() + offset);
+                const iso = d.toISOString().split("T")[0];
+
+                const people = new Set();
+                (value.theatres || []).forEach(t => {
+                    if (t.odp1) people.add(t.odp1);
+                    if (t.odp2) people.add(t.odp2);
+                });
+                const s = value.support || {};
+                [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(p => people.add(p));
+                const oc = value.onCall || {};
+                if (oc.odp) people.add(oc.odp);
+                [oc.odp1, oc.odp2].filter(Boolean).forEach(p => people.add(p));
+
+                workedOn[iso] = people;
+            });
+        });
+
+        return workedOn;
+    }
+
+    // Walks every covered day in date order and finds, per person, their
+    // longest-ever consecutive run and (if it reaches today) their current
+    // active run. A run NEVER bridges a day that isn't covered by
+    // published data - it simply ends there, since an unpublished day is
+    // unknown, not "not worked".
+    static buildStreaks(rotas) {
+        const workedOn = TheatreIntelligence.buildDailyWorkMap(rotas);
+        const todayIso = new Date().toISOString().split("T")[0];
+
+        // A published week includes every day at once, including days
+        // later in the week that haven't happened yet. Those are plans,
+        // not completed shifts - exclude anything after today so streaks
+        // only ever reflect days that have actually occurred.
+        const dates = Object.keys(workedOn).filter(d => d <= todayIso).sort();
+        if (!dates.length) return { longest: null, current: [] };
+
+        const running = {};      // name -> { count, startDate }
+        const longestByPerson = {}; // name -> { count, startDate, endDate }
+        let prevDate = null;
+
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        dates.forEach(dateIso => {
+            const isContiguous = prevDate &&
+                (new Date(dateIso) - new Date(prevDate)) === oneDay;
+
+            if (!isContiguous) {
+                // Gap (or first date): every running streak ends here
+                Object.keys(running).forEach(name => {
+                    TheatreIntelligence.recordIfLongest(longestByPerson, name, running[name]);
+                });
+                Object.keys(running).forEach(name => delete running[name]);
+            }
+
+            const today = workedOn[dateIso];
+
+            // End streaks for anyone who worked the previous covered day
+            // but not today
+            Object.keys(running).forEach(name => {
+                if (!today.has(name)) {
+                    TheatreIntelligence.recordIfLongest(longestByPerson, name, running[name]);
+                    delete running[name];
+                }
+            });
+
+            // Extend or start streaks for anyone working today
+            today.forEach(name => {
+                if (running[name]) {
+                    running[name].count++;
+                    running[name].endDate = dateIso;
+                } else {
+                    running[name] = { count: 1, startDate: dateIso, endDate: dateIso };
+                }
+            });
+
+            prevDate = dateIso;
+        });
+
+        // Flush whatever's still running at the very end
+        Object.keys(running).forEach(name => {
+            TheatreIntelligence.recordIfLongest(longestByPerson, name, running[name]);
+        });
+
+        // All-time longest, across everyone
+        let longest = null;
+        Object.entries(longestByPerson).forEach(([name, run]) => {
+            if (!longest || run.count > longest.count) {
+                longest = { name, ...run };
+            }
+        });
+
+        // "Current" streaks: only meaningful if the most recent covered
+        // date is actually today (i.e. this week has been published) -
+        // otherwise we'd be describing a streak that already ended.
+        const lastCovered = dates[dates.length - 1];
+        const current = [];
+        if (lastCovered === todayIso) {
+            Object.entries(running).forEach(([name, run]) => {
+                if (run.count >= 2) current.push({ name, ...run });
+            });
+        }
+
+        return { longest, current };
+    }
+
+    static recordIfLongest(store, name, run) {
+        if (!store[name] || run.count > store[name].count) {
+            store[name] = { count: run.count, startDate: run.startDate, endDate: run.endDate };
+        }
+    }
+
+    // "3rd June" style short date for streak facts
+    static shortDate(iso) {
+        const d = new Date(iso);
+        const months = ["Jan","Feb","Mar","Apr","May","Jun",
+                         "Jul","Aug","Sep","Oct","Nov","Dec"];
+        return `${d.getDate()} ${months[d.getMonth()]}`;
+    }
+
     // Picks the top name from a { name: count } object
     static top(counts) {
         let name = null, best = 0;
@@ -127,7 +262,7 @@ class TheatreIntelligence {
 
     // Builds the full pool of possible facts, given the tallies above.
     // Only facts with real data behind them are included.
-    static buildFactPool(stats) {
+    static buildFactPool(stats, streaks) {
         const facts = [];
         const since = stats.weekCount === 1
             ? "this week" : `across the last ${stats.weekCount} published weeks`;
@@ -157,6 +292,20 @@ class TheatreIntelligence {
             facts.push({
                 icon: "🤝",
                 text: `${odp} has worked with ${emoji} ${anaesFullName} ${count} times ${since}.`
+            });
+        });
+
+        // --- Streak facts ---
+        if (streaks.longest && streaks.longest.count >= 3) {
+            facts.push({
+                icon: "🔥",
+                text: `${streaks.longest.name}'s longest streak on record is ${streaks.longest.count} days running, ${streaks.longest.startDate === streaks.longest.endDate ? "on " + TheatreIntelligence.shortDate(streaks.longest.startDate) : TheatreIntelligence.shortDate(streaks.longest.startDate) + " to " + TheatreIntelligence.shortDate(streaks.longest.endDate)}.`
+            });
+        }
+        streaks.current.forEach(run => {
+            facts.push({
+                icon: "⚡",
+                text: `${run.name} is currently on a streak of ${run.count} days working, since ${TheatreIntelligence.shortDate(run.startDate)}.`
             });
         });
 
@@ -358,7 +507,8 @@ class TheatreIntelligence {
             }
 
             const stats = TheatreIntelligence.buildStats(rotas);
-            const pool = TheatreIntelligence.buildFactPool(stats);
+            const streaks = TheatreIntelligence.buildStreaks(rotas);
+            const pool = TheatreIntelligence.buildFactPool(stats, streaks);
             this.facts = TheatreIntelligence.randomPick(pool, Math.min(4, pool.length));
             this.loaded = true;
         } catch (err) {
