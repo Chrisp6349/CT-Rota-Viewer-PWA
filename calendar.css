@@ -1,0 +1,173 @@
+/* =====================================================
+   Cardiothoracic Theatre Viewer
+   calendar.css
+   -----------------------------------------------------
+   Month-at-a-glance on-call calendar.
+   ===================================================== */
+
+:root {
+    --cal-ink:      #212B32;
+    --cal-ink-soft: #4C6272;
+    --cal-line:     #E1E6EA;
+    --cal-surface:  #FFFFFF;
+    --cal-page:     #F4F6F8;
+    --cal-blue:     #005EB8;
+    --cal-red:      #DA291C;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 16px;
+    background: var(--cal-page);
+    color: var(--cal-ink);
+    font-family: Arial, -apple-system, "Segoe UI", Helvetica, sans-serif;
+}
+
+.cal-header { text-align: center; margin-bottom: 14px; }
+
+.cal-back {
+    text-decoration: none;
+    color: var(--cal-blue);
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.cal-header h1 { margin: 0 0 8px; color: var(--cal-blue); font-size: 23px; }
+
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.cal-nav #calMonthLabel { font-weight: 800; font-size: 17px; min-width: 170px; }
+
+.cal-navbtn {
+    font: inherit;
+    font-size: 17px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #C6CED4;
+    background: #fff;
+    color: var(--cal-blue);
+    cursor: pointer;
+}
+.cal-navbtn:hover { background: #EDF2F6; }
+
+.cal-loading { text-align: center; color: var(--cal-ink-soft); }
+
+/* ------------------------------------------------------
+   Grid
+   ------------------------------------------------------ */
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cal-dayhead {
+    text-align: center;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .05em;
+    color: var(--cal-ink-soft);
+    padding: 4px 0;
+}
+
+.cal-cell {
+    background: var(--cal-surface);
+    border: 1px solid var(--cal-line);
+    border-radius: 10px;
+    min-height: 82px;
+    padding: 6px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.cal-has { cursor: pointer; }
+.cal-has:hover { border-color: var(--cal-blue); box-shadow: 0 2px 8px rgba(0,94,184,.15); }
+
+.cal-out { opacity: .45; }
+
+.cal-date { font-weight: 800; font-size: 13px; color: var(--cal-ink-soft); }
+
+.cal-weekend { background: #F0F6FB; }
+.cal-bh { background: #FBF3F2; }
+.cal-bh .cal-date::after { content: " · BH"; color: var(--cal-red); font-size: 10px; }
+
+.cal-today {
+    box-shadow: 0 0 0 3px #ED8B00;
+    border-color: #ED8B00;
+}
+.cal-today .cal-date { color: #B45F00; }
+
+.cal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.cal-odp {
+    font-weight: 800;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cal-anaes {
+    font-size: 11.5px;
+    color: var(--cal-ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cal-blank { color: #C2CBD3; font-weight: 700; }
+
+.cal-note {
+    text-align: center;
+    color: var(--cal-ink-soft);
+    font-size: 12.5px;
+    margin: 14px auto 0;
+    max-width: 600px;
+}
+
+/* ------------------------------------------------------
+   Dark mode
+   ------------------------------------------------------ */
+
+html[data-theme="dark"] body { background: #10161f; color: #E4E9EF; }
+html[data-theme="dark"] .cal-cell { background: #1B2430; border-color: #3A4656; }
+html[data-theme="dark"] .cal-weekend { background: #1E2C3C; }
+html[data-theme="dark"] .cal-bh { background: #3A2022; }
+html[data-theme="dark"] .cal-date,
+html[data-theme="dark"] .cal-anaes { color: #93A1B1; }
+html[data-theme="dark"] .cal-navbtn,
+html[data-theme="dark"] #calMonthLabel { background: #1B2430; color: #E4E9EF; border-color: #3A4656; }
+html[data-theme="dark"] .cal-navbtn { color: #7FB8E8; }
+html[data-theme="dark"] .cal-blank { color: #46545F; }
+
+/* ------------------------------------------------------
+   Phones: keep 7 columns but shrink; names may wrap out
+   ------------------------------------------------------ */
+
+@media (max-width: 640px) {
+    body { padding: 8px; }
+    .cal-grid { gap: 3px; }
+    .cal-cell { min-height: 62px; padding: 3px 4px; border-radius: 7px; }
+    .cal-odp { font-size: 10.5px; }
+    .cal-anaes { font-size: 9px; }
+    .cal-date { font-size: 10px; }
+    .cal-dayhead { font-size: 9px; }
+    .cal-bh .cal-date::after { content: ""; }
+}
