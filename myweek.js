@@ -85,7 +85,7 @@ class MyWeek {
 
         if (!name) {
             // First run: pick your name
-            const names = MyWeek.namesIn(MyWeek.rota);
+            const names = ODP_NAMES;
             overlay.innerHTML = `
                 <div class="myweek-card">
                     <h2>⭐ Who are you?</h2>
@@ -116,7 +116,7 @@ class MyWeek {
                     <span class="myweek-day">${j.day.substring(0,3)}</span>
                     <span class="myweek-what">${j.icon} ${j.what}</span>
                 </div>`).join("")
-            : `<div class="myweek-row"><span class="myweek-what">No allocations this week 🎉</span></div>`;
+            : `<div class="myweek-row"><span class="myweek-what">No allocations for this week 🎉</span></div>`;
 
         overlay.innerHTML = `
             <div class="myweek-card">
