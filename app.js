@@ -58,7 +58,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         error.classList.add("hidden");
 
         try {
-            const rota = await RotaAPI.loadRota();
+                       const __thisWeek = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().split("T")[0]; })();
+            const rota = publishedWeeks.some(w => w.week === __thisWeek)
+                ? await RotaAPI.loadWeek(__thisWeek) : await RotaAPI.loadRota();
+
 
             // Point the archive dropdown at this week if it's listed
             const idx = publishedWeeks.findIndex(w => w.week === rota.week);
