@@ -216,17 +216,39 @@ Used ${theatreCount} time${theatreCount === 1 ? "" : "s"} this week.`
 
 }
 
-    next() {
+   next() {
 
-        this.index++;
+    this.index++;
 
-        if (this.index >= this.insights.length) {
-            this.index = 0;
-        }
-
-        this.showCurrent();
+    if (this.index >= this.insights.length){
+        this.index = 0;
     }
 
+    this.showCurrent();
+
+    document.querySelectorAll(".dot").forEach((dot,i)=>{
+        dot.classList.toggle("active",i===this.index);
+    });
+
+}
+
+
+
+previous(){
+
+    this.index--;
+
+    if(this.index<0){
+        this.index=this.insights.length-1;
+    }
+
+    this.showCurrent();
+
+    document.querySelectorAll(".dot").forEach((dot,i)=>{
+        dot.classList.toggle("active",i===this.index);
+    });
+
+}
 }
 
 const theatreIntelligence = new TheatreIntelligence();
