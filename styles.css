@@ -99,23 +99,21 @@ body{
 
 }
 .hero-logo{
- width:150px;
-    height:150px;
+    height:120px;
+    width:auto;
+    max-width:40%;
     object-fit:contain;
-
+    background:#fff;
+    border-radius:16px;
+    padding:8px;
 }
-    object-fit:contain;
 
-}
-    object-fit:contain;
-
-}
 .hero-left h1{
 
     margin:0;
 
     font-size:24px;      /* was 34px */
-
+ 
     line-height:1.1;
 
     font-weight:700;
