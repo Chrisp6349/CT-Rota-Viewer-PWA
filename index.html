@@ -147,11 +147,11 @@ if (localStorage.getItem("theme") === "dark") {
 ================================ -->
 <div id="insightsOverlay" class="insights-overlay hidden"></div>
 
-<section id="insightsPanel" class="insights-panel hidden">
+<div id="insightsOverlay" class="hidden"></div>
 
-    <div class="insights-handle"></div>
+<section id="insightsPanel" class="hidden">
 
-    <div class="insights-header">
+    <div class="drag-handle"></div>
 
         <h2>🧠 Theatre Intelligence</h2>
 
@@ -195,8 +195,7 @@ if (localStorage.getItem("theme") === "dark") {
 
 </div>
 
-    <button id="nextInsightBtn" class="feature-btn">
-        ✨ Next Insight
+   <button id="nextInsightBtn">        ✨ Next Insight
     </button>
 
 </section>
