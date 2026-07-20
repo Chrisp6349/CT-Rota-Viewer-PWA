@@ -30,7 +30,10 @@ const FILES_TO_CACHE = [
   "./viewer-utils.js",
     "./calendar.js",
   "./calendar.html",
-  "./calendar.css",
+    "./calendar.css",
+  "./insights.js",
+  "./insights.css",
+
 
   "./version.js",
   "./config.js",
