@@ -32,7 +32,11 @@ const FILES_TO_CACHE = [
   "./calendar.html",
     "./calendar.css",
   "./insights.js",
-  "./insights.css",
+   "./insights.css",
+  "./staff.js",
+  "./staff.html",
+  "./staff.css",
+
 
 
   "./version.js",
