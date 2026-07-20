@@ -158,3 +158,36 @@
 .dark-mode .drag-handle {
     background: #555;
 }
+/* Weekly Snapshot Dashboard */
+
+.snapshot-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    margin:22px 0;
+}
+
+.snapshot-item{
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+    backdrop-filter:blur(8px);
+}
+
+.snapshot-number{
+    display:block;
+    font-size:2rem;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.snapshot-label{
+    font-size:.9rem;
+    opacity:.95;
+}
+
+.hidden{
+    display:none;
+}
