@@ -139,20 +139,82 @@ Used ${theatreCount} time${theatreCount === 1 ? "" : "s"} this week.`
         ];
     }
 
-    showCurrent() {
+   showCurrent() {
 
-        this.insights = this.generateInsights();
+    this.insights = this.generateInsights();
 
-        if (this.index >= this.insights.length) {
-            this.index = 0;
+    if (this.index >= this.insights.length) {
+        this.index = 0;
+    }
+
+    const insight = this.insights[this.index];
+
+    document.querySelector(".insight-icon").textContent = insight.icon;
+    document.getElementById("insightTitle").textContent = insight.title;
+
+    const snapshotGrid = document.getElementById("snapshotGrid");
+    const insightText = document.getElementById("insightText");
+
+    if (insight.title === "Weekly Snapshot") {
+
+        snapshotGrid.classList.remove("hidden");
+        insightText.classList.add("hidden");
+
+        const rota = window.currentRota;
+
+        let sessions = 0;
+        let busiestDay = "";
+        let busiestCount = 0;
+        let onCalls = 0;
+        const odps = new Set();
+
+        for (const [day, value] of Object.entries(rota.days)) {
+
+            let todayCount = 0;
+
+            (value.theatres || []).forEach(theatre => {
+
+                const allocated =
+                    theatre.odp1 ||
+                    theatre.odp2 ||
+                    theatre.anaesthetist ||
+                    theatre.list;
+
+                if (!allocated) return;
+
+                sessions++;
+                todayCount++;
+
+                if (theatre.odp1) odps.add(theatre.odp1);
+                if (theatre.odp2) odps.add(theatre.odp2);
+
+            });
+
+            if (todayCount > busiestCount) {
+                busiestCount = todayCount;
+                busiestDay = day;
+            }
+
+            if (value.onCall && value.onCall.odp) {
+                onCalls++;
+            }
+
         }
 
-        const insight = this.insights[this.index];
+        document.getElementById("statSessions").textContent = sessions;
+        document.getElementById("statODPs").textContent = odps.size;
+        document.getElementById("statOnCalls").textContent = onCalls;
+        document.getElementById("statBusy").textContent = busiestDay.substring(0,3);
 
-        document.querySelector(".insight-icon").textContent = insight.icon;
-        document.getElementById("insightTitle").textContent = insight.title;
-        document.getElementById("insightText").textContent = insight.text;
+    } else {
+
+        snapshotGrid.classList.add("hidden");
+        insightText.classList.remove("hidden");
+        insightText.textContent = insight.text;
+
     }
+
+}
 
     next() {
 
