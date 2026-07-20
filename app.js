@@ -27,6 +27,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     let publishedWeeks = [];
     let currentIndex = 0;
 
+    // Monday (YYYY-MM-DD) of the current real-world week
+    function currentWeekMonday() {
+        const d = new Date();
+        d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+        return d.toISOString().split("T")[0];
+    }
+
     // Hides the splash screen. Called once the first load finishes
     // (success OR failure), so the splash reflects reality instead
     // of a fixed timer.
@@ -115,24 +122,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function loadArchive() {
         try {
             publishedWeeks = await RotaAPI.loadPublishedWeeks();
-
             if (!weekSelect) return;
-            weekSelect.innerHTML = "";
-
-            publishedWeeks.forEach((item) => {
-                const option = document.createElement("option");
-                option.value = item.week;
-                option.textContent = `W/C ${ViewerUtils.formatWeek(item.week)}`;
-                weekSelect.appendChild(option);
-            });
-
             if (publishedWeeks.length > 0) {
                 currentIndex = publishedWeeks.length - 1;
-                weekSelect.selectedIndex = currentIndex;
             }
+            populateDropdown();
         } catch (err) {
             console.error(err);
         }
+    }
+
+    // The dropdown lists only a rolling window of weeks (last 2 + current
+    // + next 4, relative to today) so it stays short as the archive grows.
+    // The prev/next arrows still move through ALL of publishedWeeks - this
+    // only limits what the dropdown SHOWS. If the week currently on screen
+    // falls outside the window, it is added so it can still be displayed.
+    function populateDropdown() {
+        const thisWeek = currentWeekMonday();
+        const windowWeeks = publishedWeeks.filter(item => {
+            const diff = weeksBetween(thisWeek, item.week);
+            return diff >= -2 && diff <= 4;
+        });
+
+        const shownWeek = publishedWeeks[currentIndex]
+            ? publishedWeeks[currentIndex].week : null;
+        if (shownWeek && !windowWeeks.some(w => w.week === shownWeek)) {
+            windowWeeks.push(publishedWeeks[currentIndex]);
+            windowWeeks.sort((a, b) => a.week.localeCompare(b.week));
+        }
+
+        weekSelect.innerHTML = "";
+        windowWeeks.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.week;
+            option.textContent = `W/C ${ViewerUtils.formatWeek(item.week)}`;
+            weekSelect.appendChild(option);
+        });
+
+        if (shownWeek) weekSelect.value = shownWeek;
+    }
+
+    // Whole weeks between two Monday ISO dates (b minus a)
+    function weeksBetween(aIso, bIso) {
+        const a = new Date(aIso), b = new Date(bIso);
+        return Math.round((b - a) / (7 * 24 * 60 * 60 * 1000));
     }
 
     // Shared slide animation for the prev/next arrows
@@ -145,9 +178,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         setTimeout(async () => {
             currentIndex = target;
-            weekSelect.selectedIndex = currentIndex;
             window.selectedDay = "Monday";
             await showWeek(publishedWeeks[currentIndex].week);
+            populateDropdown();
             container.classList.remove(cssClass);
         }, 200);
     }
@@ -157,9 +190,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (weekSelect) {
         weekSelect.onchange = () => {
-            currentIndex = weekSelect.selectedIndex;
-            window.selectedDay = "Monday";
-            showWeek(publishedWeeks[currentIndex].week);
+            const chosen = weekSelect.value;
+            const idx = publishedWeeks.findIndex(w => w.week === chosen);
+            if (idx >= 0) {
+                currentIndex = idx;
+                window.selectedDay = "Monday";
+                showWeek(chosen);
+            }
         };
     }
 
