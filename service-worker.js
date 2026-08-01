@@ -4,13 +4,21 @@
    -----------------------------------------------------
    Makes the dashboard installable and usable offline.
 
-   Strategy: NETWORK FIRST, cache fallback. Staff online
-   always see the freshest rota; if the network is down,
-   the last successfully fetched copy is shown instead.
-
-   The cache name comes from version.js - bumping
-   APP_VERSION there is what makes every device discard
-   its old cache and pick up new files.
+   Strategy is split by origin:
+   - Same-origin (the app shell: every HTML/CSS/JS/icon file
+     listed below) - CACHE FIRST, refreshed in the background.
+     Every page load and menu switch is a brand new HTML
+     document in this multi-page app, so without this every
+     navigation re-fetched a dozen+ files over the network
+     before rendering anything. This is safe to do instantly
+     from cache because CACHE_NAME is keyed to APP_VERSION -
+     bumping that version (this app's existing "golden rule")
+     is what makes every device discard its old cache and pick
+     up new files; it doesn't depend on this fetch strategy.
+   - Cross-origin (the rota data backend) - NETWORK FIRST,
+     cache fallback. Staff online always see the freshest
+     rota; if the network is down, the last successfully
+     fetched copy is shown instead.
    ===================================================== */
 
 importScripts("./version.js");
@@ -73,9 +81,28 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: try the network, keep a copy, fall back to cache offline
+// Fetch: app shell = cache first + refresh in background; everything
+// else (the data backend) = network first, cache fallback offline.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  const isAppShell = new URL(event.request.url).origin === self.location.origin;
+
+  if (isAppShell) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const refresh = fetch(event.request)
+          .then((response) => {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+            return response;
+          })
+          .catch(() => cached);
+        return cached || refresh;
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)

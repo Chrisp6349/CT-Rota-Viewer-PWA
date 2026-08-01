@@ -13,4 +13,4 @@
  * what lets both share this file.
  */
 
-self.APP_VERSION = "3.11.1";
+self.APP_VERSION = "3.11.2";
