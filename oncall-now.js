@@ -19,11 +19,21 @@
 
 class OnCallNow {
 
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift the date back a day in timezones ahead of UTC
+    // (e.g. British Summer Time), briefly showing the wrong on-call.
+    static localIso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
     // Monday (YYYY-MM-DD) of the week containing `d`
     static mondayOf(d) {
         const m = new Date(d);
         m.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-        return m.toISOString().split("T")[0];
+        return OnCallNow.localIso(m);
     }
 
     // The week whose rota holds the cover that applies right now.
@@ -52,7 +62,7 @@ class OnCallNow {
         const segment = (mins >= HANDOVER && mins < SEG_SWITCH) ? "AM" : "PM";
 
         // ISO dates of today and yesterday, for bank holiday checks
-        const iso = (d) => d.toISOString().split("T")[0];
+        const iso = (d) => OnCallNow.localIso(d);
         const todayIso = iso(now);
         const yd = new Date(now); yd.setDate(yd.getDate() - 1);
         const yesterdayIso = iso(yd);

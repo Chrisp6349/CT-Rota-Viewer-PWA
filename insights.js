@@ -24,9 +24,36 @@ class TheatreIntelligence {
         this.loaded = false;
     }
 
-    // Every published week with a start date on or before today
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift "today" back a day in timezones ahead of UTC
+    // (e.g. British Summer Time).
+    static todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
+    // Every published week with a start date on or before today.
+    // This fetches every past week individually, which is the slowest
+    // thing either the Insights panel or Staff Stats do (one request per
+    // published week to the Apps Script backend). Cached in sessionStorage
+    // for a few minutes so opening Insights, then Staff Stats, then
+    // Insights again doesn't re-fetch the whole archive every time -
+    // only the first open in a while pays the full cost.
+    static HISTORY_CACHE_KEY = "ti_history_cache_v1";
+    static HISTORY_CACHE_TTL_MS = 10 * 60 * 1000;
+
     static async loadHistory() {
-        const todayIso = new Date().toISOString().split("T")[0];
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(TheatreIntelligence.HISTORY_CACHE_KEY) || "null");
+            if (cached && (Date.now() - cached.fetchedAt) < TheatreIntelligence.HISTORY_CACHE_TTL_MS) {
+                return cached.rotas;
+            }
+        } catch (e) { /* corrupt or inaccessible cache - just refetch */ }
+
+        const todayIso = TheatreIntelligence.todayIso();
         const weeks = await RotaAPI.loadPublishedWeeks();
         const pastOrPresent = weeks.filter(w => w.week <= todayIso);
 
@@ -34,7 +61,14 @@ class TheatreIntelligence {
             pastOrPresent.map(w => RotaAPI.loadWeek(w.week).catch(() => null))
         );
 
-        return rotas.filter(Boolean);
+        const result = rotas.filter(Boolean);
+
+        try {
+            sessionStorage.setItem(TheatreIntelligence.HISTORY_CACHE_KEY,
+                JSON.stringify({ fetchedAt: Date.now(), rotas: result }));
+        } catch (e) { /* storage full or unavailable (e.g. private browsing) - fine to skip */ }
+
+        return result;
     }
 
     // Tallies used to build facts, computed once per panel-open across
@@ -159,7 +193,7 @@ class TheatreIntelligence {
     // unknown, not "not worked".
     static buildStreaks(rotas) {
         const workedOn = TheatreIntelligence.buildDailyWorkMap(rotas);
-        const todayIso = new Date().toISOString().split("T")[0];
+        const todayIso = TheatreIntelligence.todayIso();
 
         // A published week includes every day at once, including days
         // later in the week that haven't happened yet. Those are plans,

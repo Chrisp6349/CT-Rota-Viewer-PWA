@@ -27,11 +27,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     let publishedWeeks = [];
     let currentIndex = 0;
 
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift "today" back a day in timezones ahead of UTC
+    // (e.g. British Summer Time), throwing off "this week" entirely.
+    function localIso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
     // Monday (YYYY-MM-DD) of the current real-world week
     function currentWeekMonday() {
         const d = new Date();
         d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-        return d.toISOString().split("T")[0];
+        return localIso(d);
     }
 
     // Hides the splash screen. Called once the first load finishes
@@ -50,13 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday",
                           "Thursday", "Friday", "Saturday"];
         const now = new Date();
-
-        // Monday of the current real-world week, as YYYY-MM-DD
-        const monday = new Date(now);
-        monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-        const currentWeek = monday.toISOString().split("T")[0];
-
-        return week === currentWeek ? dayNames[now.getDay()] : "Monday";
+        return week === currentWeekMonday() ? dayNames[now.getDay()] : "Monday";
     }
 
     // Loads and shows the most recently published rota
@@ -65,17 +69,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         error.classList.add("hidden");
 
         try {
-                       const __thisWeek = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().split("T")[0]; })();
+            const __thisWeek = currentWeekMonday();
             const rota = publishedWeeks.some(w => w.week === __thisWeek)
                 ? await RotaAPI.loadWeek(__thisWeek) : await RotaAPI.loadRota();
 
 
-            // Point the archive dropdown at this week if it's listed
+            // Point the archive dropdown at this week if it's listed.
+            // populateDropdown() rebuilds the (filtered, rolling-window)
+            // option list and selects by value - setting .selectedIndex
+            // directly here was wrong, since that index was into the full
+            // publishedWeeks array, not the shorter list of options
+            // actually in the dropdown, so it silently picked the wrong
+            // week (or none at all).
             const idx = publishedWeeks.findIndex(w => w.week === rota.week);
-            if (idx >= 0) {
-                currentIndex = idx;
-                if (weekSelect) weekSelect.selectedIndex = idx;
-            }
+            if (idx >= 0) currentIndex = idx;
+            if (weekSelect) populateDropdown();
 
             window.selectedDay = defaultDayFor(rota.week);
                        window.__currentWeek = rota.week;
@@ -214,10 +222,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (returnWeek) {
         const idx = publishedWeeks.findIndex(w => w.week === returnWeek);
-        if (idx >= 0) {
-            currentIndex = idx;
-            if (weekSelect) weekSelect.selectedIndex = idx;
-        }
+        if (idx >= 0) currentIndex = idx;
+        if (weekSelect) populateDropdown();
         window.selectedDay = returnDay || "Monday";
         await showWeek(returnWeek);
         hideSplash();

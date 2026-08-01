@@ -16,6 +16,17 @@
 
 class WeekView {
 
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift "today" back a day in timezones ahead of UTC
+    // (e.g. British Summer Time), highlighting the wrong column.
+    static todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
     static formatWeek(dateString) {
         const parts = dateString.split("-");
         const date = new Date(
@@ -54,7 +65,7 @@ class WeekView {
 
     // One weekday column
     static dayColumn(day, value, weekStart, offset) {
-        const todayIso = new Date().toISOString().split("T")[0];
+        const todayIso = WeekView.todayIso();
         const isToday = WeekView.isoDate(weekStart, offset) === todayIso;
 
         let rows = "";
@@ -116,7 +127,7 @@ class WeekView {
 
     // One half of the weekend strip
     static weekendHalf(day, value, weekStart, offset) {
-        const todayIso = new Date().toISOString().split("T")[0];
+        const todayIso = WeekView.todayIso();
         const isToday = WeekView.isoDate(weekStart, offset) === todayIso;
 
         const oc = value.onCall || {};

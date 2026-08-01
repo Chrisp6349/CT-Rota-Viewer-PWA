@@ -17,6 +17,17 @@ class StaffProfiles {
 
     static rotas = null;   // cached once per page load
 
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift "today" back a day in timezones ahead of UTC
+    // (e.g. British Summer Time).
+    static todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
     // Every searchable person: ODPs from config's ODP_NAMES, plus every
     // anaesthetist in ANAES_NAMES (displayed by full name, matched in
     // the data by initials).
@@ -39,7 +50,7 @@ class StaffProfiles {
 
     // ---- ODP stats ----
        static buildOdpStats(rotas, name) {
-        const todayIso = new Date().toISOString().split("T")[0];
+        const todayIso = StaffProfiles.todayIso();
         const theatreCounts = {};
 
         const anaesCounts = {};        // initials -> count, for "worked with most"
@@ -111,7 +122,7 @@ class StaffProfiles {
 
     // ---- Anaesthetist stats ----
        static buildAnaesStats(rotas, initials) {
-        const todayIso = new Date().toISOString().split("T")[0];
+        const todayIso = StaffProfiles.todayIso();
         const theatreCounts = {};
 
         const odpCounts = {};          // odp name -> count, for "worked with most"
