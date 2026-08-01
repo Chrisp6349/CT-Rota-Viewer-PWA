@@ -79,6 +79,7 @@ body {
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     padding: 12px 16px;
     font: inherit;
@@ -93,6 +94,18 @@ body {
 }
 .staff-result:last-child { border-bottom: none; }
 .staff-result:hover { background: #EDF2F6; }
+
+.staff-role-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--st-ink-soft);
+    background: #EDF2F6;
+    border-radius: 999px;
+    padding: 3px 9px;
+    flex: none;
+}
 
 /* ------------------------------------------------------
    Profile card
@@ -118,6 +131,10 @@ body {
     margin: 0 0 18px;
     color: var(--st-blue);
     font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .staff-section {
@@ -201,6 +218,7 @@ html[data-theme="dark"] .staff-bar-value { color: #93A1B1; }
 html[data-theme="dark"] .staff-section { border-top-color: #2A3542; }
 html[data-theme="dark"] .staff-list-row { border-bottom-color: #232E3C; }
 html[data-theme="dark"] .staff-bar-track { background: #232E3C; }
+html[data-theme="dark"] .staff-role-tag { background: #232E3C; color: #93A1B1; }
 
 /* ------------------------------------------------------
    Phones

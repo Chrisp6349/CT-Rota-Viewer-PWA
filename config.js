@@ -4,7 +4,6 @@
    -----------------------------------------------------
    The one file to edit when things change:
    - the backend URL
-   - which anaesthetists show the female doctor emoji
    - the bank holiday dates (update each year)
    ===================================================== */
 
@@ -54,13 +53,11 @@ function anaesName(initials) {
 }
 
 
-// Anaesthetists shown with the female doctor emoji
-const FEMALE_ANAES = ["ZB", "NM", "LC", "PJ", "JH", "TB", "MC"];
-
-// Returns the right doctor emoji for an anaesthetist's initials
-function anaesEmoji(initials) {
-    return FEMALE_ANAES.includes(String(initials).trim())
-        ? "👩‍⚕️" : "👨‍⚕️";
+// Kept as a no-op so every existing `${anaesEmoji(x)} ${x}` call site
+// still works untouched - initials alone (PMR, CD, SE...) already read
+// as clearly distinct from full ODP names without a doctor icon.
+function anaesEmoji() {
+    return "";
 }
 // Master list of all ODPs
 const ODP_NAMES = [

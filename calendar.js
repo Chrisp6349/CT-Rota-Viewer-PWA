@@ -99,8 +99,6 @@ class Calendar {
 
         const todayIso = Calendar.iso(new Date());
         const bh = (typeof isBankHoliday === "function");
-        const emoji = (typeof anaesEmoji === "function")
-            ? anaesEmoji : () => "👨‍⚕️";
 
         let cells = "";
         for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
@@ -118,8 +116,8 @@ class Calendar {
                 inner = `<span class="cal-blank">—</span>`;
             } else if (cover && cover.odp) {
                 inner = `
-                    <span class="cal-odp">${cover.odp}${cover.fromHome ? " 🏠" : ""}</span>
-                    ${cover.anaes ? `<span class="cal-anaes">${emoji(cover.anaes)} ${cover.anaes}</span>` : ""}`;
+                    <span class="cal-odp">${cover.odp}${cover.fromHome ? " (Home)" : ""}</span>
+                    ${cover.anaes ? `<span class="cal-anaes">${cover.anaes}</span>` : ""}`;
             } else {
                 inner = `<span class="cal-blank">—</span>`;
             }

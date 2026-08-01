@@ -85,26 +85,26 @@ if (!isWeekend && typeof isBankHoliday === "function") {
     <section class="daySection dashboard-layout">
 
         <div class="day-header">
-            <h2 class="day-heading">🎉 BANK HOLIDAY COVER</h2>
+            <h2 class="day-heading">Bank Holiday Cover</h2>
             <div class="day-date">${bhDisplay}</div>
         </div>
 
         <div class="dashboard-row">
 
             <div class="card dashboard-panel">
-                <div class="card-header oncall-header">🚨 ON CALL</div>
+                <div class="card-header oncall-header">On Call</div>
                 <div class="card-body oncall-body">
-                    <div class="oncall-person">👤 ${oc.odp || "No allocation"}</div>
-                    ${oc.extra ? `<div class="info">🟡 ${oc.extra}</div>` : ``}
-                    ${oc.fromHome ? `<div class="from-home">🏠 FROM HOME</div>` : ``}
+                    <div class="oncall-person">${oc.odp || "No allocation"}</div>
+                    ${oc.extra ? `<div class="info">${oc.extra}</div>` : ``}
+                    ${oc.fromHome ? `<div class="from-home">From Home</div>` : ``}
                     <div class="oncall-anaesthetist">
-                        ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) + " " + oc.anaesthetist : "👨‍⚕️ -"}
+                        ${oc.anaesthetist || "-"}
                     </div>
                 </div>
             </div>
 
             <div class="card dashboard-panel">
-                <div class="card-header support-header">📋 LISTS</div>
+                <div class="card-header support-header">Lists</div>
                 <div class="card-body">
                     <div class="info">No operating lists today — Bank Holiday</div>
                 </div>
@@ -130,8 +130,8 @@ if (isWeekend) {
     <section class="daySection dashboard-layout">
 
         <div class="day-header">
-            <h2 class="day-heading">🛡️ WEEKEND COVER</h2>
-            <div class="day-date">Saturday & Sunday</div>
+            <h2 class="day-heading">Weekend Cover</h2>
+            <div class="day-date">Saturday &amp; Sunday</div>
         </div>
 
         ${Viewer.renderWeekendDay("Saturday", saturday)}
@@ -251,16 +251,16 @@ return;
             } else {
 
                 if (theatre.odp1)
-                    html += `<div class="person">👤 ${theatre.odp1}</div>`;
+                    html += `<div class="person">${theatre.odp1}</div>`;
 
                 if (theatre.odp2)
-                    html += `<div class="person">👤 ${theatre.odp2}</div>`;
+                    html += `<div class="person">${theatre.odp2}</div>`;
 
                 if (theatre.anaesthetist)
-                    html += `<div class="info">${anaesEmoji(theatre.anaesthetist)} ${theatre.anaesthetist}</div>`;
+                    html += `<div class="info">${theatre.anaesthetist}</div>`;
 
                 if (theatre.list)
-                    html += `<div class="info">📋 ${theatre.list}</div>`;
+                    html += `<div class="info">${theatre.list}</div>`;
             }
 
             html += `
@@ -278,27 +278,27 @@ return;
         <div class="card dashboard-panel">
 
             <div class="card-header oncall-header">
-                🚨 ON CALL
+                On Call
             </div>
 
             <div class="card-body oncall-body">
 
                 <div class="oncall-person">
-                    👤 ${value.onCall?.odp || "No allocation"}
+                    ${value.onCall?.odp || "No allocation"}
                 </div>
                 ${
     value.onCall?.extra
-    ? `<div class="info">🟡 ${value.onCall.extra}</div>`
+    ? `<div class="info">${value.onCall.extra}</div>`
     : ``
 }
                 ${
                     value.onCall?.fromHome
-                    ? `<div class="from-home">🏠 FROM HOME</div>`
+                    ? `<div class="from-home">From Home</div>`
                     : ``
                 }
 
                 <div class="oncall-anaesthetist">
-                    ${value.onCall?.anaesthetist ? anaesEmoji(value.onCall.anaesthetist) + " " + value.onCall.anaesthetist : "👨‍⚕️ -"}
+                    ${value.onCall?.anaesthetist || "-"}
                 </div>
 
             </div>
@@ -308,26 +308,26 @@ return;
         <div class="card dashboard-panel">
 
             <div class="card-header support-header">
-                👥 SUPPORT
+                Support
             </div>
 
             <div class="card-body">
 
               ${
     value.support?.odp1
-        ? `<div class="person">👤 ${value.support.odp1}</div>`
+        ? `<div class="person">${value.support.odp1}</div>`
         : ``
 }
 
 ${
     value.support?.odp2
-        ? `<div class="person">👤 ${value.support.odp2}</div>`
+        ? `<div class="person">${value.support.odp2}</div>`
         : ``
 }
 
 ${
     value.support?.odp3
-        ? `<div class="person">👤 ${value.support.odp3}</div>`
+        ? `<div class="person">${value.support.odp3}</div>`
         : ``
 }
 
@@ -340,7 +340,7 @@ ${
 }
                 ${
                     value.support?.list
-                    ? `<div class="info">📋 ${value.support.list}</div>`
+                    ? `<div class="info">${value.support.list}</div>`
                     : ``
                 }
 
@@ -352,7 +352,7 @@ ${
 
 <button id="fullWeekButton" class="full-week-view">
 
-    <h3>📄 Full Week View</h3>
+    <h3>Full Week View</h3>
 
     <p>View complete weekly rota</p>
 
@@ -394,27 +394,27 @@ static renderWeekendDay(day, value){
         <div class="card dashboard-panel">
 
             <div class="card-header oncall-header">
-                🚨 ON CALL
+                On Call
             </div>
 
             <div class="card-body">
 
                <div class="person">
-    ${value.onCall?.session1 ? value.onCall.session1 + " " : ""}👤
+    ${value.onCall?.session1 ? value.onCall.session1 + " " : ""}
     ${value.onCall?.odp1 || value.onCall?.odp || "-"}
 </div>
 
 ${
     value.onCall?.odp2
     ? `<div class="person">
-        ${value.onCall?.session2 ? value.onCall.session2 + " " : ""}👤
+        ${value.onCall?.session2 ? value.onCall.session2 + " " : ""}
         ${value.onCall.odp2}
       </div>`
     : ""
 }
 
                 <div class="info">
-                    ${value.onCall?.anaesthetist ? anaesEmoji(value.onCall.anaesthetist) + " " + value.onCall.anaesthetist : "👨‍⚕️ -"}
+                    ${value.onCall?.anaesthetist || "-"}
                 </div>
 
             </div>
@@ -424,17 +424,17 @@ ${
         <div class="card dashboard-panel">
 
             <div class="card-header support-header">
-                📋 WAITING LIST
+                Waiting List
             </div>
 
             <div class="card-body">
 
                 <div class="person">
-                    👤 ${value.waitingList?.odp || "-"}
+                    ${value.waitingList?.odp || "-"}
                 </div>
 
                 <div class="info">
-                    ${value.waitingList?.anaesthetist ? anaesEmoji(value.waitingList.anaesthetist) + " " + value.waitingList.anaesthetist : "👨‍⚕️ -"}
+                    ${value.waitingList?.anaesthetist || "-"}
                 </div>
 
             </div>

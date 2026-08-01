@@ -130,18 +130,18 @@ class OnCallNow {
             const onDuty = OnCallNow.weekendOnDuty(oc, s.segment);
             if (onDuty.length) {
                 onDuty.forEach(e => {
-                    people += `<div class="now-person">👤 ${e.name}${e.session && e.session !== "ALL DAY" ? ` <span class="now-session">${e.session}</span>` : ""}</div>`;
+                    people += `<div class="now-person">${e.name}${e.session && e.session !== "ALL DAY" ? ` <span class="now-session">${e.session}</span>` : ""}</div>`;
                 });
             } else {
-                people += `<div class="now-person">👤 -</div>`;
+                people += `<div class="now-person">-</div>`;
             }
-            people += `<div class="now-anaes">${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}</div>`;
+            people += `<div class="now-anaes">${oc.anaesthetist || "-"}</div>`;
         } else {
             const oc = value.onCall || {};
-            people += `<div class="now-person">👤 ${oc.odp || "-"}</div>`;
-            if (oc.extra) people += `<div class="now-extra">🟡 ${oc.extra}</div>`;
-            if (oc.fromHome) people += `<div class="now-fromhome">🏠 FROM HOME</div>`;
-            people += `<div class="now-anaes">${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}</div>`;
+            people += `<div class="now-person">${oc.odp || "-"}</div>`;
+            if (oc.extra) people += `<div class="now-extra">${oc.extra}</div>`;
+            if (oc.fromHome) people += `<div class="now-fromhome">FROM HOME</div>`;
+            people += `<div class="now-anaes">${oc.anaesthetist || "-"}</div>`;
         }
 
         mount.innerHTML = `

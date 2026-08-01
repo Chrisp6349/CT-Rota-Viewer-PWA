@@ -270,7 +270,6 @@ class TheatreIntelligence {
         // --- On-call facts, per person ---
         Object.entries(stats.onCallCounts).forEach(([name, count]) => {
             facts.push({
-                icon: "🚨",
                 text: `${name} has done ${count} on-call${count === 1 ? "" : "s"} ${since}.`
             });
         });
@@ -278,7 +277,6 @@ class TheatreIntelligence {
         // --- Theatre session facts, per person ---
         Object.entries(stats.sessionCounts).forEach(([name, count]) => {
             facts.push({
-                icon: "🏥",
                 text: `${name} has worked ${count} theatre session${count === 1 ? "" : "s"} ${since}.`
             });
         });
@@ -287,24 +285,20 @@ class TheatreIntelligence {
         Object.entries(stats.pairings).forEach(([key, count]) => {
             if (count < 2) return;   // only surface pairings that have actually repeated
             const [odp, anaes] = key.split("|");
-            const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨‍⚕️";
             const anaesFullName = (typeof anaesName === "function") ? anaesName(anaes) : anaes;
             facts.push({
-                icon: "🤝",
-                text: `${odp} has worked with ${emoji} ${anaesFullName} ${count} times ${since}.`
+                text: `${odp} has worked with ${anaesFullName} ${count} times ${since}.`
             });
         });
 
         // --- Streak facts ---
         if (streaks.longest && streaks.longest.count >= 3) {
             facts.push({
-                icon: "🔥",
                 text: `${streaks.longest.name}'s longest streak on record is ${streaks.longest.count} days running, ${streaks.longest.startDate === streaks.longest.endDate ? "on " + TheatreIntelligence.shortDate(streaks.longest.startDate) : TheatreIntelligence.shortDate(streaks.longest.startDate) + " to " + TheatreIntelligence.shortDate(streaks.longest.endDate)}.`
             });
         }
         streaks.current.forEach(run => {
             facts.push({
-                icon: "⚡",
                 text: `${run.name} is currently on a streak of ${run.count} days working, since ${TheatreIntelligence.shortDate(run.startDate)}.`
             });
         });
@@ -312,7 +306,6 @@ class TheatreIntelligence {
         // --- Support-role facts, per person ---
         Object.entries(stats.supportCounts).forEach(([name, count]) => {
             facts.push({
-                icon: "🧑‍🤝‍🧑",
                 text: `${name} has supported theatres ${count} time${count === 1 ? "" : "s"} ${since}.`
             });
         });
@@ -329,7 +322,6 @@ class TheatreIntelligence {
                 const fav = TheatreIntelligence.top(theatres);
                 if (fav && fav.count > 1) {
                     facts.push({
-                        icon: "❤️",
                         text: `${odp}'s favourite theatre is ${fav.name}, worked ${fav.count} times ${since}.`
                     });
                 }
@@ -340,7 +332,6 @@ class TheatreIntelligence {
         const topList = TheatreIntelligence.top(stats.listCounts);
         if (topList && topList.count > 1) {
             facts.push({
-                icon: "📋",
                 text: `${topList.name} has been the most common list type ${since}, run ${topList.count} times.`
             });
         }
@@ -352,7 +343,6 @@ class TheatreIntelligence {
                 let name = null, least = Infinity;
                 entries.forEach(([n, c]) => { if (c < least) { least = c; name = n; } });
                 facts.push({
-                    icon: "🤫",
                     text: `${name} has been the quietest theatre ${since}, used just ${least} time${least === 1 ? "" : "s"}.`
                 });
             }
@@ -365,7 +355,6 @@ class TheatreIntelligence {
                 let name = null, least = Infinity;
                 entries.forEach(([n, c]) => { if (c < least) { least = c; name = n; } });
                 facts.push({
-                    icon: "😴",
                     text: `${name} has been the quietest operating day ${since}.`
                 });
             }
@@ -375,18 +364,15 @@ class TheatreIntelligence {
         const topPairing = TheatreIntelligence.top(stats.pairings);
         if (topPairing && topPairing.count > 1) {
             const [odp, anaes] = topPairing.name.split("|");
-            const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨";
             const anaesFullName = (typeof anaesName === "function") ? anaesName(anaes) : anaes;
             facts.push({
-                icon: "🏅",
-                text: `${odp} and ${emoji} ${anaesFullName} are the most frequent pairing ${since}, working together ${topPairing.count} times.`
+                text: `${odp} and ${anaesFullName} are the most frequent pairing ${since}, working together ${topPairing.count} times.`
             });
         }
 
         // --- Weekend waiting-list facts, per person ---
         Object.entries(stats.waitingListCounts).forEach(([name, count]) => {
             facts.push({
-                icon: "📝",
                 text: `${name} has covered the weekend waiting list ${count} time${count === 1 ? "" : "s"} ${since}.`
             });
         });
@@ -395,7 +381,6 @@ class TheatreIntelligence {
         const busiestTheatre = TheatreIntelligence.top(stats.theatreCounts);
         if (busiestTheatre) {
             facts.push({
-                icon: "🏆",
                 text: `${busiestTheatre.name} has been the busiest theatre ${since}, used ${busiestTheatre.count} times.`
             });
         }
@@ -404,7 +389,6 @@ class TheatreIntelligence {
         const busiestDay = TheatreIntelligence.top(stats.dayCounts);
         if (busiestDay) {
             facts.push({
-                icon: "📅",
                 text: `${busiestDay.name} has been the busiest day ${since}.`
             });
         }
@@ -413,7 +397,6 @@ class TheatreIntelligence {
         const topOnCall = TheatreIntelligence.top(stats.onCallCounts);
         if (topOnCall && topOnCall.count > 1) {
             facts.push({
-                icon: "👑",
                 text: `${topOnCall.name} has done the most on-calls ${since}, with ${topOnCall.count}.`
             });
         }
@@ -422,28 +405,25 @@ class TheatreIntelligence {
         const topWorkload = TheatreIntelligence.top(stats.sessionCounts);
         if (topWorkload && topWorkload.count > 1) {
             facts.push({
-                icon: "💪",
                 text: `${topWorkload.name} has the busiest workload ${since}, with ${topWorkload.count} sessions.`
             });
         }
 
         // --- Overall totals ---
         facts.push({
-            icon: "📊",
             text: `${stats.totalSessions} theatre session${stats.totalSessions === 1 ? "" : "s"} recorded ${since}.`
         });
 
         if (stats.totalOnCalls > 0) {
             facts.push({
-                icon: "🌙",
                 text: `${stats.totalOnCalls} on-call shift${stats.totalOnCalls === 1 ? "" : "s"} covered ${since}.`
             });
         }
 
         // --- Staffing ---
         facts.push(stats.staffingGaps > 0
-            ? { icon: "⚠️", text: `${stats.staffingGaps} theatre session${stats.staffingGaps === 1 ? "" : "s"} ${since} had no ODP allocated.` }
-            : { icon: "✅", text: `Every theatre session ${since} has been fully staffed. Nice work.` }
+            ? { tone: "warning", text: `${stats.staffingGaps} theatre session${stats.staffingGaps === 1 ? "" : "s"} ${since} had no ODP allocated.` }
+            : { tone: "success", text: `Every theatre session ${since} has been fully staffed. Nice work.` }
         );
 
         return facts;
@@ -494,14 +474,14 @@ class TheatreIntelligence {
     // Called fresh every time the panel is opened.
     async refresh() {
         this.index = 0;
-        this.facts = [{ icon: "🫀", text: "Loading theatre intelligence…" }];
+        this.facts = [{ text: "Loading theatre intelligence…" }];
         this.render();
 
         try {
             const rotas = await TheatreIntelligence.loadHistory();
 
             if (!rotas.length) {
-                this.facts = [{ icon: "🫀", text: "No published rota data yet." }];
+                this.facts = [{ text: "No published rota data yet." }];
                 this.render();
                 return;
             }
@@ -513,7 +493,7 @@ class TheatreIntelligence {
             this.loaded = true;
         } catch (err) {
             console.error(err);
-            this.facts = [{ icon: "⚠️", text: "Unable to load theatre intelligence right now." }];
+            this.facts = [{ tone: "warning", text: "Unable to load theatre intelligence right now." }];
         }
 
         this.render();
@@ -523,9 +503,9 @@ class TheatreIntelligence {
         const fact = this.facts[this.index];
         if (!fact) return;
 
-        document.querySelector(".insight-icon").textContent = fact.icon;
         document.getElementById("insightTitle").textContent = "Did you know?";
         document.getElementById("insightText").textContent = fact.text;
+        document.querySelector(".insight-card").dataset.tone = fact.tone || "";
 
         document.querySelectorAll(".dot").forEach((dot, i) => {
             dot.classList.toggle("active", i === this.index);

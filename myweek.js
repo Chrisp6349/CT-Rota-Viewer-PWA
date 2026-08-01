@@ -18,7 +18,7 @@ class MyWeek {
         const btn = document.getElementById("myWeekBtn");
         if (btn) {
             const name = localStorage.getItem("myName");
-            btn.textContent = name ? `⭐ ${name}` : "⭐ My Week";
+            btn.textContent = name || "My Week";
         }
     }
 
@@ -52,24 +52,24 @@ class MyWeek {
             (v.theatres || []).forEach(t => {
                 if (t.odp1 === name || t.odp2 === name) {
                     const label = t.theatre.replace("Theatre ", "CT");
-                    out.push({ day, what: `${label}${t.list ? " · " + t.list : ""}`, icon: "🏥" });
+                    out.push({ day, what: `${label}${t.list ? " · " + t.list : ""}`, type: "theatre" });
                 }
             });
 
             const s = v.support || {};
             if ([s.odp1, s.odp2, s.odp3].includes(name))
-                out.push({ day, what: `Support${s.list ? " · " + s.list : ""}`, icon: "👥" });
+                out.push({ day, what: `Support${s.list ? " · " + s.list : ""}`, type: "support" });
 
             const oc = v.onCall || {};
             if (oc.odp === name)
-                out.push({ day, what: `On Call${oc.fromHome ? " · FROM HOME" : ""}`, icon: "🚨" });
+                out.push({ day, what: `On Call${oc.fromHome ? " · FROM HOME" : ""}`, type: "oncall" });
             if (oc.odp1 === name)
-                out.push({ day, what: `On Call${oc.session1 ? " · " + oc.session1 : ""}`, icon: "🚨" });
+                out.push({ day, what: `On Call${oc.session1 ? " · " + oc.session1 : ""}`, type: "oncall" });
             if (oc.odp2 === name)
-                out.push({ day, what: `On Call${oc.session2 ? " · " + oc.session2 : ""}`, icon: "🚨" });
+                out.push({ day, what: `On Call${oc.session2 ? " · " + oc.session2 : ""}`, type: "oncall" });
 
             if (v.waitingList?.odp === name)
-                out.push({ day, what: "Waiting List", icon: "📋" });
+                out.push({ day, what: "Waiting List", type: "waitinglist" });
         });
 
         return out;
@@ -88,7 +88,7 @@ class MyWeek {
             const names = ODP_NAMES;
             overlay.innerHTML = `
                 <div class="myweek-card">
-                    <h2>⭐ Who are you?</h2>
+                    <h2>Who are you?</h2>
                     <p class="myweek-hint">Pick your name once - this device will remember it.</p>
                     <div class="myweek-names">
                         ${names.map(n => `<button class="myweek-name" data-name="${n}">${n}</button>`).join("")}
@@ -112,15 +112,15 @@ class MyWeek {
         const jobs = MyWeek.assignmentsFor(MyWeek.rota, name);
         const rows = jobs.length
             ? jobs.map(j => `
-                <div class="myweek-row ${j.icon === "🚨" ? "myweek-oncall" : ""}">
+                <div class="myweek-row ${j.type === "oncall" ? "myweek-oncall" : ""}">
                     <span class="myweek-day">${j.day.substring(0,3)}</span>
-                    <span class="myweek-what">${j.icon} ${j.what}</span>
+                    <span class="myweek-what">${j.what}</span>
                 </div>`).join("")
-            : `<div class="myweek-row"><span class="myweek-what">No allocations for this week 🎉</span></div>`;
+            : `<div class="myweek-row"><span class="myweek-what">No allocations for this week.</span></div>`;
 
         overlay.innerHTML = `
             <div class="myweek-card">
-                <h2>⭐ ${name}'s Week</h2>
+                <h2>${name}'s Week</h2>
                 <p class="myweek-hint">W/C ${ViewerUtils.formatWeek(MyWeek.rota.week)}</p>
                 <div class="myweek-list">${rows}</div>
                 <div class="myweek-actions">

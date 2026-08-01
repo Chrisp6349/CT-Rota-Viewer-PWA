@@ -203,29 +203,29 @@ class StaffProfiles {
         // Theatre specialist: one theatre clearly dominant (40%+ share, min 5 sessions)
         const topTheatre = StaffProfiles.topN(stats.theatreCounts, 1)[0];
         if (topTheatre && totalSessions >= 5 && (topTheatre[1] / totalSessions) >= 0.4) {
-            badges.push({ icon: "🏆", label: `${topTheatre[0]} Specialist` });
+            badges.push({ label: `${topTheatre[0]} Specialist` });
         }
 
         // All-rounder: worked in every known theatre type
         if (stats.distinctTheatres >= theatreUniverseSize) {
-            badges.push({ icon: "🔄", label: "All-Rounder" });
+            badges.push({ label: "All-Rounder" });
         }
 
         // On-call veteran
         if (stats.totalOnCalls >= 15) {
-            badges.push({ icon: "🚨", label: "On-Call Veteran" });
+            badges.push({ label: "On-Call Veteran" });
         }
 
         // Team player: wide range of people worked with
         if (distinctPartners >= 8) {
-            badges.push({ icon: "🤝", label: "Team Player" });
+            badges.push({ label: "Team Player" });
         }
 
         // Session milestones
         const milestones = [200, 100, 50, 25];
         const reached = milestones.find(m => totalSessions >= m);
         if (reached) {
-            badges.push({ icon: "🌟", label: `${reached} Theatre Sessions` });
+            badges.push({ label: `${reached} Theatre Sessions` });
         }
 
         return badges;
@@ -239,8 +239,8 @@ class StaffProfiles {
 
         box.innerHTML = matches.slice(0, 8).map(p => `
             <button class="staff-result" data-role="${p.role}" data-key="${p.key}">
-                ${p.role === "odp" ? "👤" : (anaesEmoji ? anaesEmoji(p.key) : "👨‍⚕️")}
                 <span>${p.label}</span>
+                <span class="staff-role-tag">${p.role === "odp" ? "ODP" : "Anaesthetist"}</span>
             </button>
         `).join("");
         box.classList.remove("hidden");
@@ -253,7 +253,7 @@ class StaffProfiles {
     static async loadProfile(role, key, label) {
         document.getElementById("staffSearchInput").value = label;
         document.getElementById("staffResults").classList.add("hidden");
-        document.getElementById("staffProfile").innerHTML = `<p class="staff-loading">🫀 Loading profile…</p>`;
+        document.getElementById("staffProfile").innerHTML = `<p class="staff-loading">Loading profile…</p>`;
 
         const rotas = await StaffProfiles.ensureHistory();
         const stats = role === "odp"
@@ -294,8 +294,7 @@ class StaffProfiles {
             const label = stats.role === "odp"
                 ? (typeof anaesName === "function" ? anaesName(key) : key)
                 : key;
-            const emoji = stats.role === "odp" && typeof anaesEmoji === "function" ? anaesEmoji(key) + " " : "👤 ";
-            return `<div class="staff-list-row"><span>${i + 1}. ${emoji}${label}</span><span>${count}</span></div>`;
+            return `<div class="staff-list-row"><span>${i + 1}. ${label}</span><span>${count}</span></div>`;
         }).join("") || `<p class="staff-empty">No pairings recorded yet.</p>`;
 
         const dayRows = Object.entries(stats.dayCounts).map(([day, count]) =>
@@ -303,15 +302,15 @@ class StaffProfiles {
         ).join("");
 
         const badgeRow = badges.length
-            ? badges.map(b => `<span class="staff-badge">${b.icon} ${b.label}</span>`).join("")
+            ? badges.map(b => `<span class="staff-badge">${b.label}</span>`).join("")
             : `<p class="staff-empty">No badges earned yet - keep publishing weeks!</p>`;
 
         el.innerHTML = `
             <div class="staff-card">
-                <h2>${stats.role === "odp" ? "👤" : "👨‍⚕️"} ${displayName}</h2>
+                <h2>${displayName} <span class="staff-role-tag">${stats.role === "odp" ? "ODP" : "Anaesthetist"}</span></h2>
 
                 <div class="staff-section">
-                    <h3>📈 Overview</h3>
+                    <h3>Overview</h3>
                     <div class="staff-list-row"><span>Total theatre sessions</span><span>${stats.sessions}</span></div>
                     ${stats.role === "odp" ? `<div class="staff-list-row"><span>Support shifts</span><span>${stats.supportShifts}</span></div>` : ""}
                     <div class="staff-list-row"><span>On-call shifts</span><span>${stats.totalOnCalls}</span></div>
@@ -320,29 +319,29 @@ class StaffProfiles {
                 </div>
 
                 <div class="staff-section">
-                    <h3>🏥 Theatre Experience</h3>
+                    <h3>Theatre Experience</h3>
                     ${theatreRows}
                 </div>
 
                 <div class="staff-section">
-                    <h3>${stats.role === "odp" ? "👨‍⚕️" : "🧑‍⚕️"} ${partnerLabel}</h3>
+                    <h3>${partnerLabel}</h3>
                     ${partnerRows}
                 </div>
 
                 <div class="staff-section">
-                    <h3>📅 Work Pattern</h3>
+                    <h3>Work Pattern</h3>
                     ${dayRows}
                 </div>
 
                 <div class="staff-section">
-                    <h3>🚨 On Call</h3>
+                    <h3>On Call</h3>
                     <div class="staff-list-row"><span>Weekday on-calls</span><span>${stats.weekdayOnCalls}</span></div>
                     <div class="staff-list-row"><span>Weekend on-calls</span><span>${stats.weekendOnCalls}</span></div>
                     <div class="staff-list-row"><span>Last on-call</span><span>${StaffProfiles.timeAgo(stats.lastOnCallDate)}</span></div>
                 </div>
 
                 <div class="staff-section">
-                    <h3>🏅 Achievements</h3>
+                    <h3>Achievements</h3>
                     <div class="staff-badges">${badgeRow}</div>
                 </div>
             </div>

@@ -4,57 +4,28 @@
    -----------------------------------------------------
    Styles for the newer features, kept separate from the
    original styles.css so that file stays untouched:
-     - splash heartbeat + animated ECG
      - ON CALL NOW hero card
      - My Week overlay
      - dark mode
      - TV / wall-board mode
+
+   This file is loaded on its own by tv.html (no styles.css),
+   so it declares its own copy of the shared palette tokens -
+   same values as styles.css, kept in sync by hand.
    ===================================================== */
 
-/* ------------------------------------------------------
-   Splash: beating heart logo + ECG sweep
-   ------------------------------------------------------ */
-
-.splash-logo {
-    animation: heartbeat 1.2s ease-in-out infinite;
-}
-
-/* Two quick beats then rest - like a real cardiac cycle */
-@keyframes heartbeat {
-    0%   { transform: scale(1); }
-    14%  { transform: scale(1.12); }
-    28%  { transform: scale(1); }
-    42%  { transform: scale(1.09); }
-    56%  { transform: scale(1); }
-    100% { transform: scale(1); }
-}
-
-.splash-ecg {
-    width: 240px;
-    height: 44px;
-    margin: 10px auto 0;
-    display: block;
-}
-
-.splash-ecg path {
-    fill: none;
-    stroke: #7FDBFF;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-dasharray: 420;
-    stroke-dashoffset: 420;
-    animation: ecg-sweep 2.4s linear infinite;
-}
-
-@keyframes ecg-sweep {
-    0%   { stroke-dashoffset: 420; opacity: 1; }
-    70%  { stroke-dashoffset: 0;   opacity: 1; }
-    85%  { opacity: 0; }
-    100% { stroke-dashoffset: 420; opacity: 0; }
+:root{
+    --nhs-blue:#005EB8;
+    --nhs-dark:#003087;
+    --ink:#212B32;
+    --ink-soft:#4C6272;
+    --line:#E1E6EA;
+    --oncall:#DA291C;
+    --radius:12px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .splash-logo, .splash-ecg path, .now-pulse { animation: none !important; }
+    .now-pulse { animation: none !important; }
 }
 
 /* ------------------------------------------------------
@@ -64,39 +35,40 @@
 .oncall-now {
     margin: 14px auto 4px;
     max-width: 720px;
-    border-radius: 14px;
-    padding: 14px 18px;
+    border-radius: var(--radius);
+    padding: 12px 18px;
     display: flex;
     align-items: center;
     gap: 18px;
     flex-wrap: wrap;
+    border: 1px solid transparent;
 }
 
 .now-active {
-    background: linear-gradient(120deg, #B71C1C, #D32F2F);
+    background: var(--oncall);
     color: #fff;
-    box-shadow: 0 4px 18px rgba(183, 28, 28, .35);
+    box-shadow: 0 4px 14px rgba(218,41,28,.25);
 }
 
 .now-upcoming {
-    background: #FFF4E5;
-    border: 2px solid #ED8B00;
-    color: #6b4300;
+    background: #fff;
+    border-color: var(--line);
+    color: var(--ink);
 }
 
 .now-badge {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: .08em;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .07em;
     white-space: nowrap;
 }
 
 .now-pulse {
-    width: 12px;
-    height: 12px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: #fff;
     animation: nowpulse 1.2s ease-out infinite;
@@ -104,21 +76,22 @@
 
 @keyframes nowpulse {
     0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.7); }
-    100% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+    100% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
 }
 
 .now-people { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-.now-person { font-size: 18px; font-weight: 800; }
-.now-anaes  { font-size: 16px; font-weight: 600; opacity: .95; }
-.now-session, .now-extra { font-size: 13px; font-weight: 700; }
+.now-person { font-size: 16px; font-weight: 700; }
+.now-anaes  { font-size: 14px; font-weight: 600; opacity: .9; }
+.now-session, .now-extra { font-size: 12px; font-weight: 700; }
 .now-fromhome {
     background: rgba(255,255,255,.22);
     border-radius: 6px;
     padding: 2px 8px;
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
 }
-.now-upcoming .now-fromhome { background: rgba(237,139,0,.18); }
+.now-upcoming .now-fromhome { background: #FBF0E4; color: #B45F00; }
 
 /* ------------------------------------------------------
    My Week overlay
@@ -137,30 +110,31 @@
 
 .myweek-card {
     background: #fff;
-    color: #212B32;
-    border-radius: 16px;
+    color: var(--ink);
+    border-radius: var(--radius);
     padding: 20px 22px;
     width: min(440px, 100%);
     max-height: 84vh;
     overflow-y: auto;
-    box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    box-shadow: 0 12px 34px rgba(33,43,50,.22);
 }
 
-.myweek-card h2 { margin: 0 0 4px; font-size: 20px; }
-.myweek-hint { margin: 0 0 14px; color: #4C6272; font-size: 13.5px; }
+.myweek-card h2 { margin: 0 0 4px; font-size: 18px; }
+.myweek-hint { margin: 0 0 14px; color: var(--ink-soft); font-size: 13px; }
 
 .myweek-names { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 
 .myweek-name {
     font: inherit;
     font-weight: 700;
-    padding: 9px 14px;
+    font-size: 13.5px;
+    padding: 8px 13px;
     border-radius: 999px;
-    border: 2px solid #C6CED4;
+    border: 1px solid var(--line);
     background: #fff;
     cursor: pointer;
 }
-.myweek-name:hover { border-color: #005EB8; color: #005EB8; }
+.myweek-name:hover { border-color: var(--nhs-blue); color: var(--nhs-blue); }
 
 .myweek-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 
@@ -169,13 +143,14 @@
     align-items: center;
     gap: 12px;
     background: #F4F6F8;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 10px 12px;
+    font-size: 13.5px;
 }
 
-.myweek-oncall { background: #FDECEA; }
+.myweek-oncall { background: #FBEAE8; }
 
-.myweek-day  { font-weight: 800; width: 42px; color: #005EB8; flex: none; }
+.myweek-day  { font-weight: 700; width: 38px; color: var(--nhs-blue); flex: none; }
 .myweek-what { font-weight: 600; }
 
 .myweek-actions { display: flex; justify-content: space-between; gap: 10px; }
@@ -183,30 +158,31 @@
 .myweek-close, .myweek-switch {
     font: inherit;
     font-weight: 700;
-    padding: 9px 14px;
+    font-size: 13.5px;
+    padding: 8px 14px;
     border-radius: 8px;
-    border: 2px solid #C6CED4;
+    border: 1px solid var(--line);
     background: #fff;
     cursor: pointer;
 }
-.myweek-close { background: #005EB8; border-color: #005EB8; color: #fff; }
+.myweek-close { background: var(--nhs-blue); border-color: var(--nhs-blue); color: #fff; }
 
 /* Toolbar buttons for My Week / TV / dark mode */
 .feature-btn {
     font: inherit;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
-    padding: 8px 13px;
+    padding: 8px 14px;
     border-radius: 999px;
-    border: 2px solid #C6CED4;
+    border: 1px solid var(--line);
     background: #fff;
-    color: #212B32;
+    color: var(--ink);
     cursor: pointer;
     white-space: nowrap;
     text-decoration: none;
     display: inline-block;
 }
-.feature-btn:hover { border-color: #005EB8; color: #005EB8; }
+.feature-btn:hover { border-color: var(--nhs-blue); color: var(--nhs-blue); }
 
 .feature-row {
     display: flex;
@@ -236,7 +212,10 @@ html[data-theme="dark"] .myweek-card {
 }
 
 html[data-theme="dark"] .card-body { color: #E4E9EF; }
-html[data-theme="dark"] .info { color: #B9C4D0; }
+html[data-theme="dark"] .info,
+html[data-theme="dark"] .day-date,
+html[data-theme="dark"] .weekend-title,
+html[data-theme="dark"] .oncall-anaesthetist { color: #93A1B1; }
 
 html[data-theme="dark"] .day-tab,
 html[data-theme="dark"] .feature-btn,
@@ -299,7 +278,7 @@ body.tv {
     font-size: 26px;
 }
 
-.tv-oncall-active { background: linear-gradient(120deg, #B71C1C, #D32F2F); }
+.tv-oncall-active { background: var(--oncall); }
 
 .tv-oncall-label  { font-weight: 800; letter-spacing: .06em; }
 .tv-oncall-people { font-weight: 700; }
@@ -386,7 +365,7 @@ html[data-theme="dark"] .full-week-view p  { color: #93A1B1; }
    ------------------------------------------------------ */
 
 .tv-ticker {
-    background: linear-gradient(120deg, #003087, #005EB8);
+    background: var(--nhs-dark);
     padding: 16px 40px;
     overflow: hidden;
     display: flex;

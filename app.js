@@ -246,7 +246,7 @@ const UpdateUI = {
         this.banner.id = "updateBanner";
         this.banner.innerHTML = `
             <div class="update-card">
-                <div class="update-title">🚀 Update Available</div>
+                <div class="update-title">Update Available</div>
                 <div class="update-text">
                     A newer version of Cardiac Theatre Dashboard is ready.
                 </div>

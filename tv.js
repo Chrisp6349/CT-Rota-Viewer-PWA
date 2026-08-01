@@ -49,14 +49,14 @@ async function tvLoad() {
             ocPeople = (onDuty.length
                     ? onDuty.map(e => `${e.name}${e.session && e.session !== "ALL DAY" ? " (" + e.session + ")" : ""}`).join(" · ")
                     : "-") +
-                ` &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
+                ` &nbsp;|&nbsp; ${oc.anaesthetist || "-"}`;
         } else {
 
-            ocPeople = `${oc.odp || "-"}${oc.fromHome ? " 🏠" : ""} &nbsp;|&nbsp; ${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}`;
+            ocPeople = `${oc.odp || "-"}${oc.fromHome ? " (From Home)" : ""} &nbsp;|&nbsp; ${oc.anaesthetist || "-"}`;
         }
         document.getElementById("tvOnCall").innerHTML = `
             <div class="tv-oncall ${s.active ? "tv-oncall-active" : ""}">
-                <span class="tv-oncall-label">${s.active ? "🚨 ON CALL NOW" : "🚨 TONIGHT'S ON CALL"}</span>
+                <span class="tv-oncall-label">${s.active ? "ON CALL NOW" : "TONIGHT'S ON CALL"}</span>
                 <span class="tv-oncall-people">${ocPeople}</span>
             </div>`;
 
@@ -69,9 +69,9 @@ async function tvLoad() {
             const wl = value.waitingList || {};
             grid.innerHTML = `
                 <div class="tv-card tv-wide">
-                    <div class="tv-card-head">🛡️ WEEKEND COVER — ${day.toUpperCase()}</div>
+                    <div class="tv-card-head">WEEKEND COVER — ${day.toUpperCase()}</div>
                     <div class="tv-card-body">
-                        <div class="tv-line">📋 Waiting List: ${wl.odp || "-"} &nbsp;|&nbsp; ${wl.anaesthetist ? anaesEmoji(wl.anaesthetist) : "👨‍⚕️"} ${wl.anaesthetist || "-"}</div>
+                        <div class="tv-line">Waiting List: ${wl.odp || "-"} &nbsp;|&nbsp; ${wl.anaesthetist || "-"}</div>
                     </div>
                 </div>`;
         } else {
@@ -82,22 +82,22 @@ async function tvLoad() {
                     <div class="tv-card-head">${t.theatre === "Cath Lab" ? "CATH LAB" : t.theatre.replace("Theatre ", "CT")}</div>
                     <div class="tv-card-body">
                         ${empty ? `<div class="tv-line tv-dim">No allocation</div>` : `
-                            ${t.odp1 ? `<div class="tv-line">👤 ${t.odp1}</div>` : ""}
-                            ${t.odp2 ? `<div class="tv-line">👤 ${t.odp2}</div>` : ""}
-                            ${t.anaesthetist ? `<div class="tv-line">${anaesEmoji(t.anaesthetist)} ${t.anaesthetist}</div>` : ""}
-                            ${t.list ? `<div class="tv-line tv-list">📋 ${t.list}</div>` : ""}
+                            ${t.odp1 ? `<div class="tv-line">${t.odp1}</div>` : ""}
+                            ${t.odp2 ? `<div class="tv-line">${t.odp2}</div>` : ""}
+                            ${t.anaesthetist ? `<div class="tv-line">${t.anaesthetist}</div>` : ""}
+                            ${t.list ? `<div class="tv-line tv-list">${t.list}</div>` : ""}
                         `}
                     </div>
                 </div>`;
             }).join("") + `
                 <div class="tv-card">
-                    <div class="tv-card-head">👥 SUPPORT</div>
+                    <div class="tv-card-head">SUPPORT</div>
                     <div class="tv-card-body">
                         ${[value.support?.odp1, value.support?.odp2, value.support?.odp3]
                             .filter(Boolean)
-                            .map(n => `<div class="tv-line">👤 ${n}</div>`)
+                            .map(n => `<div class="tv-line">${n}</div>`)
                             .join("") || `<div class="tv-line tv-dim">No allocation</div>`}
-                        ${value.support?.list ? `<div class="tv-line tv-list">📋 ${value.support.list}</div>` : ""}
+                        ${value.support?.list ? `<div class="tv-line tv-list">${value.support.list}</div>` : ""}
                     </div>
                 </div>`;
         }
@@ -107,7 +107,7 @@ async function tvLoad() {
                 { hour: "2-digit", minute: "2-digit" });
     } catch (err) {
         console.error(err);
-        document.getElementById("tvUpdated").textContent = "⚠ Unable to refresh - showing last data";
+        document.getElementById("tvUpdated").textContent = "Unable to refresh - showing last data";
     }
 }
 
@@ -159,7 +159,7 @@ function tickerStep() {
     const fact = tickerPool[tickerIndex % tickerPool.length];
     tickerIndex++;
 
-    el.textContent = `${fact.icon} ${fact.text}`;
+    el.textContent = fact.text;
 
     // Fade/slide in
     requestAnimationFrame(() => el.classList.add("show"));
