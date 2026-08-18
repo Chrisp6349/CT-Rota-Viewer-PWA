@@ -29,14 +29,15 @@ class StaffProfiles {
     }
 
     // Every searchable person: ODPs from config's ODP_NAMES, plus every
-    // anaesthetist in ANAES_NAMES (displayed by full name, matched in
-    // the data by initials).
+    // anaesthetist in ANAESTHETIST_NAMES. Cadence stores anaesthetists
+    // under their real name directly (no separate initials/full-name
+    // split), so key and label are the same value here.
     static allPeople() {
         const odps = (typeof ODP_NAMES !== "undefined" ? ODP_NAMES : [])
             .map(name => ({ role: "odp", key: name, label: name }));
 
-        const anaes = Object.entries(typeof ANAES_NAMES !== "undefined" ? ANAES_NAMES : {})
-            .map(([initials, name]) => ({ role: "anaes", key: initials, label: name }));
+        const anaes = (typeof ANAESTHETIST_NAMES !== "undefined" ? ANAESTHETIST_NAMES : [])
+            .map(name => ({ role: "anaes", key: name, label: name }));
 
         return [...odps, ...anaes].sort((a, b) => a.label.localeCompare(b.label));
     }
@@ -287,7 +288,9 @@ class StaffProfiles {
             return;
         }
 
-        const theatreUniverse = 5; // CT1, CT2, CT4, CT5, Cath Lab
+        // However many theatres this department has configured in
+        // Cadence - not assumed to be the old fixed 5.
+        const theatreUniverse = (typeof CADENCE_THEATRES !== "undefined" && CADENCE_THEATRES.length) || 5;
         const badges = StaffProfiles.buildBadges(stats, theatreUniverse);
 
         const theatreRows = StaffProfiles.topN(stats.theatreCounts, 10).map(([name, count]) => {
@@ -361,12 +364,16 @@ class StaffProfiles {
 
     static init() {
         const input = document.getElementById("staffSearchInput");
-        const people = StaffProfiles.allPeople();
 
+        // Built fresh on every search rather than once at init - ODP_NAMES/
+        // ANAESTHETIST_NAMES arrive asynchronously from Cadence, and this
+        // page's search box (unlike everything else here) isn't gated
+        // behind any await on that data, so a snapshot taken at init time
+        // could easily still be empty.
         input.addEventListener("input", () => {
             const q = input.value.trim().toLowerCase();
             if (!q) { StaffProfiles.renderSearchResults([]); return; }
-            const matches = people.filter(p => p.label.toLowerCase().includes(q));
+            const matches = StaffProfiles.allPeople().filter(p => p.label.toLowerCase().includes(q));
             StaffProfiles.renderSearchResults(matches);
         });
 

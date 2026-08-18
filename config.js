@@ -21,10 +21,14 @@
    (anaesthetists are stored under their real display name
    directly) so ANAES_NAMES/anaesName() are gone - every
    caller already checks `typeof anaesName === "function"`
-   first and falls back gracefully.
+   first and falls back gracefully, using the name Cadence
+   already gave it. ANAESTHETIST_NAMES (new - the old app had
+   no equivalent) is just the searchable roster Staff Stats
+   needs, the same idea as ODP_NAMES.
    ===================================================== */
 
 const ODP_NAMES = [];
+const ANAESTHETIST_NAMES = [];
 const CADENCE_THEATRES = [];   // [{id, name}, ...] in display order
 const BANK_HOLIDAYS_SET = new Set();
 
@@ -57,8 +61,12 @@ const CadenceData = {
             .filter(s => s.type === "odp")
             .forEach(s => ODP_NAMES.push(s.rotaName || s.name));
 
+        staff
+            .filter(s => s.type === "anaesthetist")
+            .forEach(s => ANAESTHETIST_NAMES.push(s.name));
+
         Object.keys((dept && dept.bankHolidays) || {}).forEach(iso => BANK_HOLIDAYS_SET.add(iso));
 
-        return { dept, theatres: CADENCE_THEATRES, odps: ODP_NAMES };
+        return { dept, theatres: CADENCE_THEATRES, odps: ODP_NAMES, anaesthetists: ANAESTHETIST_NAMES };
     })()
 };
