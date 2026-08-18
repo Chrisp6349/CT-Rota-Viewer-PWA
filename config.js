@@ -2,74 +2,63 @@
    Cardiothoracic Theatre Viewer
    config.js
    -----------------------------------------------------
-   The one file to edit when things change:
-   - the backend URL
-   - the bank holiday dates (update each year)
+   Staff, theatres, and bank holidays used to be hardcoded
+   here; they now come live from Cadence (the department
+   set in cadence-config.js) instead. This file still
+   exposes them under the same names the rest of the app
+   already expects, so nothing downstream needs to know
+   they arrive asynchronously.
+
+   ODP_NAMES/CADENCE_THEATRES/BANK_HOLIDAYS_SET start empty
+   and get filled in place once CadenceData.ready resolves.
+   Nothing that reads them (My Week's name picker, the
+   theatre grid, bank-holiday labels) runs before then in
+   practice: api.js's RotaAPI methods all await
+   CadenceData.ready internally before returning rota data,
+   and everything else only runs after that data has loaded.
+
+   Cadence has no anaesthetist-initials-to-full-name concept
+   (anaesthetists are stored under their real display name
+   directly) so ANAES_NAMES/anaesName() are gone - every
+   caller already checks `typeof anaesName === "function"`
+   first and falls back gracefully.
    ===================================================== */
 
-const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwibS_YU3P7Gf0dnbZJH7gE1_FjjfCIt_jsJ05HcZ8QzQVJjb2fhQOIb8VIoaS2GgTa/exec"
-};
-
-// Bank holidays - on these dates the weekday on-call runs like a
-// weekend shift: 06:30 -> 06:30 next morning instead of from 19:00.
-// Update this each year (same dates as the rota manager's config).
-const BANK_HOLIDAYS = [
-    "2026-01-01", "2026-04-03", "2026-04-06", "2026-05-04",
-    "2026-05-25", "2026-08-31", "2026-12-25", "2026-12-28"
-];
+const ODP_NAMES = [];
+const CADENCE_THEATRES = [];   // [{id, name}, ...] in display order
+const BANK_HOLIDAYS_SET = new Set();
 
 function isBankHoliday(iso) {
-    return BANK_HOLIDAYS.includes(iso);
+    return BANK_HOLIDAYS_SET.has(iso);
 }
-// Full names for anaesthetists' initials, used only in Insights fun
-// facts where there's room to spell things out (everywhere else in
-// the app stays compact with initials, e.g. theatre cards).
-const ANAES_NAMES = {
-    "SE": "Sean",
-    "PJ": "Patrycja",
-    "CD": "Craig D",
-    "CH": "Craig H",
-    "TG": "Tharanga",
-    "JH": "Jenny",
-    "NM": "Nilofer",
-    "PMR": "Pete",
-    "VR": "Vlad",
-    "ZB": "Zuzana",
-    "JA": "Jonathan",
-    "TB": "Theresa",
-    "MC": "Michelle",
-    "SB": "Steve B",
-    "AMINU": "Aminu",
-    "JC": "James",
-    "LC": "Leena"
-};
-
-// Returns the full name for an anaesthetist's initials, or the
-// initials themselves if not found in the list above
-function anaesName(initials) {
-    const key = String(initials).trim();
-    return ANAES_NAMES[key] || key;
-}
-
 
 // Kept as a no-op so every existing `${anaesEmoji(x)} ${x}` call site
-// still works untouched - initials alone (PMR, CD, SE...) already read
-// as clearly distinct from full ODP names without a doctor icon.
+// still works untouched - names alone already read as clearly distinct
+// without a doctor icon.
 function anaesEmoji() {
     return "";
 }
-// Master list of all ODPs
-const ODP_NAMES = [
-    "Amelia",
-    "Becky",
-    "Chris",
-    "Darren",
-    "Dave",
-    "Greg",
-    "Kristian",
-    "Larry",
-    "Mihaela",
-    "Pierre",
-    "Steve"
-];
+
+const CadenceData = {
+    ready: (async () => {
+        await CadenceAuth.token();
+
+        const [dept, theatres, staff] = await Promise.all([
+            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}`),
+            CadenceFirestore.listCollection(`departments/${CADENCE.DEPARTMENT_ID}/theatres`),
+            CadenceFirestore.listCollection(`departments/${CADENCE.DEPARTMENT_ID}/staff`)
+        ]);
+
+        theatres
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .forEach(t => CADENCE_THEATRES.push({ id: t.id, name: t.name || t.id }));
+
+        staff
+            .filter(s => s.type === "odp")
+            .forEach(s => ODP_NAMES.push(s.rotaName || s.name));
+
+        Object.keys((dept && dept.bankHolidays) || {}).forEach(iso => BANK_HOLIDAYS_SET.add(iso));
+
+        return { dept, theatres: CADENCE_THEATRES, odps: ODP_NAMES };
+    })()
+};

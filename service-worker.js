@@ -48,6 +48,8 @@ const FILES_TO_CACHE = [
 
 
   "./version.js",
+  "./cadence-config.js",
+  "./cadence-firestore.js",
   "./config.js",
   "./api.js",
   "./print.js",

@@ -276,7 +276,10 @@ main{
 .cards-grid,
 .theatre-grid{
     display:grid;
-    grid-template-columns:repeat(5, 1fr);
+    /* auto-fit rather than a fixed 5 - Cadence lets each department
+       configure its own theatre list/count, so this adapts instead of
+       assuming the old fixed set. */
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
     gap:10px;
     width:100%;
     margin:16px 0;
@@ -739,7 +742,7 @@ footer{
 
     .cards-grid,
     .theatre-grid{
-        grid-template-columns:repeat(5, minmax(0,1fr));
+        grid-template-columns:repeat(auto-fit, minmax(84px, 1fr));
         gap:8px;
     }
 

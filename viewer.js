@@ -183,7 +183,7 @@ return;
     <div class="cards-grid theatre-grid">
 `;
 
-        (value.theatres || []).forEach(theatre => {
+        (value.theatres || []).forEach((theatre, theatreIndex) => {
 
             // Skip hidden theatres before doing anything else.
             // (Note: the current publisher never sends `hidden` -
@@ -194,7 +194,17 @@ return;
             // IMPORTANT: computed locally, never written back into the
             // data - other features (My Week, the TV board) read the
             // same object and rely on the original names.
-            let colour = "theatre1";
+            //
+            // The original 5 theatre names get their familiar short
+            // label and fixed colour. Anything else - Cadence lets each
+            // department name and reorder its own theatres, so this
+            // list isn't necessarily those same 5 any more - falls back
+            // to its full configured name and a colour cycled by
+            // position, so a differently-set-up department still reads
+            // as clearly colour-coded rather than defaulting to one
+            // flat colour for everything.
+            const ACCENT_COLOURS = ["theatre1", "theatre2", "theatre4", "theatre5", "cathlab"];
+            let colour = ACCENT_COLOURS[theatreIndex % ACCENT_COLOURS.length];
             let label = theatre.theatre;
 
             switch (theatre.theatre) {
