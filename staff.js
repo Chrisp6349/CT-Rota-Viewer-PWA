@@ -222,6 +222,7 @@ class StaffProfiles {
         const todayIso = StaffProfiles.todayIso();
         const odpSessions = {}, odpOnCalls = {}, odpSupport = {};
         const anaesSessions = {}, anaesOnCalls = {};
+        const partnerCounts = {};      // anaesthetist -> {odp: sessions together}
 
         rotas.forEach(rota => {
             Object.entries(rota.days || {}).forEach(([day, value]) => {
@@ -231,6 +232,10 @@ class StaffProfiles {
                 (value.theatres || []).forEach(t => {
                     [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
                         odpSessions[odp] = (odpSessions[odp] || 0) + 1;
+                        if (t.anaesthetist) {
+                            partnerCounts[t.anaesthetist] = partnerCounts[t.anaesthetist] || {};
+                            partnerCounts[t.anaesthetist][odp] = (partnerCounts[t.anaesthetist][odp] || 0) + 1;
+                        }
                     });
                     if (t.anaesthetist) {
                         anaesSessions[t.anaesthetist] = (anaesSessions[t.anaesthetist] || 0) + 1;
@@ -247,6 +252,10 @@ class StaffProfiles {
                 const wl = value.waitingList || {};
                 if (wl.odp) odpSessions[wl.odp] = (odpSessions[wl.odp] || 0) + 1;
                 if (wl.anaesthetist) anaesSessions[wl.anaesthetist] = (anaesSessions[wl.anaesthetist] || 0) + 1;
+                if (wl.odp && wl.anaesthetist) {
+                    partnerCounts[wl.anaesthetist] = partnerCounts[wl.anaesthetist] || {};
+                    partnerCounts[wl.anaesthetist][wl.odp] = (partnerCounts[wl.anaesthetist][wl.odp] || 0) + 1;
+                }
 
                 const oc = value.onCall || {};
                 if (oc.odp) odpOnCalls[oc.odp] = (odpOnCalls[oc.odp] || 0) + 1;
@@ -257,6 +266,16 @@ class StaffProfiles {
             });
         });
 
+        // One row per anaesthetist who's actually had a theatre session,
+        // naming whichever ODP has worked with them the most.
+        const partners = Object.entries(partnerCounts)
+            .map(([anaes, counts]) => {
+                const top = StaffProfiles.topN(counts, 1)[0];
+                return top ? { anaes, topOdp: top[0], count: top[1] } : null;
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.anaes.localeCompare(b.anaes));
+
         return {
             weekCount: rotas.length,
             categories: [
@@ -265,7 +284,8 @@ class StaffProfiles {
                 { title: "Most Support Shifts", role: "odp", counts: odpSupport },
                 { title: "Busiest Anaesthetists", role: "anaes", counts: anaesSessions },
                 { title: "Most On-Calls (Anaesthetists)", role: "anaes", counts: anaesOnCalls }
-            ]
+            ],
+            partners
         };
     }
 
@@ -290,11 +310,26 @@ class StaffProfiles {
                 </div>`;
         }).join("");
 
+        const partnerRows = lb.partners.length
+            ? lb.partners.map(p => `
+                <button class="staff-result" data-role="anaes" data-key="${p.anaes}">
+                    <span>${p.anaes}</span>
+                    <span class="staff-count">${p.topOdp} (${p.count})</span>
+                </button>`).join("")
+            : `<p class="staff-empty">No pairings recorded yet.</p>`;
+
+        const partnerSection = `
+            <div class="staff-section">
+                <h3>Anaesthetists' Top ODP Partner</h3>
+                ${partnerRows}
+            </div>`;
+
         el.innerHTML = `
             <div class="staff-card">
                 <h2>Leaderboard</h2>
                 <p class="staff-subtitle">Top 5 ${since}</p>
                 ${sections}
+                ${partnerSection}
             </div>`;
 
         el.querySelectorAll(".staff-result").forEach(btn => {
