@@ -189,6 +189,92 @@ class StaffProfiles {
         return Object.values(counts).reduce((a, b) => a + b, 0);
     }
 
+    // ---- Leaderboard: top 5 in each category, across everyone at once ----
+    // Same tallying logic as buildOdpStats/buildAnaesStats, just run once
+    // over every person instead of filtered to one name.
+    static buildLeaderboard(rotas) {
+        const odpSessions = {}, odpOnCalls = {}, odpSupport = {};
+        const anaesSessions = {}, anaesOnCalls = {};
+
+        rotas.forEach(rota => {
+            Object.values(rota.days || {}).forEach(value => {
+                (value.theatres || []).forEach(t => {
+                    [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
+                        odpSessions[odp] = (odpSessions[odp] || 0) + 1;
+                    });
+                    if (t.anaesthetist) {
+                        anaesSessions[t.anaesthetist] = (anaesSessions[t.anaesthetist] || 0) + 1;
+                    }
+                });
+
+                const s = value.support || {};
+                [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(odp => {
+                    odpSupport[odp] = (odpSupport[odp] || 0) + 1;
+                });
+
+                const oc = value.onCall || {};
+                if (oc.odp) odpOnCalls[oc.odp] = (odpOnCalls[oc.odp] || 0) + 1;
+                [oc.odp1, oc.odp2].filter(Boolean).forEach(odp => {
+                    odpOnCalls[odp] = (odpOnCalls[odp] || 0) + 1;
+                });
+                if (oc.anaesthetist) anaesOnCalls[oc.anaesthetist] = (anaesOnCalls[oc.anaesthetist] || 0) + 1;
+            });
+        });
+
+        return {
+            weekCount: rotas.length,
+            categories: [
+                { title: "Most Theatre Sessions", role: "odp", counts: odpSessions },
+                { title: "Most On-Call Shifts", role: "odp", counts: odpOnCalls },
+                { title: "Most Support Shifts", role: "odp", counts: odpSupport },
+                { title: "Busiest Anaesthetists", role: "anaes", counts: anaesSessions },
+                { title: "Most On-Calls (Anaesthetists)", role: "anaes", counts: anaesOnCalls }
+            ]
+        };
+    }
+
+    static renderLeaderboard(lb) {
+        const el = document.getElementById("staffProfile");
+        const since = lb.weekCount === 1 ? "this week" : `across the last ${lb.weekCount} published weeks`;
+
+        const sections = lb.categories.map(cat => {
+            const top = StaffProfiles.topN(cat.counts, 5);
+            const rows = top.length
+                ? top.map(([name, count], i) => `
+                    <button class="staff-result" data-role="${cat.role}" data-key="${name}">
+                        <span>${i + 1}. ${name}</span>
+                        <span class="staff-count">${count}</span>
+                    </button>`).join("")
+                : `<p class="staff-empty">No data recorded yet.</p>`;
+
+            return `
+                <div class="staff-section">
+                    <h3>${cat.title}</h3>
+                    ${rows}
+                </div>`;
+        }).join("");
+
+        el.innerHTML = `
+            <div class="staff-card">
+                <h2>Leaderboard</h2>
+                <p class="staff-subtitle">Top 5 ${since}</p>
+                ${sections}
+            </div>`;
+
+        el.querySelectorAll(".staff-result").forEach(btn => {
+            btn.onclick = () => StaffProfiles.loadProfile(btn.dataset.role, btn.dataset.key, btn.dataset.key);
+        });
+    }
+
+    static async showLeaderboard() {
+        document.getElementById("staffSearchInput").value = "";
+        document.getElementById("staffResults").classList.add("hidden");
+        document.getElementById("staffProfile").innerHTML = `<p class="staff-loading">Loading leaderboard…</p>`;
+
+        const rotas = await StaffProfiles.ensureHistory();
+        StaffProfiles.renderLeaderboard(StaffProfiles.buildLeaderboard(rotas));
+    }
+
     // How long ago a date was, in a friendly form
     static timeAgo(iso) {
         if (!iso) return "Never recorded";
@@ -282,9 +368,11 @@ class StaffProfiles {
             (stats.role === "odp" ? stats.supportShifts === 0 : true)) {
             el.innerHTML = `
                 <div class="staff-card">
+                    <a href="#" class="staff-back staff-leaderboard-link">← Leaderboard</a>
                     <h2>${displayName}</h2>
                     <p class="staff-empty">No published rota data found for ${displayName} yet.</p>
                 </div>`;
+            StaffProfiles.wireLeaderboardLink();
             return;
         }
 
@@ -321,6 +409,7 @@ class StaffProfiles {
 
         el.innerHTML = `
             <div class="staff-card">
+                <a href="#" class="staff-back staff-leaderboard-link">← Leaderboard</a>
                 <h2>${displayName} <span class="staff-role-tag">${stats.role === "odp" ? "ODP" : "Anaesthetist"}</span></h2>
 
                 <div class="staff-section">
@@ -360,6 +449,15 @@ class StaffProfiles {
                 </div>
             </div>
         `;
+        StaffProfiles.wireLeaderboardLink();
+    }
+
+    // Shared by both render() exit points (the "no data" card and the
+    // full profile card) - both include a "← Leaderboard" link.
+    static wireLeaderboardLink() {
+        const link = document.querySelector(".staff-leaderboard-link");
+        if (!link) return;
+        link.onclick = (e) => { e.preventDefault(); StaffProfiles.showLeaderboard(); };
     }
 
     static init() {
@@ -386,6 +484,8 @@ class StaffProfiles {
                 document.getElementById("staffResults").classList.add("hidden");
             }
         });
+
+        StaffProfiles.showLeaderboard();
     }
 }
 
