@@ -28,6 +28,26 @@ class StaffProfiles {
         return `${y}-${m}-${day}`;
     }
 
+    static DAY_OFFSETS = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3,
+                            Friday:4, Saturday:5, Sunday:6 };
+
+    // ISO date of one named day within a given week. weekMonday is a
+    // plain "YYYY-MM-DD" string, which Date parses as UTC midnight, and
+    // toISOString() reads back out in UTC too - the arithmetic never
+    // touches the browser's local timezone, so this is safe unlike the
+    // toISOString() pattern flagged elsewhere in this app for "today".
+    static dayIso(weekMonday, day) {
+        const offset = StaffProfiles.DAY_OFFSETS[day];
+        if (offset === undefined) return null;
+        const d = new Date(weekMonday);
+        d.setDate(d.getDate() + offset);
+        return d.toISOString().split("T")[0];
+    }
+
+    static theatreLabel(name) {
+        return name === "Cath Lab" ? "Cath Lab" : name.replace("Theatre ", "CT");
+    }
+
     // Every searchable person: ODPs from config's ODP_NAMES, plus every
     // anaesthetist in ANAESTHETIST_NAMES. Cadence stores anaesthetists
     // under their real name directly (no separate initials/full-name
@@ -60,19 +80,21 @@ class StaffProfiles {
         let firstWeek = null;
         let lastOnCallDate = null;
 
-        const dayOffsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3,
-                              Friday:4, Saturday:5, Sunday:6 };
-
         rotas.forEach(rota => {
             let appearedThisWeek = false;
 
             Object.entries(rota.days || {}).forEach(([day, value]) => {
+                // A day only counts once it's actually happened - matches
+                // Cadence's own Staff Leaderboard, which excludes days
+                // later than today within the week currently in progress.
+                const dayIso = StaffProfiles.dayIso(rota.week, day);
+                if (dayIso && dayIso > todayIso) return;
+
                 (value.theatres || []).forEach(t => {
                     if (t.odp1 === name || t.odp2 === name) {
                         sessions++;
                         appearedThisWeek = true;
-                        const label = t.theatre === "Cath Lab"
-                            ? "Cath Lab" : t.theatre.replace("Theatre ", "CT");
+                        const label = StaffProfiles.theatreLabel(t.theatre);
                         theatreCounts[label] = (theatreCounts[label] || 0) + 1;
                         if (dayCounts[day] !== undefined) dayCounts[day]++;
                         if (t.anaesthetist) {
@@ -87,23 +109,25 @@ class StaffProfiles {
                     appearedThisWeek = true;
                 }
 
-                               const oc = value.onCall || {};
+                // Weekend waiting list runs in Theatre 5 - Cadence counts
+                // it as a real Theatre 5 session, so this has to as well.
+                const wl = value.waitingList || {};
+                if (wl.odp === name) {
+                    sessions++;
+                    appearedThisWeek = true;
+                    theatreCounts["CT5"] = (theatreCounts["CT5"] || 0) + 1;
+                    if (wl.anaesthetist) {
+                        anaesCounts[wl.anaesthetist] = (anaesCounts[wl.anaesthetist] || 0) + 1;
+                    }
+                }
+
+                const oc = value.onCall || {};
                 const onThisDay = oc.odp === name || oc.odp1 === name || oc.odp2 === name;
                 if (onThisDay) {
                     appearedThisWeek = true;
                     if (value.weekend) weekendOnCalls++; else weekdayOnCalls++;
-
-                    const offset = dayOffsets[day];
-                    if (offset !== undefined) {
-                        const d = new Date(rota.week);
-                        d.setDate(d.getDate() + offset);
-                        const iso = d.toISOString().split("T")[0];
-                        // Only counts as "last on-call" if it's today or in
-                        // the past - a future date within an already-
-                        // published week hasn't happened yet.
-                        if (iso <= todayIso && (!lastOnCallDate || iso > lastOnCallDate)) {
-                            lastOnCallDate = iso;
-                        }
+                    if (dayIso && (!lastOnCallDate || dayIso > lastOnCallDate)) {
+                        lastOnCallDate = dayIso;
                     }
                 }
 
@@ -132,19 +156,18 @@ class StaffProfiles {
         let firstWeek = null;
         let lastOnCallDate = null;
 
-        const dayOffsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3,
-                              Friday:4, Saturday:5, Sunday:6 };
-
         rotas.forEach(rota => {
             let appearedThisWeek = false;
 
             Object.entries(rota.days || {}).forEach(([day, value]) => {
+                const dayIso = StaffProfiles.dayIso(rota.week, day);
+                if (dayIso && dayIso > todayIso) return;
+
                 (value.theatres || []).forEach(t => {
                     if (t.anaesthetist === initials) {
                         sessions++;
                         appearedThisWeek = true;
-                        const label = t.theatre === "Cath Lab"
-                            ? "Cath Lab" : t.theatre.replace("Theatre ", "CT");
+                        const label = StaffProfiles.theatreLabel(t.theatre);
                         theatreCounts[label] = (theatreCounts[label] || 0) + 1;
                         if (dayCounts[day] !== undefined) dayCounts[day]++;
                         [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
@@ -153,17 +176,20 @@ class StaffProfiles {
                     }
                 });
 
+                const wl = value.waitingList || {};
+                if (wl.anaesthetist === initials) {
+                    sessions++;
+                    appearedThisWeek = true;
+                    theatreCounts["CT5"] = (theatreCounts["CT5"] || 0) + 1;
+                    if (wl.odp) odpCounts[wl.odp] = (odpCounts[wl.odp] || 0) + 1;
+                }
+
                 const oc = value.onCall || {};
                 if (oc.anaesthetist === initials) {
                     appearedThisWeek = true;
                     if (value.weekend) weekendOnCalls++; else weekdayOnCalls++;
-
-                    const offset = dayOffsets[day];
-                    if (offset !== undefined) {
-                        const d = new Date(rota.week);
-                        d.setDate(d.getDate() + offset);
-                        const iso = d.toISOString().split("T")[0];
-                        if (!lastOnCallDate || iso > lastOnCallDate) lastOnCallDate = iso;
+                    if (dayIso && (!lastOnCallDate || dayIso > lastOnCallDate)) {
+                        lastOnCallDate = dayIso;
                     }
                 }
             });
@@ -193,11 +219,15 @@ class StaffProfiles {
     // Same tallying logic as buildOdpStats/buildAnaesStats, just run once
     // over every person instead of filtered to one name.
     static buildLeaderboard(rotas) {
+        const todayIso = StaffProfiles.todayIso();
         const odpSessions = {}, odpOnCalls = {}, odpSupport = {};
         const anaesSessions = {}, anaesOnCalls = {};
 
         rotas.forEach(rota => {
-            Object.values(rota.days || {}).forEach(value => {
+            Object.entries(rota.days || {}).forEach(([day, value]) => {
+                const dayIso = StaffProfiles.dayIso(rota.week, day);
+                if (dayIso && dayIso > todayIso) return;
+
                 (value.theatres || []).forEach(t => {
                     [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
                         odpSessions[odp] = (odpSessions[odp] || 0) + 1;
@@ -211,6 +241,12 @@ class StaffProfiles {
                 [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(odp => {
                     odpSupport[odp] = (odpSupport[odp] || 0) + 1;
                 });
+
+                // Weekend waiting list runs in Theatre 5 - counts as a real
+                // theatre session, same as Cadence's own leaderboard.
+                const wl = value.waitingList || {};
+                if (wl.odp) odpSessions[wl.odp] = (odpSessions[wl.odp] || 0) + 1;
+                if (wl.anaesthetist) anaesSessions[wl.anaesthetist] = (anaesSessions[wl.anaesthetist] || 0) + 1;
 
                 const oc = value.onCall || {};
                 if (oc.odp) odpOnCalls[oc.odp] = (odpOnCalls[oc.odp] || 0) + 1;
