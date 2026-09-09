@@ -36,5 +36,31 @@ if (localStorage.getItem("theme") === "dark") {
 <script src="api.js"></script>
 <script src="week.js"></script>
 
+<script>
+// Only the Daily Dashboard (index.html) shows the "Update Available"
+// banner, but every page needs to actually pick up a new version - a
+// device that only ever opens Full Week Rota directly would otherwise
+// keep serving whatever was cached the last time index.html was
+// visited. This registers/force-checks the service worker here too,
+// and reloads once if a new one takes control while the page is open.
+if ("serviceWorker" in navigator) {
+    let __reloadedForUpdate = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (__reloadedForUpdate) return;
+        __reloadedForUpdate = true;
+        window.location.reload();
+    });
+
+    window.addEventListener("load", async () => {
+        try {
+            const registration = await navigator.serviceWorker.register("./service-worker.js");
+            await registration.update();
+        } catch (err) {
+            console.error("Service Worker registration failed:", err);
+        }
+    });
+}
+</script>
+
 </body>
 </html>
