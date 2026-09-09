@@ -289,7 +289,75 @@ class StaffProfiles {
         };
     }
 
-    static renderLeaderboard(lb) {
+    // ---- Monthly awards: best SODP each month for sessions and on-call ----
+    // Two separate mini-awards per month rather than one blended score, so
+    // a busy theatre month and a heavy on-call month can each be
+    // recognised on their own terms. Grouped by the day's own calendar
+    // month (not the week's Monday), so a week straddling month-end
+    // splits correctly between the two months it actually falls in.
+    static monthLabel(monthKey) {
+        const names = ["January","February","March","April","May","June",
+                        "July","August","September","October","November","December"];
+        const [y, m] = monthKey.split("-").map(Number);
+        return `${names[m - 1]} ${y}`;
+    }
+
+    // Every name sharing the top count, as [[name,count],...] - a genuine
+    // tie gets joint winners rather than an arbitrary pick.
+    static topTied(counts) {
+        const entries = Object.entries(counts);
+        if (!entries.length) return [];
+        const max = Math.max(...entries.map(([, c]) => c));
+        return entries.filter(([, c]) => c === max).sort((a, b) => a[0].localeCompare(b[0]));
+    }
+
+    static buildMonthlyAwards(rotas) {
+        const todayIso = StaffProfiles.todayIso();
+        const sessionsByMonth = {};
+        const onCallsByMonth = {};
+
+        rotas.forEach(rota => {
+            Object.entries(rota.days || {}).forEach(([day, value]) => {
+                const dayIso = StaffProfiles.dayIso(rota.week, day);
+                if (dayIso && dayIso > todayIso) return;
+                const month = dayIso.slice(0, 7);
+
+                sessionsByMonth[month] = sessionsByMonth[month] || {};
+                onCallsByMonth[month] = onCallsByMonth[month] || {};
+
+                (value.theatres || []).forEach(t => {
+                    [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
+                        sessionsByMonth[month][odp] = (sessionsByMonth[month][odp] || 0) + 1;
+                    });
+                });
+
+                // Weekend waiting list counts as a Theatre 5 session here too.
+                const wl = value.waitingList || {};
+                if (wl.odp) sessionsByMonth[month][wl.odp] = (sessionsByMonth[month][wl.odp] || 0) + 1;
+
+                const oc = value.onCall || {};
+                if (oc.odp) onCallsByMonth[month][oc.odp] = (onCallsByMonth[month][oc.odp] || 0) + 1;
+                [oc.odp1, oc.odp2].filter(Boolean).forEach(odp => {
+                    onCallsByMonth[month][odp] = (onCallsByMonth[month][odp] || 0) + 1;
+                });
+            });
+        });
+
+        const months = [...new Set([...Object.keys(sessionsByMonth), ...Object.keys(onCallsByMonth)])]
+            .sort((a, b) => b.localeCompare(a))
+            .slice(0, 6);
+
+        return months
+            .map(month => ({
+                month,
+                label: StaffProfiles.monthLabel(month),
+                sessionWinners: StaffProfiles.topTied(sessionsByMonth[month] || {}),
+                onCallWinners: StaffProfiles.topTied(onCallsByMonth[month] || {})
+            }))
+            .filter(m => m.sessionWinners.length || m.onCallWinners.length);
+    }
+
+    static renderLeaderboard(lb, monthly) {
         const el = document.getElementById("staffProfile");
         const since = lb.weekCount === 1 ? "this week" : `across the last ${lb.weekCount} published weeks`;
 
@@ -324,15 +392,40 @@ class StaffProfiles {
                 ${partnerRows}
             </div>`;
 
+        const monthlyHtml = monthly.length
+            ? monthly.map(m => {
+                const sessionBadges = m.sessionWinners.length
+                    ? m.sessionWinners.map(([name, count]) =>
+                        `<button class="staff-badge staff-award-badge" data-role="odp" data-key="${name}">Most Sessions: ${name} · ${count}</button>`).join("")
+                    : "";
+                const onCallBadges = m.onCallWinners.length
+                    ? m.onCallWinners.map(([name, count]) =>
+                        `<button class="staff-badge staff-award-badge" data-role="odp" data-key="${name}">Most On-Call: ${name} · ${count}</button>`).join("")
+                    : "";
+                return `
+                    <div class="staff-month">
+                        <div class="staff-month-label">${m.label}</div>
+                        <div class="staff-badges">${sessionBadges}${onCallBadges}</div>
+                    </div>`;
+            }).join("")
+            : `<p class="staff-empty">Not enough data yet for a monthly award.</p>`;
+
+        const monthlySection = `
+            <div class="staff-section">
+                <h3>Monthly Awards</h3>
+                ${monthlyHtml}
+            </div>`;
+
         el.innerHTML = `
             <div class="staff-card">
                 <h2>Leaderboard</h2>
                 <p class="staff-subtitle">Top 5 ${since}</p>
                 ${sections}
                 ${partnerSection}
+                ${monthlySection}
             </div>`;
 
-        el.querySelectorAll(".staff-result").forEach(btn => {
+        el.querySelectorAll(".staff-result, .staff-award-badge").forEach(btn => {
             btn.onclick = () => StaffProfiles.loadProfile(btn.dataset.role, btn.dataset.key, btn.dataset.key);
         });
     }
@@ -343,7 +436,10 @@ class StaffProfiles {
         document.getElementById("staffProfile").innerHTML = `<p class="staff-loading">Loading leaderboard…</p>`;
 
         const rotas = await StaffProfiles.ensureHistory();
-        StaffProfiles.renderLeaderboard(StaffProfiles.buildLeaderboard(rotas));
+        StaffProfiles.renderLeaderboard(
+            StaffProfiles.buildLeaderboard(rotas),
+            StaffProfiles.buildMonthlyAwards(rotas)
+        );
     }
 
     // How long ago a date was, in a friendly form
