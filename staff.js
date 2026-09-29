@@ -106,6 +106,8 @@ class StaffProfiles {
                 const s = value.support || {};
                 if ([s.odp1, s.odp2, s.odp3].includes(name)) {
                     supportShifts++;
+                    sessions++;
+                    theatreCounts["Support"] = (theatreCounts["Support"] || 0) + 1;
                     appearedThisWeek = true;
                 }
 
@@ -140,7 +142,9 @@ class StaffProfiles {
             role: "odp", name, sessions, supportShifts,
             weekdayOnCalls, weekendOnCalls, totalOnCalls: weekdayOnCalls + weekendOnCalls,
             theatreCounts, anaesCounts, dayCounts, firstWeek, lastOnCallDate,
-            distinctTheatres: Object.keys(theatreCounts).length,
+            // "Support" isn't a real theatre, so it doesn't count towards
+            // how many actual theatres someone has worked in (All-Rounder).
+            distinctTheatres: Object.keys(theatreCounts).filter(k => k !== "Support").length,
             distinctAnaes: Object.keys(anaesCounts).length
         };
     }
@@ -245,6 +249,7 @@ class StaffProfiles {
                 const s = value.support || {};
                 [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(odp => {
                     odpSupport[odp] = (odpSupport[odp] || 0) + 1;
+                    odpSessions[odp] = (odpSessions[odp] || 0) + 1;
                 });
 
                 // Weekend waiting list runs in Theatre 5 - counts as a real
@@ -329,6 +334,11 @@ class StaffProfiles {
                     [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
                         sessionsByMonth[month][odp] = (sessionsByMonth[month][odp] || 0) + 1;
                     });
+                });
+
+                const s = value.support || {};
+                [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(odp => {
+                    sessionsByMonth[month][odp] = (sessionsByMonth[month][odp] || 0) + 1;
                 });
 
                 // Weekend waiting list counts as a Theatre 5 session here too.
