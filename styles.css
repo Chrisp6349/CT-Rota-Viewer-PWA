@@ -376,6 +376,13 @@ main{
     color:var(--ink-soft);
 }
 
+.oncall-cicu{
+    font-size:13px;
+    font-weight:600;
+    margin-top:4px;
+    color:var(--ink-soft);
+}
+
 .oncall-header{
     background:var(--oncall);
     color:#fff;

@@ -154,6 +154,10 @@ class OnCallNow {
             people += `<div class="now-anaes">${oc.anaesthetist || "-"}</div>`;
         }
 
+        if (value.cicu) {
+            people += `<div class="now-cicu">CICU: ${value.cicu}</div>`;
+        }
+
         mount.innerHTML = `
             <div class="oncall-now ${s.active ? "now-active" : "now-upcoming"}">
                 <div class="now-badge">

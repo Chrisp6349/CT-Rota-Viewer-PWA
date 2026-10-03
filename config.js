@@ -31,6 +31,11 @@ const ODP_NAMES = [];
 const ANAESTHETIST_NAMES = [];
 const CADENCE_THEATRES = [];   // [{id, name}, ...] in display order
 const BANK_HOLIDAYS_SET = new Set();
+// Anaesthetist initials ("PJ") -> full name, for resolving CICU imports
+// from The Atrium (CADEX) - see rota.js's own resolveCadexAnaesthetist(),
+// which this mirrors. Only CADEX uses initials; everything else in
+// Cadence's rota data already uses full names directly.
+const CADEX_ANAES_INITIALS = {};
 
 function isBankHoliday(iso) {
     return BANK_HOLIDAYS_SET.has(iso);
@@ -63,7 +68,10 @@ const CadenceData = {
 
         staff
             .filter(s => s.type === "anaesthetist")
-            .forEach(s => ANAESTHETIST_NAMES.push(s.name));
+            .forEach(s => {
+                ANAESTHETIST_NAMES.push(s.name);
+                if (s.initials) CADEX_ANAES_INITIALS[s.initials.trim().toUpperCase()] = s.name;
+            });
 
         Object.keys((dept && dept.bankHolidays) || {}).forEach(iso => BANK_HOLIDAYS_SET.add(iso));
 

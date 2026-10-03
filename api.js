@@ -18,17 +18,33 @@
 
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
+// The Atrium identifies consultants by initials ("PJ"); CADEX_ANAES_INITIALS
+// (config.js) maps those to the full name Cadence's own staff list has for
+// them. Mirrors rota.js's own resolveCadexAnaesthetist() - no match (not
+// set up in Staff yet, or a locum) falls back to the raw initials as-is.
+function resolveCadexAnaesthetist(raw) {
+    if (!raw) return "";
+    const resolved = CADEX_ANAES_INITIALS[raw.trim().toUpperCase()];
+    return resolved || raw;
+}
+
 // Turns Cadence's flat rota keys + the department's own theatre list
 // (CADENCE_THEATRES from config.js: [{id, name}, ...]) into the same
 // nested viewer shape the old Google Sheets backend used to publish.
-function buildViewerShape(week, flatData, theatres) {
+// `cadexDays` is the week's optional CADEX import ({monday: {"CICU": "VR"},
+// ...}, keyed lowercase) - CICU has no field of its own in Cadence, it's
+// purely this read-only import, same as rota.js's own cicuReadout().
+function buildViewerShape(week, flatData, theatres, cadexDays) {
     const data = flatData || {};
     const out = { week, days: {} };
 
     DAYS.forEach(day => {
+        const cicu = resolveCadexAnaesthetist((cadexDays && cadexDays[day.toLowerCase()] || {}).CICU);
+
         if (day === "Saturday" || day === "Sunday") {
             out.days[day] = {
                 weekend: true,
+                cicu,
                 onCall: {
                     odp1: data[`${day}_oncall_odp1`] || "",
                     session1: data[`${day}_oncall_session1`] || "",
@@ -43,6 +59,7 @@ function buildViewerShape(week, flatData, theatres) {
             };
         } else {
             out.days[day] = {
+                cicu,
                 theatres: theatres.map(t => ({
                     theatre: t.name,
                     odp1: data[`${day}_${t.id}_odp1`] || "",
@@ -143,11 +160,18 @@ class RotaAPI {
         const cached = RotaAPI.getCached(cacheKey);
         if (cached) return cached;
 
-        await CadenceData.ready; // needed for CADENCE_THEATRES
-        const doc = await CadenceFirestore.getDoc(
-            `departments/${CADENCE.DEPARTMENT_ID}/weeks/${normalized}`
-        );
-        const rota = buildViewerShape(normalized, doc && doc.data, CADENCE_THEATRES);
+        await CadenceData.ready; // needed for CADENCE_THEATRES and CADEX_ANAES_INITIALS
+
+        // CICU has no field of its own in Cadence - it only ever exists
+        // if this department has The Atrium connected. A department
+        // without CADEX set up simply has no cadexImports doc for any
+        // week, so this quietly resolves to null and every day's `cicu`
+        // comes back empty - the same graceful fallback rota.js uses.
+        const [doc, cadexDoc] = await Promise.all([
+            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/weeks/${normalized}`),
+            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/cadexImports/${normalized}`)
+        ]);
+        const rota = buildViewerShape(normalized, doc && doc.data, CADENCE_THEATRES, cadexDoc && cadexDoc.days);
 
         RotaAPI.setCached(cacheKey, rota);
         return rota;

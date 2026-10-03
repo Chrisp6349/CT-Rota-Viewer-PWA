@@ -100,6 +100,7 @@ if (!isWeekend && typeof isBankHoliday === "function") {
                     <div class="oncall-anaesthetist">
                         ${oc.anaesthetist || "-"}
                     </div>
+                    ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
                 </div>
             </div>
 
@@ -310,6 +311,7 @@ return;
                 <div class="oncall-anaesthetist">
                     ${value.onCall?.anaesthetist || "-"}
                 </div>
+                ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
 
             </div>
 
@@ -426,6 +428,7 @@ ${
                 <div class="info">
                     ${value.onCall?.anaesthetist || "-"}
                 </div>
+                ${value.cicu ? `<div class="info oncall-cicu">CICU: ${value.cicu}</div>` : ``}
 
             </div>
 

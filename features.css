@@ -82,6 +82,7 @@
 .now-people { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 .now-person { font-size: 16px; font-weight: 700; }
 .now-anaes  { font-size: 14px; font-weight: 600; opacity: .9; }
+.now-cicu   { font-size: 14px; font-weight: 600; opacity: .9; }
 .now-session, .now-extra { font-size: 12px; font-weight: 700; }
 .now-fromhome {
     background: rgba(255,255,255,.22);
@@ -215,7 +216,8 @@ html[data-theme="dark"] .card-body { color: #E4E9EF; }
 html[data-theme="dark"] .info,
 html[data-theme="dark"] .day-date,
 html[data-theme="dark"] .weekend-title,
-html[data-theme="dark"] .oncall-anaesthetist { color: #93A1B1; }
+html[data-theme="dark"] .oncall-anaesthetist,
+html[data-theme="dark"] .oncall-cicu { color: #93A1B1; }
 
 html[data-theme="dark"] .day-tab,
 html[data-theme="dark"] .feature-btn,
