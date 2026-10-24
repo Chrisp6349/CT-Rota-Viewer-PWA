@@ -63,8 +63,12 @@ class Viewer {
 
     // Renders the entire week: five weekday sections (each either a
     // normal theatre-grid day or, on a bank holiday, a cover-only card)
-    // followed by one combined weekend section.
-    static render(data) {
+    // followed by one combined weekend section. `scrollToToday` jumps
+    // straight to today's section once rendered (if this week has one) -
+    // used on first load, so opening the app doesn't leave someone on a
+    // Thursday looking at Monday and having to scroll past everything
+    // already gone by.
+    static render(data, scrollToToday = false) {
 
         // Make the currently loaded rota available to the Insights engine
         window.currentRota = data;
@@ -104,6 +108,11 @@ class Viewer {
     </section>`;
 
         container.innerHTML = weekdaySections + weekendSection;
+
+        if (scrollToToday) {
+            const todayEl = container.querySelector(".day-today");
+            if (todayEl) todayEl.scrollIntoView({ block: "start" });
+        }
     }
 
     // Bank holiday: no operating lists run, so instead of the normal

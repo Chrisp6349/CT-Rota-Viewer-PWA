@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (weekSelect) populateDropdown();
 
             window.__currentWeek = rota.week;
-            Viewer.render(rota);
+            Viewer.render(rota, true); // jump straight to today's section on first load
 
 
             // Feed the newer features
