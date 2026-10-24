@@ -442,11 +442,11 @@ ${
             <div class="card-body">
 
                 <div class="person">
-                    ${value.waitingList?.odp || "-"}
+                    ${value.waitingList?.odp || "NO LIST"}
                 </div>
 
                 <div class="info">
-                    ${value.waitingList?.anaesthetist || "-"}
+                    ${value.waitingList?.anaesthetist || "NO LIST"}
                 </div>
 
             </div>
