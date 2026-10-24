@@ -9,7 +9,7 @@
    ===================================================== */
 
 :root{
-    --nhs-blue:#475569;
+    --nhs-blue:#2563EB;
     --ink:#212B32;
     --ink-soft:#4C6272;
     --line:#E1E6EA;
@@ -168,7 +168,7 @@
 .settings-textsize-btn.active {
     border-color: var(--nhs-blue);
     color: var(--nhs-blue);
-    background: #EDEFF2;
+    background: #E6EEFD;
 }
 
 /* ============================
@@ -210,6 +210,6 @@ html[data-theme="dark"] .settings-textsize-btn {
 }
 html[data-theme="dark"] .settings-textsize-btn.active {
     border-color: var(--nhs-blue);
-    color: #C7CED6;
-    background: #28313B;
+    color: #9DBFF2;
+    background: #1C2C4A;
 }

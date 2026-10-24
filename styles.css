@@ -16,12 +16,13 @@
    ===================================================== */
 
 :root{
-    /* One neutral graphite accent (and a darker shade of the same
-       hue for hover/emphasis) in place of the old NHS blue branding -
+    /* One vibrant accent (and two darker shades of the same hue, for
+       hierarchy and hover/emphasis) used everywhere a colour appears -
        every card header, button and tag below is a shade of this one
-       colour, not a different hue per theatre/status. */
-    --nhs-blue:#475569;
-    --nhs-dark:#1E293B;
+       colour, not a different hue per theatre/status. Was a desaturated
+       graphite; this is the same single-accent structure, just punchier. */
+    --nhs-blue:#2563EB;
+    --nhs-dark:#1E3A8A;
 
     --ink:#212B32;
     --ink-soft:#4C6272;
@@ -35,19 +36,19 @@
 
     --radius:12px;
 
-    /* Theatre accents - all the same neutral now (was a different hue
-       per theatre). Kept as separate variables so each .theatreN class
+    /* Theatre accents - all the same hue (was a different one per
+       theatre). Kept as separate variables so each .theatreN class
        still only needs a one-line rule. */
-    --theatre1:#475569;
-    --theatre2:#475569;
-    --theatre4:#475569;
-    --theatre5:#475569;
-    --cathlab:#475569;
+    --theatre1:#2563EB;
+    --theatre2:#2563EB;
+    --theatre4:#2563EB;
+    --theatre5:#2563EB;
+    --cathlab:#2563EB;
 
     /* Support/On Call cards use one step darker, so the grid still
        reads with a little hierarchy without introducing a new hue. */
-    --support:#334155;
-    --oncall:#334155;
+    --support:#1D4ED8;
+    --oncall:#1D4ED8;
 }
 
 *{
@@ -96,7 +97,7 @@ body{
     margin-top:8px;
     font-size:14px;
     font-weight:600;
-    color:#C7CED6;
+    color:#BFD3F5;
 }
 
 .hero-right{
@@ -373,7 +374,7 @@ main{
    scrolling a full week of these. */
 .daySection.day-today,
 .weekend-card.day-today{
-    background:linear-gradient(180deg, rgba(71,85,105,.07), transparent 120px);
+    background:linear-gradient(180deg, rgba(37,99,235,.07), transparent 120px);
     border-radius:var(--radius);
 }
 
@@ -547,12 +548,12 @@ main{
     display:inline-block;
     margin:10px 0;
     padding:4px 11px;
-    background:#EDF0F3;
+    background:#E6EEFD;
     border-radius:999px;
     font-size:12px;
     font-weight:700;
     letter-spacing:.03em;
-    color:var(--ink-soft);
+    color:var(--nhs-blue);
 }
 
 .oncall-body{
@@ -1023,7 +1024,7 @@ footer{
 
     .from-home{
         display:inline-block;
-        background:#334155;
+        background:#1D4ED8;
         color:#fff;
         padding:8px 16px;
         border-radius:999px;

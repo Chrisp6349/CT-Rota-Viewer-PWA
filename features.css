@@ -15,12 +15,12 @@
    ===================================================== */
 
 :root{
-    --nhs-blue:#475569;
-    --nhs-dark:#1E293B;
+    --nhs-blue:#2563EB;
+    --nhs-dark:#1E3A8A;
     --ink:#212B32;
     --ink-soft:#4C6272;
     --line:#E1E6EA;
-    --oncall:#334155;
+    --oncall:#1D4ED8;
     --radius:12px;
 }
 
@@ -239,10 +239,10 @@ html[data-theme="dark"] .daySection { border-top-color: #2A3542; }
    specifically, has to out-specificity the "keep it invisible" dark-
    mode fix below or that rule's plain `background: transparent` wins. */
 html[data-theme="dark"] .daySection.day-today {
-    background: linear-gradient(180deg, rgba(71,85,105,.22), transparent 120px);
+    background: linear-gradient(180deg, rgba(37,99,235,.22), transparent 120px);
 }
 html[data-theme="dark"] .weekend-card.day-today {
-    background: linear-gradient(180deg, rgba(71,85,105,.22), transparent 120px);
+    background: linear-gradient(180deg, rgba(37,99,235,.22), transparent 120px);
 }
 
 html[data-theme="dark"] .day-header { background: #10161f; }
