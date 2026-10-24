@@ -115,11 +115,75 @@ class Viewer {
         }
     }
 
+    // Builds the role-by-role grid shared by every On Call box (weekday,
+    // bank holiday, and weekend) - each role its own labelled cell
+    // ("SODP", "Anaesthetist", "CICU", ...) rather than a run of bare
+    // names, so it's clear at a glance who's covering what.
+    static renderOnCallRoles(value, weekend) {
+        const oc = value.onCall || {};
+        let roles = "";
+
+        if (weekend) {
+            const shifts = [];
+            if (oc.odp1 || oc.odp) shifts.push(`${oc.session1 ? oc.session1 + " " : ""}${oc.odp1 || oc.odp}`);
+            if (oc.odp2) shifts.push(`${oc.session2 ? oc.session2 + " " : ""}${oc.odp2}`);
+            roles += `
+                <div class="oncall-role">
+                    <div class="oncall-role-label">SODP</div>
+                    ${shifts.length
+                        ? shifts.map(s => `<div class="oncall-role-value">${s}</div>`).join("")
+                        : `<div class="oncall-role-value">-</div>`}
+                </div>`;
+        } else {
+            roles += `
+                <div class="oncall-role">
+                    <div class="oncall-role-label">SODP</div>
+                    <div class="oncall-role-value">${oc.odp || "No allocation"}</div>
+                    ${oc.extra ? `<div class="oncall-role-extra">${oc.extra}</div>` : ``}
+                    ${oc.fromHome ? `<div class="from-home">From Home</div>` : ``}
+                </div>`;
+        }
+
+        roles += `
+            <div class="oncall-role">
+                <div class="oncall-role-label">Anaesthetist</div>
+                <div class="oncall-role-value">${oc.anaesthetist || "-"}</div>
+            </div>`;
+
+        // Weekends don't get a separate CICU role - the same anaesthetist
+        // shown above covers CICU too all weekend, so it'd just repeat
+        // what's already on screen.
+        if (value.cicu && !weekend) {
+            roles += `
+            <div class="oncall-role">
+                <div class="oncall-role-label">CICU</div>
+                <div class="oncall-role-value">${value.cicu}</div>
+            </div>`;
+        }
+
+        if (oc.surgeonCardiac) {
+            roles += `
+            <div class="oncall-role">
+                <div class="oncall-role-label">Cardiac Surgeon</div>
+                <div class="oncall-role-value">${oc.surgeonCardiac}</div>
+            </div>`;
+        }
+
+        if (oc.surgeonThoracic) {
+            roles += `
+            <div class="oncall-role">
+                <div class="oncall-role-label">Thoracic Surgeon</div>
+                <div class="oncall-role-value">${oc.surgeonThoracic}</div>
+            </div>`;
+        }
+
+        return `<div class="oncall-role-grid">${roles}</div>`;
+    }
+
     // Bank holiday: no operating lists run, so instead of the normal
     // theatre grid, show a weekend-style cover card with just the
     // on-call team. (Bank holiday dates live in config.js.)
     static renderBankHolidayDay(day, displayDate, value, isToday) {
-        const oc = value.onCall || {};
 
         return `
     <section class="daySection dashboard-layout ${isToday ? "day-today" : ""}">
@@ -129,30 +193,20 @@ class Viewer {
             <div class="day-date">${displayDate}</div>
         </div>
 
-        <div class="dashboard-row">
-
-            <div class="card dashboard-panel">
-                <div class="card-header oncall-header">On Call</div>
-                <div class="card-body oncall-body">
-                    <div class="oncall-person">${oc.odp || "No allocation"}</div>
-                    ${oc.extra ? `<div class="info">${oc.extra}</div>` : ``}
-                    ${oc.fromHome ? `<div class="from-home">From Home</div>` : ``}
-                    <div class="oncall-anaesthetist">
-                        ${oc.anaesthetist || "-"}
-                    </div>
-                    ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
-                    ${oc.surgeonCardiac ? `<div class="oncall-surgeon">Cardiac Surgeon: ${oc.surgeonCardiac}</div>` : ``}
-                    ${oc.surgeonThoracic ? `<div class="oncall-surgeon">Thoracic Surgeon: ${oc.surgeonThoracic}</div>` : ``}
-                </div>
+        <div class="card oncall-wide">
+            <div class="card-header oncall-header">On Call</div>
+            <div class="card-body">
+                ${Viewer.renderOnCallRoles(value, false)}
             </div>
+        </div>
 
+        <div class="dashboard-row">
             <div class="card dashboard-panel">
                 <div class="card-header support-header">Lists</div>
                 <div class="card-body">
                     <div class="info">No operating lists today — Bank Holiday</div>
                 </div>
             </div>
-
         </div>
 
     </section>
@@ -274,88 +328,43 @@ class Viewer {
             `;
         });
 
+        // Support joins the same grid as another uniformly-sized card,
+        // same styling as every theatre card, instead of sitting in its
+        // own separate (differently-sized) row.
         html += `
+            <div class="card theatre-card">
+
+               <div class="card-header support-header">
+    Support
+</div>
+
+                <div class="card-body compact-card">
+            `;
+
+        if (!value.support?.odp1 && !value.support?.odp2 && !value.support?.odp3) {
+            html += `
+                    <div class="info">
+                        No allocation
+                    </div>
+                `;
+        } else {
+            if (value.support?.odp1) html += `<div class="person">${value.support.odp1}</div>`;
+            if (value.support?.odp2) html += `<div class="person">${value.support.odp2}</div>`;
+            if (value.support?.odp3) html += `<div class="person">${value.support.odp3}</div>`;
+        }
+        if (value.support?.list) html += `<div class="info">${value.support.list}</div>`;
+
+        html += `
+                </div>
+            </div>
 
     </div>
 
-    <div class="dashboard-row">
-
-        <div class="card dashboard-panel">
-
-            <div class="card-header oncall-header">
-                On Call
-            </div>
-
-            <div class="card-body oncall-body">
-
-                <div class="oncall-person">
-                    ${value.onCall?.odp || "No allocation"}
-                </div>
-                ${
-    value.onCall?.extra
-    ? `<div class="info">${value.onCall.extra}</div>`
-    : ``
-}
-                ${
-                    value.onCall?.fromHome
-                    ? `<div class="from-home">From Home</div>`
-                    : ``
-                }
-
-                <div class="oncall-anaesthetist">
-                    ${value.onCall?.anaesthetist || "-"}
-                </div>
-                ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
-                ${value.onCall?.surgeonCardiac ? `<div class="oncall-surgeon">Cardiac Surgeon: ${value.onCall.surgeonCardiac}</div>` : ``}
-                ${value.onCall?.surgeonThoracic ? `<div class="oncall-surgeon">Thoracic Surgeon: ${value.onCall.surgeonThoracic}</div>` : ``}
-
-            </div>
-
+    <div class="card oncall-wide">
+        <div class="card-header oncall-header">On Call</div>
+        <div class="card-body">
+            ${Viewer.renderOnCallRoles(value, false)}
         </div>
-
-        <div class="card dashboard-panel">
-
-            <div class="card-header support-header">
-                Support
-            </div>
-
-            <div class="card-body">
-
-              ${
-    value.support?.odp1
-        ? `<div class="person">${value.support.odp1}</div>`
-        : ``
-}
-
-${
-    value.support?.odp2
-        ? `<div class="person">${value.support.odp2}</div>`
-        : ``
-}
-
-${
-    value.support?.odp3
-        ? `<div class="person">${value.support.odp3}</div>`
-        : ``
-}
-
-${
-    !value.support?.odp1 &&
-    !value.support?.odp2 &&
-    !value.support?.odp3
-        ? `<div class="info">No allocation</div>`
-        : ``
-}
-                ${
-                    value.support?.list
-                    ? `<div class="info">${value.support.list}</div>`
-                    : ``
-                }
-
-            </div>
-
-        </div>
-
     </div>
 
 </section>
@@ -383,27 +392,7 @@ ${
             </div>
 
             <div class="card-body">
-
-               <div class="person">
-    ${value.onCall?.session1 ? value.onCall.session1 + " " : ""}
-    ${value.onCall?.odp1 || value.onCall?.odp || "-"}
-</div>
-
-${
-    value.onCall?.odp2
-    ? `<div class="person">
-        ${value.onCall?.session2 ? value.onCall.session2 + " " : ""}
-        ${value.onCall.odp2}
-      </div>`
-    : ""
-}
-
-                <div class="info">
-                    ${value.onCall?.anaesthetist || "-"}
-                </div>
-                ${value.onCall?.surgeonCardiac ? `<div class="info oncall-surgeon">Cardiac Surgeon: ${value.onCall.surgeonCardiac}</div>` : ``}
-                ${value.onCall?.surgeonThoracic ? `<div class="info oncall-surgeon">Thoracic Surgeon: ${value.onCall.surgeonThoracic}</div>` : ``}
-
+                ${Viewer.renderOnCallRoles(value, true)}
             </div>
 
         </div>

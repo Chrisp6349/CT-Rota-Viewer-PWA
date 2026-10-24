@@ -326,10 +326,10 @@ main{
     gap:10px;
     width:100%;
     margin:16px 0;
-    /* start, not stretch - a theatre with one ODP shouldn't be forced
-       up to match a two-ODP neighbour's height, leaving a dead gap at
-       the bottom. Each card now hugs its own content instead. */
-    align-items:start;
+    /* Every box in the grid (theatres and Support alike) is meant to
+       read as one uniform set, so they're stretched to a shared row
+       height rather than each hugging its own content. */
+    align-items:stretch;
 }
 
 .card{
@@ -494,6 +494,48 @@ main{
 .dashboard-panel{
     flex:1;
     min-height:180px;
+}
+
+/* On Call: one full-width card below the theatre/Support grid (not
+   squeezed into half the row next to Support any more), broken into a
+   role-by-role grid so it's clear who's covering what, not just a run
+   of names. Reused for the weekend On Call card too, inside its
+   existing (narrower, paired-with-Waiting-List) box - the grid just
+   collapses to fewer columns there. */
+.oncall-wide{
+    width:100%;
+    margin-top:12px;
+}
+
+.oncall-role-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:14px;
+}
+
+.oncall-role{
+    text-align:center;
+}
+
+.oncall-role-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+}
+
+.oncall-role-value{
+    font-size:15px;
+    font-weight:700;
+}
+
+.oncall-role-extra{
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin-top:2px;
 }
 
 .dashboard-row .card-header{
