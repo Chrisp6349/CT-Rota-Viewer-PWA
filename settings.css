@@ -9,7 +9,7 @@
    ===================================================== */
 
 :root{
-    --nhs-blue:#005EB8;
+    --nhs-blue:#475569;
     --ink:#212B32;
     --ink-soft:#4C6272;
     --line:#E1E6EA;
@@ -134,6 +134,12 @@
 .settings-switch[aria-checked="true"] .settings-switch-knob {
     transform: translateX(20px);
 }
+.settings-switch:active .settings-switch-knob {
+    transform:scale(.92) translateX(0);
+}
+.settings-switch[aria-checked="true"]:active .settings-switch-knob {
+    transform:scale(.92) translateX(20px);
+}
 
 /* Text size picker */
 
@@ -151,7 +157,9 @@
     font-weight: 700;
     color: var(--ink-soft);
     cursor: pointer;
+    transition: transform .1s ease, border-color .15s ease, color .15s ease, background .15s ease;
 }
+.settings-textsize-btn:active { transform: scale(.95); }
 
 .settings-textsize-btn[data-size="small"] { font-size: 13px; }
 .settings-textsize-btn[data-size="normal"] { font-size: 16px; }
@@ -160,7 +168,7 @@
 .settings-textsize-btn.active {
     border-color: var(--nhs-blue);
     color: var(--nhs-blue);
-    background: #EAF2FB;
+    background: #EDEFF2;
 }
 
 /* ============================
@@ -202,6 +210,6 @@ html[data-theme="dark"] .settings-textsize-btn {
 }
 html[data-theme="dark"] .settings-textsize-btn.active {
     border-color: var(--nhs-blue);
-    color: #7FB8E8;
-    background: #1A2C40;
+    color: #C7CED6;
+    background: #28313B;
 }

@@ -16,8 +16,12 @@
    ===================================================== */
 
 :root{
-    --nhs-blue:#005EB8;
-    --nhs-dark:#003087;
+    /* One neutral graphite accent (and a darker shade of the same
+       hue for hover/emphasis) in place of the old NHS blue branding -
+       every card header, button and tag below is a shade of this one
+       colour, not a different hue per theatre/status. */
+    --nhs-blue:#475569;
+    --nhs-dark:#1E293B;
 
     --ink:#212B32;
     --ink-soft:#4C6272;
@@ -31,15 +35,19 @@
 
     --radius:12px;
 
-    /* Theatre accents - same hues as the Week view columns */
-    --theatre1:#005EB8;   /* CT1  - NHS blue */
-    --theatre2:#00A9CE;   /* CT2  - aqua */
-    --theatre4:#007F3B;   /* CT4  - green */
-    --theatre5:#7C2855;   /* CT5  - aubergine */
-    --cathlab:#ED8B00;    /* Cath - amber */
+    /* Theatre accents - all the same neutral now (was a different hue
+       per theatre). Kept as separate variables so each .theatreN class
+       still only needs a one-line rule. */
+    --theatre1:#475569;
+    --theatre2:#475569;
+    --theatre4:#475569;
+    --theatre5:#475569;
+    --cathlab:#475569;
 
-    --support:#37464F;    /* neutral slate, not a theatre colour */
-    --oncall:#DA291C;     /* NHS red */
+    /* Support/On Call cards use one step darker, so the grid still
+       reads with a little hierarchy without introducing a new hue. */
+    --support:#334155;
+    --oncall:#334155;
 }
 
 *{
@@ -88,7 +96,7 @@ body{
     margin-top:8px;
     font-size:14px;
     font-weight:600;
-    color:#B8D4F0;
+    color:#C7CED6;
 }
 
 .hero-right{
@@ -151,6 +159,10 @@ body{
 
 .week-picker-body .nav-arrow:hover{
     background:var(--nhs-dark);
+}
+
+.week-picker-body .nav-arrow:active{
+    transform:scale(.92);
 }
 
 .week-picker{
@@ -218,13 +230,35 @@ body{
 }
 
 #loading{
-    color:var(--nhs-blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:var(--ink-soft);
     font-weight:600;
+    font-size:13.5px;
 }
 
+.status-dots{
+    display:inline-flex;
+    gap:4px;
+}
+
+.status-dots span{
+    display:inline-block;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--nhs-blue);
+    animation:pulse 1.2s infinite ease-in-out;
+}
+
+.status-dots span:nth-child(2){ animation-delay:.2s; }
+.status-dots span:nth-child(3){ animation-delay:.4s; }
+
 #error{
-    color:var(--oncall);
-    font-weight:600;
+    color:var(--nhs-dark);
+    font-weight:700;
 }
 
 /* ===========================
@@ -244,8 +278,8 @@ main{
 .day-heading{
     margin:0;
     font-size:26px;
-    font-weight:700;
-    letter-spacing:-.01em;
+    font-weight:800;
+    letter-spacing:-.015em;
     line-height:1.2;
     text-align:center;
     /* No explicit colour - inherits from body, which dark mode
@@ -279,14 +313,30 @@ main{
 .day-date{
     text-align:center;
     color:var(--ink-soft);
-    font-size:15px;
+    font-size:13.5px;
     margin-top:4px;
     margin-bottom:16px;
-    font-weight:600;
+    font-weight:500;
 }
 
+/* Sticky while its day's cards scroll past, so you always know which
+   day you're looking at on a long full-week page. Each section's own
+   header takes over the moment the previous one scrolls out - the
+   solid background stops cards showing through underneath it. */
 .day-header{
+    /* Its parent (.dashboard-layout) is a flex column with
+       align-items:center, which shrink-wraps children to their content
+       width by default - without an explicit width here the sticky
+       background below would only cover the heading text, not the
+       full row, leaving the cards scrolling past visible either side
+       of it. */
+    width:100%;
     text-align:center;
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:var(--page-bg);
+    padding:10px 0 2px;
 }
 
 /* Each day's section now sits directly above the next on one scrolling
@@ -308,7 +358,7 @@ main{
    scrolling a full week of these. */
 .daySection.day-today,
 .weekend-card.day-today{
-    background:linear-gradient(180deg, rgba(0,94,184,.05), transparent 120px);
+    background:linear-gradient(180deg, rgba(71,85,105,.07), transparent 120px);
     border-radius:var(--radius);
 }
 
@@ -371,10 +421,10 @@ main{
 }
 .rota-row:last-child{ border-bottom:none; }
 .rota-row-label{
-    font-size:11.5px;
-    font-weight:700;
+    font-size:11px;
+    font-weight:600;
     text-transform:uppercase;
-    letter-spacing:.03em;
+    letter-spacing:.05em;
     color:var(--ink-soft);
     white-space:nowrap;
     flex-shrink:0;
@@ -429,6 +479,11 @@ main{
     box-shadow:var(--shadow-lift);
 }
 
+.card:active{
+    transform:translateY(0) scale(.99);
+    box-shadow:var(--shadow-sm);
+}
+
 .card-header{
     color:#fff;
     padding:8px 10px;
@@ -477,12 +532,12 @@ main{
     display:inline-block;
     margin:10px 0;
     padding:4px 11px;
-    background:#FBF0E4;
+    background:#EDF0F3;
     border-radius:999px;
     font-size:12px;
     font-weight:700;
     letter-spacing:.03em;
-    color:#B45F00;
+    color:var(--ink-soft);
 }
 
 .oncall-body{
@@ -710,7 +765,7 @@ footer{
     align-items:center;
     gap:6px;
     font-weight:700;
-    color:#1B7A3D;
+    color:var(--ink-soft);
 }
 
 .live-indicator::before{
@@ -718,7 +773,7 @@ footer{
     width:8px;
     height:8px;
     border-radius:50%;
-    background:#1B7A3D;
+    background:var(--nhs-dark);
 }
 
 #refreshAppBtn{
@@ -953,7 +1008,7 @@ footer{
 
     .from-home{
         display:inline-block;
-        background:#37464F;
+        background:#334155;
         color:#fff;
         padding:8px 16px;
         border-radius:999px;

@@ -15,12 +15,12 @@
    ===================================================== */
 
 :root{
-    --nhs-blue:#005EB8;
-    --nhs-dark:#003087;
+    --nhs-blue:#475569;
+    --nhs-dark:#1E293B;
     --ink:#212B32;
     --ink-soft:#4C6272;
     --line:#E1E6EA;
-    --oncall:#DA291C;
+    --oncall:#334155;
     --radius:12px;
 }
 
@@ -183,8 +183,10 @@
     white-space: nowrap;
     text-decoration: none;
     display: inline-block;
+    transition: transform .1s ease, border-color .15s ease, color .15s ease;
 }
 .feature-btn:hover { border-color: var(--nhs-blue); color: var(--nhs-blue); }
+.feature-btn:active { transform: scale(.96); }
 
 .feature-row {
     display: flex;
@@ -237,24 +239,37 @@ html[data-theme="dark"] .daySection { border-top-color: #2A3542; }
    specifically, has to out-specificity the "keep it invisible" dark-
    mode fix below or that rule's plain `background: transparent` wins. */
 html[data-theme="dark"] .daySection.day-today {
-    background: linear-gradient(180deg, rgba(0,94,184,.16), transparent 120px);
+    background: linear-gradient(180deg, rgba(71,85,105,.22), transparent 120px);
 }
 html[data-theme="dark"] .weekend-card.day-today {
-    background: linear-gradient(180deg, rgba(0,94,184,.16), transparent 120px);
+    background: linear-gradient(180deg, rgba(71,85,105,.22), transparent 120px);
 }
+
+html[data-theme="dark"] .day-header { background: #10161f; }
 
 html[data-theme="dark"] .day-tab,
 html[data-theme="dark"] .feature-btn,
 html[data-theme="dark"] .myweek-name,
 html[data-theme="dark"] .myweek-switch,
-html[data-theme="dark"] .nav-arrow,
 html[data-theme="dark"] #weekSelect {
     background: #1B2430;
     color: #E4E9EF;
     border-color: #3A4656;
 }
 
-html[data-theme="dark"] .day-tab.active { background: #005EB8; color: #fff; }
+/* The week-picker arrows keep their filled accent look in dark mode too
+   - without this they fell back to the same flat card tone as the
+   dropdown next to them and stopped reading as buttons. */
+html[data-theme="dark"] .week-picker-body .nav-arrow {
+    background: var(--nhs-blue);
+    color: #fff;
+    border-color: transparent;
+}
+html[data-theme="dark"] .week-picker-body .nav-arrow:hover {
+    background: var(--nhs-dark);
+}
+
+html[data-theme="dark"] .day-tab.active { background: var(--nhs-blue); color: #fff; }
 html[data-theme="dark"] .myweek-row { background: #232E3C; }
 html[data-theme="dark"] .myweek-oncall { background: #3A2022; }
 html[data-theme="dark"] .myweek-hint { color: #93A1B1; }
@@ -304,7 +319,9 @@ body.tv {
     font-size: 26px;
 }
 
-.tv-oncall-active { background: var(--oncall); }
+/* Hardcoded rather than var(--oncall) - the wall board keeps its own
+   colour coding regardless of the daily dashboard's neutral theme. */
+.tv-oncall-active { background: #DA291C; }
 
 .tv-oncall-label  { font-weight: 800; letter-spacing: .06em; }
 .tv-oncall-people { font-weight: 700; }
@@ -391,7 +408,8 @@ html[data-theme="dark"] .full-week-view p  { color: #93A1B1; }
    ------------------------------------------------------ */
 
 .tv-ticker {
-    background: var(--nhs-dark);
+    /* Hardcoded rather than var(--nhs-dark) - see .tv-oncall-active. */
+    background: #003087;
     padding: 16px 40px;
     overflow: hidden;
     display: flex;
