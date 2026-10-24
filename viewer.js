@@ -428,7 +428,6 @@ ${
                 <div class="info">
                     ${value.onCall?.anaesthetist || "-"}
                 </div>
-                ${value.cicu ? `<div class="info oncall-cicu">CICU: ${value.cicu}</div>` : ``}
 
             </div>
 

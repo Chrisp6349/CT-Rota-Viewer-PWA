@@ -154,7 +154,10 @@ class OnCallNow {
             people += `<div class="now-anaes">${oc.anaesthetist || "-"}</div>`;
         }
 
-        if (value.cicu) {
+        // Weekends don't get a separate CICU line - the same anaesthetist
+        // already shown as on-call covers CICU too all weekend, so it'd
+        // just repeat what's already on screen.
+        if (value.cicu && !s.weekend) {
             people += `<div class="now-cicu">CICU: ${value.cicu}</div>`;
         }
 
