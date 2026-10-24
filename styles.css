@@ -126,7 +126,15 @@ body{
 
 .week-picker-card{
     max-width:520px;
-    margin:10px auto 20px;
+    margin-top:10px;
+    margin-bottom:20px;
+    /* Unlike the hero header and main (which get their side gutter from
+       padding on a wrapper), this card has no wrapper of its own, so it
+       was sitting flush against the screen edges on phones - at least
+       an 18px gutter either side, same as the hero header's, growing
+       into ordinary centering once there's room to spare. */
+    margin-left:max(18px, calc((100% - 520px) / 2));
+    margin-right:max(18px, calc((100% - 520px) / 2));
 }
 
 .week-header-bar{
@@ -237,6 +245,13 @@ body{
     color:var(--ink-soft);
     font-weight:600;
     font-size:13.5px;
+}
+
+/* #loading's own id-selector display:flex above otherwise outranks the
+   plain class selector .hidden{display:none}, so the loading state
+   never actually hid once toggled - this id+class rule outranks both. */
+#loading.hidden{
+    display:none;
 }
 
 .status-dots{
