@@ -11,25 +11,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Cardiac Theatre Dashboard</title>
+<title>Cardiothoracic SODP's Weekly Rota</title>
 <meta name="theme-color" content="#005EB8">
 
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="clinical.css">
 <link rel="stylesheet" href="features.css">
-<link rel="stylesheet" href="insights.css">
+<link rel="stylesheet" href="settings.css">
 <link rel="manifest" href="manifest.json">
 
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="CT Dashboard">
+<meta name="apple-mobile-web-app-title" content="SODP Rota">
 
 <script>
-/* Apply saved dark-mode preference before first paint */
+/* Apply saved dark-mode and text-size preferences before first paint */
 if (localStorage.getItem("theme") === "dark") {
     document.documentElement.dataset.theme = "dark";
+}
+const savedTextSize = localStorage.getItem("textSize");
+if (savedTextSize) {
+    document.documentElement.dataset.textSize = savedTextSize;
 }
 </script>
 </head>
@@ -39,9 +43,9 @@ if (localStorage.getItem("theme") === "dark") {
 <div id="splash-screen">
     <div class="splash-content">
 
-        <img src="icons/icon-512.png" alt="Cardiac Theatre Dashboard" class="splash-logo">
+        <img src="icons/icon-512.png" alt="Cardiothoracic SODP's Weekly Rota" class="splash-logo">
 
-        <h1>Cardiac Theatre Dashboard</h1>
+        <h1>Cardiothoracic SODP's<br>Weekly Rota</h1>
         <p>Derriford Hospital, Plymouth</p>
 
         <div class="loader">
@@ -62,8 +66,8 @@ if (localStorage.getItem("theme") === "dark") {
 
         <div class="hero-left">
             <h1>
-                Cardiac Theatre<br>
-                Dashboard
+                Cardiothoracic SODP's<br>
+                Weekly Rota
             </h1>
             <p class="hero-subtitle">
                 University Hospitals Plymouth NHS Trust
@@ -77,90 +81,57 @@ if (localStorage.getItem("theme") === "dark") {
     </div><!-- /.hero-banner -->
 </header>
 
-<nav class="toolbar">
-    <button id="prevWeek" class="nav-arrow">◀</button>
-
-    <div class="week-picker">
-        <select id="weekSelect">
-            <option>Loading...</option>
-        </select>
+<div class="card week-picker-card">
+    <div class="card-header week-header-bar">Week Commencing</div>
+    <div class="week-picker-body">
+        <button id="prevWeek" class="nav-arrow">◀</button>
+        <div class="week-picker">
+            <select id="weekSelect">
+                <option>Loading...</option>
+            </select>
+        </div>
+        <button id="nextWeek" class="nav-arrow">▶</button>
     </div>
-
-    <button id="nextWeek" class="nav-arrow">▶</button>
-</nav>
-
-<div id="onCallNowMount"></div>
+</div>
 
 <div class="feature-row">
-    <button id="myWeekBtn" class="feature-btn" onclick="MyWeek.open()">My Week</button>
-    <button id="insightsBtn" class="feature-btn">Insights</button>
-    <a class="feature-btn" href="tv.html">Wall Board</a>
-    <button class="feature-btn" onclick="goToCalendar()">On Call Calendar</button>
     <a class="feature-btn" href="staff.html">Staff Stats</a>
-    <button id="themeBtn" class="feature-btn" onclick="toggleTheme()">Dark Mode</button>
+    <button id="settingsBtn" class="feature-btn">⚙ Settings</button>
 </div>
 
 <!-- ===============================
-     Insights Panel
+     Settings Panel
      (sits outside statusBar - it's an overlay, not status text)
 ================================ -->
 
-<div id="insightsOverlay" class="hidden"></div>
+<div id="settingsOverlay" class="hidden"></div>
 
-<section id="insightsPanel" class="hidden">
+<section id="settingsPanel" class="hidden">
 
     <div class="drag-handle"></div>
 
-    <div class="insights-header">
-        <h2>Theatre Intelligence</h2>
-        <p id="insightsGreeting">
-            Good afternoon — here's what stood out this week.
-        </p>
+    <div class="settings-header">
+        <h2>Settings</h2>
     </div>
 
-    <div class="insight-card">
+    <div class="settings-body">
 
-        <h3 id="insightTitle">Loading...</h3>
-
-        <div id="snapshotGrid" class="snapshot-grid hidden">
-
-            <div class="snapshot-item">
-                <span class="snapshot-number" id="statSessions">0</span>
-                <span class="snapshot-label">Sessions</span>
-            </div>
-
-            <div class="snapshot-item">
-                <span class="snapshot-number" id="statODPs">0</span>
-                <span class="snapshot-label">ODPs</span>
-            </div>
-
-            <div class="snapshot-item">
-                <span class="snapshot-number" id="statOnCalls">0</span>
-                <span class="snapshot-label">On Calls</span>
-            </div>
-
-            <div class="snapshot-item">
-                <span class="snapshot-number" id="statBusy">-</span>
-                <span class="snapshot-label">Busiest</span>
-            </div>
-
+        <div class="settings-row">
+            <span class="settings-label">Dark Mode</span>
+            <button id="darkModeToggle" class="settings-switch" role="switch" aria-checked="false">
+                <span class="settings-switch-knob"></span>
+            </button>
         </div>
 
-        <p id="insightText"></p>
-
-    </div>
-
-    <div class="insights-footer">
-        <button id="prevInsightBtn" class="insight-nav">◀</button>
-
-        <div id="insightDots" class="insight-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <div class="settings-row settings-row-stacked">
+            <span class="settings-label">Text Size</span>
+            <div class="settings-textsize">
+                <button class="settings-textsize-btn" data-size="small">A</button>
+                <button class="settings-textsize-btn" data-size="normal">A</button>
+                <button class="settings-textsize-btn" data-size="large">A</button>
+            </div>
         </div>
 
-        <button id="nextInsightBtn" class="insight-nav">▶</button>
     </div>
 
 </section>
@@ -178,7 +149,7 @@ if (localStorage.getItem("theme") === "dark") {
 
 <footer>
     <span class="live-indicator">LIVE</span>
-    <span id="appVersion">Cardiac Theatre Dashboard</span>
+    <span id="appVersion">SODP Weekly Rota</span>
     <button id="refreshAppBtn" title="Refresh Dashboard">🔄</button>
 </footer>
 
@@ -190,35 +161,13 @@ if (localStorage.getItem("theme") === "dark") {
 <script src="viewer-utils.js"></script>
 <script src="viewer.js"></script>
 <script src="print.js"></script>
-<script src="oncall-now.js"></script>
-<script src="myweek.js"></script>
-<script src="insights.js"></script>
-
-<script>
-/* Dark mode toggle - preference stored per device */
-function goToCalendar() {
-    // Remember the week on screen so returning restores it
-    if (window.__currentWeek) sessionStorage.setItem("viewerWeek", window.__currentWeek);
-    location.href = "calendar.html";
-}
-
-function toggleTheme() {
-    const dark = document.documentElement.dataset.theme === "dark";
-    if (dark) {
-        delete document.documentElement.dataset.theme;
-        localStorage.removeItem("theme");
-    } else {
-        document.documentElement.dataset.theme = "dark";
-        localStorage.setItem("theme", "dark");
-    }
-}
-</script>
+<script src="settings.js"></script>
 
 <script src="app.js"></script>
 
 <script>
 document.getElementById("appVersion").textContent =
-    `Cardiac Theatre Dashboard v${window.APP_VERSION}`;
+    `SODP Weekly Rota v${window.APP_VERSION}`;
 </script>
 
 <script>

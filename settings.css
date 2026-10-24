@@ -1,0 +1,207 @@
+/* =====================================================
+   Cardiothoracic Theatre Viewer
+   settings.css
+   -----------------------------------------------------
+   Settings bottom-sheet panel: dark mode + text size, with
+   room to grow. Same overlay/sheet mechanics as the old
+   Insights panel (insights.css) - a transparent backdrop
+   plus a panel that slides up from the bottom.
+   ===================================================== */
+
+:root{
+    --nhs-blue:#005EB8;
+    --ink:#212B32;
+    --ink-soft:#4C6272;
+    --line:#E1E6EA;
+    --radius:12px;
+}
+
+/* ============================
+   Overlay
+============================ */
+
+#settingsOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,20,30,.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s;
+    z-index: 998;
+}
+
+#settingsOverlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================
+   Bottom Sheet
+============================ */
+
+#settingsPanel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+    transition: transform .35s ease;
+    box-shadow: 0 -8px 24px rgba(33,43,50,.18);
+    z-index: 999;
+    padding-bottom: 20px;
+}
+
+#settingsPanel.show {
+    transform: translateY(0);
+}
+
+#settingsPanel.hidden {
+    display: none;
+}
+
+.settings-header {
+    text-align: center;
+    padding: 6px 20px 16px;
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--nhs-blue);
+}
+
+/* ============================
+   Rows
+============================ */
+
+.settings-body {
+    padding: 0 20px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+}
+.settings-row:last-child { border-bottom: none; }
+
+.settings-row-stacked {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.settings-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* Dark mode switch */
+
+.settings-switch {
+    width: 50px;
+    height: 30px;
+    border-radius: 999px;
+    border: none;
+    background: #D8DEE4;
+    position: relative;
+    cursor: pointer;
+    flex: none;
+    transition: background .2s ease;
+}
+
+.settings-switch-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    transition: transform .2s ease;
+}
+
+.settings-switch[aria-checked="true"] {
+    background: var(--nhs-blue);
+}
+.settings-switch[aria-checked="true"] .settings-switch-knob {
+    transform: translateX(20px);
+}
+
+/* Text size picker */
+
+.settings-textsize {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-textsize-btn {
+    flex: 1;
+    border: 2px solid var(--line);
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+}
+
+.settings-textsize-btn[data-size="small"] { font-size: 13px; }
+.settings-textsize-btn[data-size="normal"] { font-size: 16px; }
+.settings-textsize-btn[data-size="large"] { font-size: 19px; }
+
+.settings-textsize-btn.active {
+    border-color: var(--nhs-blue);
+    color: var(--nhs-blue);
+    background: #EAF2FB;
+}
+
+/* ============================
+   Text size (whole app)
+   ------------------------------------------------------
+   zoom scales layout and text together without needing
+   every font-size in the app rewritten in rem - and is
+   well supported in Safari (including iOS, where this PWA
+   mostly lives), Chrome and modern Firefox.
+============================ */
+
+html[data-text-size="small"] { zoom: 0.9; }
+html[data-text-size="large"] { zoom: 1.15; }
+
+/* ============================
+   Dark Mode
+============================ */
+
+html[data-theme="dark"] #settingsPanel {
+    background: #1B2430;
+}
+html[data-theme="dark"] .settings-header h2,
+html[data-theme="dark"] .settings-label {
+    color: #E4E9EF;
+}
+html[data-theme="dark"] .settings-row {
+    border-bottom-color: #2A3542;
+}
+html[data-theme="dark"] .drag-handle {
+    background: #3A4656;
+}
+html[data-theme="dark"] .settings-switch {
+    background: #3A4656;
+}
+html[data-theme="dark"] .settings-textsize-btn {
+    background: #1B2430;
+    border-color: #3A4656;
+    color: #93A1B1;
+}
+html[data-theme="dark"] .settings-textsize-btn.active {
+    border-color: var(--nhs-blue);
+    color: #7FB8E8;
+    background: #1A2C40;
+}

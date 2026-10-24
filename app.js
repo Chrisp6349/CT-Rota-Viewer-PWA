@@ -77,11 +77,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             window.__currentWeek = rota.week;
             Viewer.render(rota, true); // jump straight to today's section on first load
-
-
-            // Feed the newer features
-            OnCallNow.update(rota);
-            MyWeek.setData(rota);
         } catch (err) {
             console.error(err);
             error.classList.remove("hidden");
@@ -100,12 +95,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const rota = await RotaAPI.loadWeek(week);
                        window.__currentWeek = rota.week;
             Viewer.render(rota);
-
-
-            // Hero card hides itself on non-current weeks;
-            // My Week always reflects the week on screen
-            OnCallNow.update(rota);
-            MyWeek.setData(rota);
         } catch (err) {
             console.error(err);
             error.classList.remove("hidden");

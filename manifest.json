@@ -1,6 +1,6 @@
 {
-  "name": "Cardiothoracic Theatre Viewer",
-  "short_name": "CT Rota",
+  "name": "Cardiothoracic SODP's Weekly Rota",
+  "short_name": "SODP Rota",
   "description": "Cardiothoracic Theatre Weekly Rota Viewer",
   "start_url": "./",
   "scope": "./",

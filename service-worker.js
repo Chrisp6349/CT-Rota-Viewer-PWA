@@ -55,6 +55,8 @@ const FILES_TO_CACHE = [
   "./print.js",
   "./oncall-now.js",
   "./myweek.js",
+  "./settings.js",
+  "./settings.css",
   "./features.css",
   "./tv.html",
   "./tv.js",
