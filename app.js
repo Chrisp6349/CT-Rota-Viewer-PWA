@@ -53,16 +53,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.body.classList.remove("loading");
     }
 
-    // If the loaded week is the CURRENT week, open on today's tab -
-    // that's what someone glancing at the board wants. For any other
-    // (past/future) week, Monday is the sensible start.
-    function defaultDayFor(week) {
-        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday",
-                          "Thursday", "Friday", "Saturday"];
-        const now = new Date();
-        return week === currentWeekMonday() ? dayNames[now.getDay()] : "Monday";
-    }
-
     // Loads and shows the most recently published rota
     async function showLatest() {
         loading.classList.remove("hidden");
@@ -85,8 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (idx >= 0) currentIndex = idx;
             if (weekSelect) populateDropdown();
 
-            window.selectedDay = defaultDayFor(rota.week);
-                       window.__currentWeek = rota.week;
+            window.__currentWeek = rota.week;
             Viewer.render(rota);
 
 
@@ -186,7 +175,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         setTimeout(async () => {
             currentIndex = target;
-            window.selectedDay = "Monday";
             await showWeek(publishedWeeks[currentIndex].week);
             populateDropdown();
             container.classList.remove(cssClass);
@@ -202,29 +190,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             const idx = publishedWeeks.findIndex(w => w.week === chosen);
             if (idx >= 0) {
                 currentIndex = idx;
-                window.selectedDay = "Monday";
                 showWeek(chosen);
             }
         };
     }
 
        // Startup: archive list first (so the dropdown is ready).
-    // If we're returning from the Full Week view, restore exactly the
-    // week and day tab that were on screen when it was opened
-    // (viewer.js saves them just before navigating). Otherwise show
+    // If we're returning from the On Call Calendar, restore exactly the
+    // week that was on screen when it was opened (index.html's
+    // goToCalendar() saves it just before navigating). Otherwise show
     // the latest published rota as normal.
     await loadArchive();
 
     const returnWeek = sessionStorage.getItem("viewerWeek");
-    const returnDay = sessionStorage.getItem("viewerDay");
     sessionStorage.removeItem("viewerWeek");
-    sessionStorage.removeItem("viewerDay");
 
     if (returnWeek) {
         const idx = publishedWeeks.findIndex(w => w.week === returnWeek);
         if (idx >= 0) currentIndex = idx;
         if (weekSelect) populateDropdown();
-        window.selectedDay = returnDay || "Monday";
         await showWeek(returnWeek);
         hideSplash();
     } else {

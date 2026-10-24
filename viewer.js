@@ -3,10 +3,12 @@
    viewer.js
    Dashboard V2
    -----------------------------------------------------
-   Renders one day of the published rota into the page:
-   theatre cards, on-call panel, support panel, and the
-   combined weekend cover view. Called by app.js with
-   the data fetched via api.js.
+   Renders the WHOLE published week into the page at once:
+   one section per weekday (theatre cards, on-call panel,
+   support panel - or a bank-holiday cover card instead),
+   then a combined weekend cover section for Saturday and
+   Sunday. Called by app.js with the data fetched via
+   api.js.
    ===================================================== */
 
 class Viewer {
@@ -42,51 +44,80 @@ class Viewer {
         return `${days[date.getDay()]} ${d}${suffix} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
 
-  static render(data) {
+    // Local-date ISO (YYYY-MM-DD) - NOT toISOString(), which converts to
+    // UTC and can shift "today" back a day in timezones ahead of UTC,
+    // briefly highlighting the wrong day's section as "TODAY".
+    static todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
 
-    // Make the currently loaded rota available to the Insights engine
-    window.currentRota = data;
+    static isoDate(weekStart, offset) {
+        const d = new Date(weekStart);
+        d.setDate(d.getDate() + offset);
+        return d.toISOString().split("T")[0];
+    }
 
-    const container = document.getElementById("rotaContainer");
-    container.innerHTML = "";
+    // Renders the entire week: five weekday sections (each either a
+    // normal theatre-grid day or, on a bank holiday, a cover-only card)
+    // followed by one combined weekend section.
+    static render(data) {
 
-      const weekTitle = document.getElementById("weekTitle");
+        // Make the currently loaded rota available to the Insights engine
+        window.currentRota = data;
 
-if (weekTitle) {
-    weekTitle.textContent = Viewer.formatWeek(data.week);
-}
+        const container = document.getElementById("rotaContainer");
 
-       let selectedDay = window.selectedDay || "Monday";
-const day = selectedDay;
-const value = data.days[day];
+        const weekTitle = document.getElementById("weekTitle");
+        if (weekTitle) weekTitle.textContent = Viewer.formatWeek(data.week);
 
-if (!value) return;
+        const offsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4, Saturday:5, Sunday:6 };
+        const order = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+        const todayIso = Viewer.todayIso();
 
-// Weekend view: Saturday and Sunday render together as one cover page
-const isWeekend = day === "Saturday" || day === "Sunday";
+        const weekdaySections = order.map(day => {
+            const value = data.days[day] || {};
+            const isToday = Viewer.isoDate(data.week, offsets[day]) === todayIso;
 
-// Bank holiday view: no operating lists run, so instead of the normal
-// theatre grid, show a weekend-style cover page with just the on-call
-// team. (Bank holiday dates live in config.js.)
-if (!isWeekend && typeof isBankHoliday === "function") {
+            const weekDate = new Date(data.week);
+            weekDate.setDate(weekDate.getDate() + offsets[day]);
+            const displayDate = weekDate.toLocaleDateString("en-GB",
+                { day: "numeric", month: "long", year: "numeric" });
 
-    const bhDate = new Date(data.week);
-    const bhOffsets = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4 };
-    bhDate.setDate(bhDate.getDate() + (bhOffsets[day] || 0));
-    const bhIso = bhDate.toISOString().split("T")[0];
+            if (typeof isBankHoliday === "function" && isBankHoliday(Viewer.isoDate(data.week, offsets[day]))) {
+                return Viewer.renderBankHolidayDay(day, displayDate, value, isToday);
+            }
+            return Viewer.renderTheatreDay(day, displayDate, value, isToday);
+        }).join("");
 
-    if (isBankHoliday(bhIso)) {
+        const weekendSection = `
+    <section class="daySection weekend-section">
+        <div class="day-header">
+            <h2 class="day-heading">Weekend Cover</h2>
+            <div class="day-date">Saturday &amp; Sunday</div>
+        </div>
+        ${Viewer.renderWeekendDay("Saturday", data.days["Saturday"] || {}, Viewer.isoDate(data.week, 5) === todayIso)}
+        ${Viewer.renderWeekendDay("Sunday", data.days["Sunday"] || {}, Viewer.isoDate(data.week, 6) === todayIso)}
+    </section>`;
 
-        const bhDisplay = bhDate.toLocaleDateString("en-GB",
-            { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        container.innerHTML = weekdaySections + weekendSection;
+    }
+
+    // Bank holiday: no operating lists run, so instead of the normal
+    // theatre grid, show a weekend-style cover card with just the
+    // on-call team. (Bank holiday dates live in config.js.)
+    static renderBankHolidayDay(day, displayDate, value, isToday) {
         const oc = value.onCall || {};
 
-        container.innerHTML = `
-    <section class="daySection dashboard-layout">
+        return `
+    <section class="daySection dashboard-layout ${isToday ? "day-today" : ""}">
 
         <div class="day-header">
-            <h2 class="day-heading">Bank Holiday Cover</h2>
-            <div class="day-date">${bhDisplay}</div>
+            <h2 class="day-heading">${day} <span class="day-bh-tag">Bank Holiday</span>${isToday ? ` <span class="day-today-tag">TODAY</span>` : ""}</h2>
+            <div class="day-date">${displayDate}</div>
         </div>
 
         <div class="dashboard-row">
@@ -101,6 +132,8 @@ if (!isWeekend && typeof isBankHoliday === "function") {
                         ${oc.anaesthetist || "-"}
                     </div>
                     ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
+                    ${oc.surgeonCardiac ? `<div class="oncall-surgeon">Cardiac Surgeon: ${oc.surgeonCardiac}</div>` : ``}
+                    ${oc.surgeonThoracic ? `<div class="oncall-surgeon">Thoracic Surgeon: ${oc.surgeonThoracic}</div>` : ``}
                 </div>
             </div>
 
@@ -115,74 +148,22 @@ if (!isWeekend && typeof isBankHoliday === "function") {
 
     </section>
 `;
-
-        Viewer.updateDayTabs(data);
-        return;
     }
-}
 
-if (isWeekend) {
-
-
-    const saturday = data.days["Saturday"] || {};
-    const sunday = data.days["Sunday"] || {};
-
-  container.innerHTML = `
-    <section class="daySection dashboard-layout">
-
-        <div class="day-header">
-            <h2 class="day-heading">Weekend Cover</h2>
-            <div class="day-date">Saturday &amp; Sunday</div>
-        </div>
-
-        ${Viewer.renderWeekendDay("Saturday", saturday)}
-        ${Viewer.renderWeekendDay("Sunday", sunday)}
-
-    </section>
-`;
-
-Viewer.updateDayTabs(data);
-
-return;
-
-}
-        const weekDate = new Date(data.week);
-
-        const offsets = {
-            Monday:0,
-            Tuesday:1,
-            Wednesday:2,
-            Thursday:3,
-            Friday:4,
-            Saturday:5,
-            Sunday:6
-        };
-
-        weekDate.setDate(
-            weekDate.getDate() + (offsets[day] || 0)
-        );
-
-        const displayDate =
-            weekDate.toLocaleDateString(
-                "en-GB",
-                {
-                    day:"numeric",
-                    month:"long",
-                    year:"numeric"
-                }
-            );
+    // One normal weekday: the theatre grid, then on-call and support.
+    static renderTheatreDay(day, displayDate, value, isToday) {
 
         let html = `
 
-<section class="daySection dashboard-layout">
+    <section class="daySection dashboard-layout ${isToday ? "day-today" : ""}">
 
-    <div class="day-header">
-        <h2 class="day-heading">${day}</h2>
-        <div class="day-date">${displayDate}</div>
-    </div>
+        <div class="day-header">
+            <h2 class="day-heading">${day}${isToday ? ` <span class="day-today-tag">TODAY</span>` : ""}</h2>
+            <div class="day-date">${displayDate}</div>
+        </div>
 
-    <div class="cards-grid theatre-grid">
-`;
+        <div class="cards-grid theatre-grid">
+    `;
 
         (value.theatres || []).forEach((theatre, theatreIndex) => {
 
@@ -250,6 +231,7 @@ return;
                 !theatre.odp1 &&
                 !theatre.odp2 &&
                 !theatre.anaesthetist &&
+                !theatre.surgeon &&
                 !theatre.list
             ) {
 
@@ -270,6 +252,9 @@ return;
                 if (theatre.anaesthetist)
                     html += `<div class="info">${theatre.anaesthetist}</div>`;
 
+                if (theatre.surgeon)
+                    html += `<div class="info theatre-surgeon">${theatre.surgeon}</div>`;
+
                 if (theatre.list)
                     html += `<div class="info">${theatre.list}</div>`;
             }
@@ -280,7 +265,7 @@ return;
             `;
         });
 
-             html += `
+        html += `
 
     </div>
 
@@ -312,6 +297,8 @@ return;
                     ${value.onCall?.anaesthetist || "-"}
                 </div>
                 ${value.cicu ? `<div class="oncall-cicu">CICU: ${value.cicu}</div>` : ``}
+                ${value.onCall?.surgeonCardiac ? `<div class="oncall-surgeon">Cardiac Surgeon: ${value.onCall.surgeonCardiac}</div>` : ``}
+                ${value.onCall?.surgeonThoracic ? `<div class="oncall-surgeon">Thoracic Surgeon: ${value.onCall.surgeonThoracic}</div>` : ``}
 
             </div>
 
@@ -362,43 +349,20 @@ ${
 
     </div>
 
-<button id="fullWeekButton" class="full-week-view">
-
-    <h3>Full Week View</h3>
-
-    <p>View complete weekly rota</p>
-
-</button>
-
 </section>
 `;
 
-        container.innerHTML = html;
-
-const fullWeekButton = document.getElementById("fullWeekButton");
-
-if (fullWeekButton) {
-
-  fullWeekButton.addEventListener("click", function () {
-
-    sessionStorage.setItem("viewerWeek", data.week);
-    sessionStorage.setItem("viewerDay", window.selectedDay);
-
-    window.location.assign(
-        `week.html?week=${encodeURIComponent(data.week)}`
-    );
-
-});
-}  Viewer.updateDayTabs(data);
+        return html;
     }
-static renderWeekendDay(day, value){
 
-    return `
+    static renderWeekendDay(day, value, isToday) {
 
-<div class="weekend-card">
+        return `
+
+<div class="weekend-card ${isToday ? "day-today" : ""}">
 
     <div class="weekend-title">
-        ${day}
+        ${day}${isToday ? ` <span class="day-today-tag">TODAY</span>` : ""}
     </div>
 
     <div class="dashboard-row">
@@ -428,6 +392,8 @@ ${
                 <div class="info">
                     ${value.onCall?.anaesthetist || "-"}
                 </div>
+                ${value.onCall?.surgeonCardiac ? `<div class="info oncall-surgeon">Cardiac Surgeon: ${value.onCall.surgeonCardiac}</div>` : ``}
+                ${value.onCall?.surgeonThoracic ? `<div class="info oncall-surgeon">Thoracic Surgeon: ${value.onCall.surgeonThoracic}</div>` : ``}
 
             </div>
 
@@ -441,7 +407,7 @@ ${
 
             <div class="card-body">
 
-                ${value.waitingList?.odp || value.waitingList?.anaesthetist ? `
+                ${value.waitingList?.odp || value.waitingList?.anaesthetist || value.waitingList?.surgeon ? `
                 <div class="person">
                     ${value.waitingList?.odp || "-"}
                 </div>
@@ -449,6 +415,7 @@ ${
                 <div class="info">
                     ${value.waitingList?.anaesthetist || "-"}
                 </div>
+                ${value.waitingList?.surgeon ? `<div class="info">${value.waitingList.surgeon}</div>` : ``}
                 ` : `
                 <div class="info">NO LIST</div>
                 `}
@@ -466,46 +433,5 @@ ${
 `;
 
 
-}
-
-static updateDayTabs(data) {
-
-    document.querySelectorAll(".day-tab").forEach(btn => {
-
-        btn.classList.toggle(
-            "active",
-            (btn.dataset.day === "Saturday" &&
-                (window.selectedDay === "Saturday" ||
-                 window.selectedDay === "Sunday")) ||
-            btn.dataset.day === window.selectedDay
-        );
-
-       btn.onclick = () => {
-
-    const container = document.getElementById("rotaContainer");
-
-    container.classList.add("fade-out");
-
-    setTimeout(() => {
-
-        window.selectedDay = btn.dataset.day;
-
-        Viewer.render(data);
-
-        container.classList.remove("fade-out");
-        container.classList.add("fade-in");
-
-        setTimeout(() => {
-            container.classList.remove("fade-in");
-        }, 200);
-
-    }, 200);
-
-};
-
-    });
-
-
-
-}
+    }
 }

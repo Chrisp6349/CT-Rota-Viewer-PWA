@@ -89,15 +89,6 @@ if (localStorage.getItem("theme") === "dark") {
     <button id="nextWeek" class="nav-arrow">▶</button>
 </nav>
 
-<div class="day-tabs">
-    <button class="day-tab active" data-day="Monday">Mon</button>
-    <button class="day-tab" data-day="Tuesday">Tue</button>
-    <button class="day-tab" data-day="Wednesday">Wed</button>
-    <button class="day-tab" data-day="Thursday">Thu</button>
-    <button class="day-tab" data-day="Friday">Fri</button>
-    <button class="day-tab" data-day="Saturday">Sat/Sun</button>
-</div>
-
 <div id="onCallNowMount"></div>
 
 <div class="feature-row">
@@ -206,10 +197,8 @@ if (localStorage.getItem("theme") === "dark") {
 <script>
 /* Dark mode toggle - preference stored per device */
 function goToCalendar() {
-    // Remember the week and day on screen so returning restores them
-    // (same mechanism as the Full Week View button)
+    // Remember the week on screen so returning restores it
     if (window.__currentWeek) sessionStorage.setItem("viewerWeek", window.__currentWeek);
-    sessionStorage.setItem("viewerDay", window.selectedDay || "Monday");
     location.href = "calendar.html";
 }
 

@@ -246,6 +246,30 @@ main{
        overrides. Keeps this legible without a separate dark rule. */
 }
 
+.day-today-tag{
+    display:inline-block;
+    background:var(--nhs-blue);
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.04em;
+    padding:2px 9px;
+    border-radius:999px;
+    vertical-align:middle;
+}
+
+.day-bh-tag{
+    display:inline-block;
+    background:var(--oncall);
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    padding:2px 9px;
+    border-radius:999px;
+    vertical-align:middle;
+}
+
 .day-date{
     text-align:center;
     color:var(--ink-soft);
@@ -255,12 +279,31 @@ main{
     font-weight:600;
 }
 
-/* The Full Week View button sits directly under the day header with a
-   negative margin to close the gap left above it - a deliberate offset,
-   not a mistake. */
 .day-header{
-    margin-top:-25px;
     text-align:center;
+}
+
+/* Each day's section now sits directly above the next on one scrolling
+   page (the dashboard used to show a single selected day at a time) -
+   a top rule + spacing separates them, skipped on the very first one. */
+.daySection{
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+}
+.daySection:first-child{
+    padding-top:0;
+    border-top:none;
+}
+
+/* Today's section gets a quiet accent so it's easy to find while
+   scrolling a full week of these. */
+.daySection.day-today,
+.weekend-card.day-today{
+    background:linear-gradient(180deg, rgba(0,94,184,.05), transparent 120px);
+    border-radius:var(--radius);
 }
 
 /* ===========================
@@ -377,6 +420,13 @@ main{
 }
 
 .oncall-cicu{
+    font-size:13px;
+    font-weight:600;
+    margin-top:4px;
+    color:var(--ink-soft);
+}
+
+.oncall-surgeon{
     font-size:13px;
     font-weight:600;
     margin-top:4px;

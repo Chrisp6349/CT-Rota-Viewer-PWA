@@ -161,6 +161,13 @@ class OnCallNow {
             people += `<div class="now-cicu">CICU: ${value.cicu}</div>`;
         }
 
+        // Surgeon on-call is a genuinely different pair of people
+        // (cardiac/thoracic) to CICU, and - unlike it - applies every
+        // day including weekends, so this isn't suppressed there.
+        const oc = value.onCall || {};
+        if (oc.surgeonCardiac) people += `<div class="now-surgeon">Cardiac Surgeon: ${oc.surgeonCardiac}</div>`;
+        if (oc.surgeonThoracic) people += `<div class="now-surgeon">Thoracic Surgeon: ${oc.surgeonThoracic}</div>`;
+
         mount.innerHTML = `
             <div class="oncall-now ${s.active ? "now-active" : "now-upcoming"}">
                 <div class="now-badge">

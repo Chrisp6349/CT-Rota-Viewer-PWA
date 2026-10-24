@@ -83,6 +83,7 @@
 .now-person { font-size: 16px; font-weight: 700; }
 .now-anaes  { font-size: 14px; font-weight: 600; opacity: .9; }
 .now-cicu   { font-size: 14px; font-weight: 600; opacity: .9; }
+.now-surgeon { font-size: 14px; font-weight: 600; opacity: .9; }
 .now-session, .now-extra { font-size: 12px; font-weight: 700; }
 .now-fromhome {
     background: rgba(255,255,255,.22);
@@ -217,7 +218,22 @@ html[data-theme="dark"] .info,
 html[data-theme="dark"] .day-date,
 html[data-theme="dark"] .weekend-title,
 html[data-theme="dark"] .oncall-anaesthetist,
-html[data-theme="dark"] .oncall-cicu { color: #93A1B1; }
+html[data-theme="dark"] .oncall-cicu,
+html[data-theme="dark"] .oncall-surgeon { color: #93A1B1; }
+
+html[data-theme="dark"] .daySection { border-top-color: #2A3542; }
+
+/* The full-week redesign's "today" highlight needs its own dark-mode
+   wash (brighter, since a near-invisible 5% light-blue tint over a
+   near-black page reads as nothing) - and, for the weekend cards
+   specifically, has to out-specificity the "keep it invisible" dark-
+   mode fix below or that rule's plain `background: transparent` wins. */
+html[data-theme="dark"] .daySection.day-today {
+    background: linear-gradient(180deg, rgba(0,94,184,.16), transparent 120px);
+}
+html[data-theme="dark"] .weekend-card.day-today {
+    background: linear-gradient(180deg, rgba(0,94,184,.16), transparent 120px);
+}
 
 html[data-theme="dark"] .day-tab,
 html[data-theme="dark"] .feature-btn,

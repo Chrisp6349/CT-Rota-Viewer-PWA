@@ -2,18 +2,20 @@
    Cardiothoracic Theatre Viewer
    api.js
    -----------------------------------------------------
-   Reads the published ODP/anaesthetist rota straight from
-   Cadence (Firestore), via the shared read-only "viewer"
-   account in cadence-config.js.
+   Reads the published ODP/anaesthetist rota (plus the
+   CICU import and the published surgeon/nursing rota, if
+   either exists for the week) straight from Cadence
+   (Firestore), via the shared read-only "viewer" account
+   in cadence-config.js.
 
    Cadence stores each week as flat keys
    ("Monday_<theatreId>_odp1", "Saturday_oncall_odp1" etc -
    the same shape the old Google Sheets backend used, per
    Cadence's own rota.js). buildViewerShape() below turns
    that into the {week, days:{...}} structure every other
-   file in this app already expects (viewer.js, oncall-
-   now.js, myweek.js, week.js, calendar.js, staff.js,
-   insights.js, tv.js) - none of them needed to change.
+   file in this app reads from (viewer.js, oncall-now.js,
+   myweek.js, week.js, calendar.js, staff.js, insights.js,
+   tv.js).
    ===================================================== */
 
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -34,12 +36,18 @@ function resolveCadexAnaesthetist(raw) {
 // `cadexDays` is the week's optional CADEX import ({monday: {"CICU": "VR"},
 // ...}, keyed lowercase) - CICU has no field of its own in Cadence, it's
 // purely this read-only import, same as rota.js's own cicuReadout().
-function buildViewerShape(week, flatData, theatres, cadexDays) {
+// `nursingData` is the week's optional published nursing rota (flat keys,
+// same "<Day>_<suffix>" shape as the ODP rota) - surgeons live there, not
+// in the ODP rota at all, so this is the only source for them.
+function buildViewerShape(week, flatData, theatres, cadexDays, nursingData) {
     const data = flatData || {};
+    const nd = nursingData || {};
     const out = { week, days: {} };
 
     DAYS.forEach(day => {
         const cicu = resolveCadexAnaesthetist((cadexDays && cadexDays[day.toLowerCase()] || {}).CICU);
+        const surgeonCardiac = nd[`${day}_oncall_surgeon`] || "";
+        const surgeonThoracic = nd[`${day}_oncall_surgeon_thoracic`] || "";
 
         if (day === "Saturday" || day === "Sunday") {
             out.days[day] = {
@@ -50,11 +58,14 @@ function buildViewerShape(week, flatData, theatres, cadexDays) {
                     session1: data[`${day}_oncall_session1`] || "",
                     odp2: data[`${day}_oncall_odp2`] || "",
                     session2: data[`${day}_oncall_session2`] || "",
-                    anaesthetist: data[`${day}_oncall_anaes`] || ""
+                    anaesthetist: data[`${day}_oncall_anaes`] || "",
+                    surgeonCardiac,
+                    surgeonThoracic
                 },
                 waitingList: {
                     odp: data[`${day}_wl_odp`] || "",
-                    anaesthetist: data[`${day}_wl_anaes`] || ""
+                    anaesthetist: data[`${day}_wl_anaes`] || "",
+                    surgeon: nd[`${day}_wl_surgeon`] || ""
                 }
             };
         } else {
@@ -65,6 +76,7 @@ function buildViewerShape(week, flatData, theatres, cadexDays) {
                     odp1: data[`${day}_${t.id}_odp1`] || "",
                     odp2: data[`${day}_${t.id}_odp2`] || "",
                     anaesthetist: data[`${day}_${t.id}_anaes`] || "",
+                    surgeon: nd[`${day}_${t.id}_surgeon`] || "",
                     list: data[`${day}_${t.id}_list`] || ""
                 })),
                 support: {
@@ -79,7 +91,9 @@ function buildViewerShape(week, flatData, theatres, cadexDays) {
                     anaesthetist: data[`${day}_oncall_anaes`] || "",
                     // Cadence renamed this field from the old
                     // "<day>_fromhome" to "<day>_oncall_home".
-                    fromHome: !!data[`${day}_oncall_home`]
+                    fromHome: !!data[`${day}_oncall_home`],
+                    surgeonCardiac,
+                    surgeonThoracic
                 }
             };
         }
@@ -167,11 +181,21 @@ class RotaAPI {
         // without CADEX set up simply has no cadexImports doc for any
         // week, so this quietly resolves to null and every day's `cicu`
         // comes back empty - the same graceful fallback rota.js uses.
-        const [doc, cadexDoc] = await Promise.all([
+        //
+        // Surgeons live in Cadence's nursing rota, a completely separate
+        // collection (nursingWeeks) with its own independent `published`
+        // flag - a department can publish the ODP rota for a week before
+        // (or without ever) publishing that week's nursing rota, so only
+        // a published nursing week's data is used, same as everywhere
+        // else in this app treats "published" as the line for what ODPs
+        // are allowed to see.
+        const [doc, cadexDoc, nursingDoc] = await Promise.all([
             CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/weeks/${normalized}`),
-            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/cadexImports/${normalized}`)
+            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/cadexImports/${normalized}`),
+            CadenceFirestore.getDoc(`departments/${CADENCE.DEPARTMENT_ID}/nursingWeeks/${normalized}`)
         ]);
-        const rota = buildViewerShape(normalized, doc && doc.data, CADENCE_THEATRES, cadexDoc && cadexDoc.days);
+        const nursingData = nursingDoc && nursingDoc.published ? nursingDoc.data : null;
+        const rota = buildViewerShape(normalized, doc && doc.data, CADENCE_THEATRES, cadexDoc && cadexDoc.days, nursingData);
 
         RotaAPI.setCached(cacheKey, rota);
         return rota;
