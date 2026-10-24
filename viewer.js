@@ -441,13 +441,17 @@ ${
 
             <div class="card-body">
 
+                ${value.waitingList?.odp || value.waitingList?.anaesthetist ? `
                 <div class="person">
-                    ${value.waitingList?.odp || "NO LIST"}
+                    ${value.waitingList?.odp || "-"}
                 </div>
 
                 <div class="info">
-                    ${value.waitingList?.anaesthetist || "NO LIST"}
+                    ${value.waitingList?.anaesthetist || "-"}
                 </div>
+                ` : `
+                <div class="info">NO LIST</div>
+                `}
 
             </div>
 
