@@ -326,7 +326,10 @@ main{
     gap:10px;
     width:100%;
     margin:16px 0;
-    align-items:stretch;
+    /* start, not stretch - a theatre with one ODP shouldn't be forced
+       up to match a two-ODP neighbour's height, leaving a dead gap at
+       the bottom. Each card now hugs its own content instead. */
+    align-items:start;
 }
 
 .card{
