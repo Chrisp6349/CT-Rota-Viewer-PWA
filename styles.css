@@ -319,10 +319,10 @@ main{
 .cards-grid,
 .theatre-grid{
     display:grid;
-    /* auto-fit rather than a fixed 5 - Cadence lets each department
-       configure its own theatre list/count, so this adapts instead of
-       assuming the old fixed set. */
-    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    /* Fixed 2 columns, matching the reference layout's rhythm - CT1/CT2
+       on one row, CT4/CT5 on the next, CATH LAB/Support on the last -
+       rather than fitting as many as happen to squeeze in. */
+    grid-template-columns:repeat(2, 1fr);
     gap:10px;
     width:100%;
     margin:16px 0;
@@ -330,6 +330,60 @@ main{
        read as one uniform set, so they're stretched to a shared row
        height rather than each hugging its own content. */
     align-items:stretch;
+}
+
+/* A card-header that also carries a small badge on the right (the
+   theatre's list type, e.g. "CARDIAC") instead of just a centred label. */
+.card-header-split{
+    justify-content:space-between !important;
+    text-align:left !important;
+}
+.theatre-list-badge{
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    opacity:.85;
+}
+
+/* The shared label/value row every box (theatres, Support, On Call,
+   Waiting List) is now built from. */
+.rota-card-body{
+    padding:4px 12px;
+}
+.rota-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid var(--line);
+}
+.rota-row:last-child{ border-bottom:none; }
+.rota-row-label{
+    font-size:11.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    flex-shrink:0;
+}
+.rota-row-value{
+    font-size:14px;
+    font-weight:700;
+    text-align:right;
+    min-width:0;
+    flex:1;
+    overflow-wrap:break-word;
+}
+.rota-row-line{ display:block; }
+.rota-row-extra{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin-top:2px;
 }
 
 .card{
@@ -844,7 +898,6 @@ footer{
 
     .cards-grid,
     .theatre-grid{
-        grid-template-columns:repeat(auto-fit, minmax(84px, 1fr));
         gap:8px;
     }
 

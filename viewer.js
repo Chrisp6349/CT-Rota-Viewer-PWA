@@ -115,69 +115,49 @@ class Viewer {
         }
     }
 
-    // Builds the role-by-role grid shared by every On Call box (weekday,
-    // bank holiday, and weekend) - each role its own labelled cell
-    // ("SODP", "Anaesthetist", "CICU", ...) rather than a run of bare
-    // names, so it's clear at a glance who's covering what.
+    // One label/value row, the building block every box (theatres,
+    // Support, On Call, Waiting List) now shares - label on the left,
+    // value right-aligned, closer to how The Atrium's own rota reads.
+    static rotaRow(label, valueHtml) {
+        return `<div class="rota-row"><span class="rota-row-label">${label}</span><span class="rota-row-value">${valueHtml}</span></div>`;
+    }
+
+    // Builds the On Call box's rows, in the fixed order SODP,
+    // Anaesthetist, Cardiac Surgeon, Thoracic Surgeon, CICU Anaesthetist
+    // - always all five (four at the weekend), each with its own
+    // placeholder when empty, rather than only appearing when filled.
+    // Shared by the weekday, bank-holiday, and weekend On Call boxes.
     static renderOnCallRoles(value, weekend) {
         const oc = value.onCall || {};
-        let roles = "";
+        let rows = "";
 
         if (weekend) {
             const shifts = [];
             if (oc.odp1 || oc.odp) shifts.push(`${oc.session1 ? oc.session1 + " " : ""}${oc.odp1 || oc.odp}`);
             if (oc.odp2) shifts.push(`${oc.session2 ? oc.session2 + " " : ""}${oc.odp2}`);
-            roles += `
-                <div class="oncall-role">
-                    <div class="oncall-role-label">SODP</div>
-                    ${shifts.length
-                        ? shifts.map(s => `<div class="oncall-role-value">${s}</div>`).join("")
-                        : `<div class="oncall-role-value">-</div>`}
-                </div>`;
+            rows += Viewer.rotaRow("SODP", shifts.length
+                ? shifts.map(s => `<span class="rota-row-line">${s}</span>`).join("")
+                : "-");
         } else {
-            roles += `
-                <div class="oncall-role">
-                    <div class="oncall-role-label">SODP</div>
-                    <div class="oncall-role-value">${oc.odp || "No allocation"}</div>
-                    ${oc.extra ? `<div class="oncall-role-extra">${oc.extra}</div>` : ``}
-                    ${oc.fromHome ? `<div class="from-home">From Home</div>` : ``}
-                </div>`;
+            let sodpValue = `<span class="rota-row-line">${oc.odp || "No allocation"}</span>`;
+            if (oc.extra) sodpValue += `<span class="rota-row-extra">${oc.extra}</span>`;
+            if (oc.fromHome) sodpValue += `<span class="rota-row-extra">From Home</span>`;
+            rows += Viewer.rotaRow("SODP", sodpValue);
         }
 
-        roles += `
-            <div class="oncall-role">
-                <div class="oncall-role-label">Anaesthetist</div>
-                <div class="oncall-role-value">${oc.anaesthetist || "-"}</div>
-            </div>`;
+        rows += Viewer.rotaRow("Anaesthetist", oc.anaesthetist || "-");
+        rows += Viewer.rotaRow("Cardiac Surgeon", oc.surgeonCardiac || "-");
+        rows += Viewer.rotaRow("Thoracic Surgeon", oc.surgeonThoracic || "-");
 
-        // Weekends don't get a separate CICU role - the same anaesthetist
-        // shown above covers CICU too all weekend, so it'd just repeat
-        // what's already on screen.
-        if (value.cicu && !weekend) {
-            roles += `
-            <div class="oncall-role">
-                <div class="oncall-role-label">CICU</div>
-                <div class="oncall-role-value">${value.cicu}</div>
-            </div>`;
+        // Weekends don't get a separate CICU row - the same anaesthetist
+        // shown above covers CICU too all weekend, so a row for it would
+        // just repeat what's already on screen (or worse, read as "no
+        // CICU cover" when really there's just no separate role here).
+        if (!weekend) {
+            rows += Viewer.rotaRow("CICU Anaesthetist", value.cicu || "-");
         }
 
-        if (oc.surgeonCardiac) {
-            roles += `
-            <div class="oncall-role">
-                <div class="oncall-role-label">Cardiac Surgeon</div>
-                <div class="oncall-role-value">${oc.surgeonCardiac}</div>
-            </div>`;
-        }
-
-        if (oc.surgeonThoracic) {
-            roles += `
-            <div class="oncall-role">
-                <div class="oncall-role-label">Thoracic Surgeon</div>
-                <div class="oncall-role-value">${oc.surgeonThoracic}</div>
-            </div>`;
-        }
-
-        return `<div class="oncall-role-grid">${roles}</div>`;
+        return `<div class="rota-card-body">${rows}</div>`;
     }
 
     // Bank holiday: no operating lists run, so instead of the normal
@@ -195,9 +175,7 @@ class Viewer {
 
         <div class="card oncall-wide">
             <div class="card-header oncall-header">On Call</div>
-            <div class="card-body">
-                ${Viewer.renderOnCallRoles(value, false)}
-            </div>
+            ${Viewer.renderOnCallRoles(value, false)}
         </div>
 
         <div class="dashboard-row">
@@ -283,44 +261,18 @@ class Viewer {
             html += `
             <div class="card theatre-card">
 
-               <div class="card-header ${colour}">
-    ${label}
+               <div class="card-header ${colour} card-header-split">
+    <span>${label}</span>${theatre.list ? `<span class="theatre-list-badge">${theatre.list}</span>` : ``}
 </div>
 
-                <div class="card-body compact-card">
+                <div class="rota-card-body">
             `;
 
-            if (
-                !theatre.odp1 &&
-                !theatre.odp2 &&
-                !theatre.anaesthetist &&
-                !theatre.surgeon &&
-                !theatre.list
-            ) {
-
-                html += `
-                    <div class="info">
-                        No allocation
-                    </div>
-                `;
-
-            } else {
-
-                if (theatre.odp1)
-                    html += `<div class="person">${theatre.odp1}</div>`;
-
-                if (theatre.odp2)
-                    html += `<div class="person">${theatre.odp2}</div>`;
-
-                if (theatre.anaesthetist)
-                    html += `<div class="info">${theatre.anaesthetist}</div>`;
-
-                if (theatre.surgeon)
-                    html += `<div class="info theatre-surgeon">${theatre.surgeon}</div>`;
-
-                if (theatre.list)
-                    html += `<div class="info">${theatre.list}</div>`;
-            }
+            html += Viewer.rotaRow("SODP", [theatre.odp1, theatre.odp2].filter(Boolean).length
+                ? [theatre.odp1, theatre.odp2].filter(Boolean).map(n => `<span class="rota-row-line">${n}</span>`).join("")
+                : "—");
+            html += Viewer.rotaRow("Anaesthetist", theatre.anaesthetist || "—");
+            html += Viewer.rotaRow("Surgeon", theatre.surgeon || "—");
 
             html += `
                 </div>
@@ -331,6 +283,7 @@ class Viewer {
         // Support joins the same grid as another uniformly-sized card,
         // same styling as every theatre card, instead of sitting in its
         // own separate (differently-sized) row.
+        const supportNames = [value.support?.odp1, value.support?.odp2, value.support?.odp3].filter(Boolean);
         html += `
             <div class="card theatre-card">
 
@@ -338,21 +291,13 @@ class Viewer {
     Support
 </div>
 
-                <div class="card-body compact-card">
+                <div class="rota-card-body">
             `;
 
-        if (!value.support?.odp1 && !value.support?.odp2 && !value.support?.odp3) {
-            html += `
-                    <div class="info">
-                        No allocation
-                    </div>
-                `;
-        } else {
-            if (value.support?.odp1) html += `<div class="person">${value.support.odp1}</div>`;
-            if (value.support?.odp2) html += `<div class="person">${value.support.odp2}</div>`;
-            if (value.support?.odp3) html += `<div class="person">${value.support.odp3}</div>`;
-        }
-        if (value.support?.list) html += `<div class="info">${value.support.list}</div>`;
+        html += Viewer.rotaRow("SODP", supportNames.length
+            ? supportNames.map(n => `<span class="rota-row-line">${n}</span>`).join("")
+            : "—");
+        if (value.support?.list) html += Viewer.rotaRow("List", value.support.list);
 
         html += `
                 </div>
@@ -362,9 +307,7 @@ class Viewer {
 
     <div class="card oncall-wide">
         <div class="card-header oncall-header">On Call</div>
-        <div class="card-body">
-            ${Viewer.renderOnCallRoles(value, false)}
-        </div>
+        ${Viewer.renderOnCallRoles(value, false)}
     </div>
 
 </section>
@@ -391,9 +334,7 @@ class Viewer {
                 On Call
             </div>
 
-            <div class="card-body">
-                ${Viewer.renderOnCallRoles(value, true)}
-            </div>
+            ${Viewer.renderOnCallRoles(value, true)}
 
         </div>
 
@@ -403,22 +344,17 @@ class Viewer {
                 Waiting List
             </div>
 
-            <div class="card-body">
-
-                ${value.waitingList?.odp || value.waitingList?.anaesthetist || value.waitingList?.surgeon ? `
-                <div class="person">
-                    ${value.waitingList?.odp || "-"}
-                </div>
-
-                <div class="info">
-                    ${value.waitingList?.anaesthetist || "-"}
-                </div>
-                ${value.waitingList?.surgeon ? `<div class="info">${value.waitingList.surgeon}</div>` : ``}
-                ` : `
-                <div class="info">NO LIST</div>
-                `}
-
+            ${value.waitingList?.odp || value.waitingList?.anaesthetist || value.waitingList?.surgeon ? `
+            <div class="rota-card-body">
+                ${Viewer.rotaRow("SODP", value.waitingList?.odp || "-")}
+                ${Viewer.rotaRow("Anaesthetist", value.waitingList?.anaesthetist || "-")}
+                ${Viewer.rotaRow("Surgeon", value.waitingList?.surgeon || "-")}
             </div>
+            ` : `
+            <div class="card-body">
+                <div class="info">NO LIST</div>
+            </div>
+            `}
 
         </div>
 

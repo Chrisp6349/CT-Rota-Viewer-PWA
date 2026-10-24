@@ -221,7 +221,13 @@ html[data-theme="dark"] .oncall-anaesthetist,
 html[data-theme="dark"] .oncall-cicu,
 html[data-theme="dark"] .oncall-surgeon,
 html[data-theme="dark"] .oncall-role-label,
-html[data-theme="dark"] .oncall-role-extra { color: #93A1B1; }
+html[data-theme="dark"] .oncall-role-extra,
+html[data-theme="dark"] .rota-row-label,
+html[data-theme="dark"] .rota-row-extra { color: #93A1B1; }
+
+html[data-theme="dark"] .rota-card-body,
+html[data-theme="dark"] .rota-row { color: #E4E9EF; }
+html[data-theme="dark"] .rota-row { border-bottom-color: #2A3542; }
 
 html[data-theme="dark"] .daySection { border-top-color: #2A3542; }
 
