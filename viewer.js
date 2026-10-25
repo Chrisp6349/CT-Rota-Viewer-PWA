@@ -258,49 +258,67 @@ class Viewer {
                     break;
             }
 
+            // A theatre with nobody allocated at all isn't just "unfilled
+            // rows" - nothing is running there that day, so the whole
+            // card collapses to a single centred "NO LIST", the same
+            // treatment the weekend Waiting List box already gets.
+            const theatreHasStaff = !!(theatre.odp1 || theatre.odp2 || theatre.anaesthetist || theatre.surgeon);
+
             html += `
             <div class="card theatre-card">
 
                <div class="card-header ${colour} card-header-split">
-    <span>${label}</span>${theatre.list ? `<span class="theatre-list-badge">${theatre.list}</span>` : ``}
+    <span>${label}</span>${theatreHasStaff && theatre.list ? `<span class="theatre-list-badge">${theatre.list}</span>` : ``}
 </div>
-
-                <div class="rota-card-body">
             `;
 
-            html += Viewer.rotaRow("SODP", [theatre.odp1, theatre.odp2].filter(Boolean).length
-                ? [theatre.odp1, theatre.odp2].filter(Boolean).map(n => `<span class="rota-row-line">${n}</span>`).join("")
-                : "—");
-            html += Viewer.rotaRow("Anaesthetist", theatre.anaesthetist || "—");
-            html += Viewer.rotaRow("Surgeon", theatre.surgeon || "—");
-
-            html += `
+            if (theatreHasStaff) {
+                html += `<div class="rota-card-body">`;
+                html += Viewer.rotaRow("SODP", [theatre.odp1, theatre.odp2].filter(Boolean).length
+                    ? [theatre.odp1, theatre.odp2].filter(Boolean).map(n => `<span class="rota-row-line">${n}</span>`).join("")
+                    : "—");
+                html += Viewer.rotaRow("Anaesthetist", theatre.anaesthetist || "—");
+                html += Viewer.rotaRow("Surgeon", theatre.surgeon || "—");
+                html += `</div>`;
+            } else {
+                html += `
+                <div class="card-body">
+                    <div class="info">NO LIST</div>
                 </div>
-            </div>
-            `;
+                `;
+            }
+
+            html += `</div>`;
         });
 
         // Support joins the same grid as another uniformly-sized card,
         // same styling as every theatre card, instead of sitting in its
         // own separate (differently-sized) row.
         const supportNames = [value.support?.odp1, value.support?.odp2, value.support?.odp3].filter(Boolean);
+        const hasSupport = supportNames.length > 0 || !!value.support?.list;
+
         html += `
             <div class="card theatre-card">
 
                <div class="card-header support-header">
     Support
 </div>
-
-                <div class="rota-card-body">
             `;
 
-        html += Viewer.rotaRow("SODP", supportNames.length
-            ? supportNames.map(n => `<span class="rota-row-line">${n}</span>`).join("")
-            : "—");
-        if (value.support?.list) html += Viewer.rotaRow("List", value.support.list);
+        if (hasSupport) {
+            html += `<div class="rota-card-body">`;
+            html += Viewer.rotaRow("SODP", supportNames.length
+                ? supportNames.map(n => `<span class="rota-row-line">${n}</span>`).join("")
+                : "—");
+            if (value.support?.list) html += Viewer.rotaRow("List", value.support.list);
+            html += `</div>`;
+        } else {
+            // Nobody on Support that day - leave the card body blank
+            // rather than show a row of empty placeholders.
+            html += `<div class="card-body"></div>`;
+        }
 
         html += `
-                </div>
             </div>
 
     </div>
