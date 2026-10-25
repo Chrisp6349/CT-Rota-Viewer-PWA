@@ -286,3 +286,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     });
 });
+
+
+/* ==========================================
+   Scroll-to-top button
+   ------------------------------------------
+   Shows once the page has been scrolled down a bit, so getting back
+   to the hero header and week picker from deep in a full week's
+   cards doesn't mean scrolling back up by hand.
+========================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+    if (!scrollTopBtn) return;
+
+    const SHOW_AFTER_PX = 400;
+
+    window.addEventListener("scroll", () => {
+        scrollTopBtn.classList.toggle("show", window.scrollY > SHOW_AFTER_PX);
+    }, { passive: true });
+
+    scrollTopBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+});

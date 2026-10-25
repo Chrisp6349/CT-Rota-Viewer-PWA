@@ -914,6 +914,53 @@ footer{
 }
 
 /* ===========================
+   SCROLL-TO-TOP BUTTON
+   -----------------------------
+   Full weeks of cards make for a long scroll - this floats once
+   you've scrolled down a bit, so getting back to the hero header and
+   week picker doesn't mean scrolling back up by hand.
+   =========================== */
+
+#scrollTopBtn{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    width:48px;
+    height:48px;
+    border:none;
+    border-radius:50%;
+    background:var(--nhs-blue);
+    color:#fff;
+    font-size:21px;
+    font-weight:700;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:var(--shadow-lift);
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease, visibility .2s, background .15s ease;
+    z-index:500;
+}
+
+#scrollTopBtn.show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+}
+
+#scrollTopBtn:hover{
+    background:var(--nhs-dark);
+}
+
+#scrollTopBtn:active{
+    transform:scale(.92);
+}
+
+/* ===========================
    SMART UPDATE BANNER
    =========================== */
 
