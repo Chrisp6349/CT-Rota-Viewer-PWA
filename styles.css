@@ -73,28 +73,31 @@ body{
    HERO HEADER
    =========================== */
 
+/* No outer gutter/margin any more - sits flush against the pinned
+   Week Commencing bar directly below it, the two reading as one
+   continuous block instead of two separate shadowed cards. */
 .hero-header{
-    max-width:1300px;
-    margin:24px auto 18px;
-    padding:0 18px;
+    margin:0;
 }
 
 .hero-banner{
     background:var(--nhs-dark);
     color:#fff;
-    border-radius:var(--radius);
-    padding:18px 24px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:var(--shadow-md);
+    padding:26px 24px 20px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
-.hero-left h1{
+.hero-ecg{
+    display:block;
+    margin:0 auto 10px;
+}
+
+.hero-banner h1{
     margin:0;
-    font-size:22px;
-    line-height:1.2;
-    font-weight:700;
+    font-size:23px;
+    line-height:1.25;
+    font-weight:800;
     letter-spacing:-.01em;
 }
 
@@ -103,23 +106,6 @@ body{
     font-size:14px;
     font-weight:600;
     color:#BFD3F5;
-}
-
-.hero-right{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-right:8px;
-    flex-shrink:0;
-}
-
-.hero-logo{
-    height:92px;
-    width:92px;
-    object-fit:contain;
-    border-radius:10px;
-    flex-shrink:0;
-    background:#fff;
 }
 
 /* ===========================
