@@ -310,3 +310,32 @@ document.addEventListener("DOMContentLoaded", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 });
+
+
+/* ==========================================
+   Week Commencing bar height
+   ------------------------------------------
+   The bar is pinned with position:fixed, so body's top padding and
+   each day's sticky header offset (both set from --week-bar-h in
+   styles.css) need to reserve exactly its real height, or content
+   starts out hidden underneath it. Measured from the live element,
+   via ResizeObserver, rather than hard-coded - its height isn't
+   quite fixed: the mobile breakpoint shrinks the nav arrows, and a
+   larger Settings text size scales the whole bar through `zoom`.
+========================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const weekBar = document.querySelector(".week-picker-card");
+    if (!weekBar) return;
+
+    const setBarHeight = () => {
+        document.documentElement.style.setProperty("--week-bar-h", `${weekBar.offsetHeight}px`);
+    };
+    setBarHeight();
+
+    if (window.ResizeObserver) {
+        new ResizeObserver(setBarHeight).observe(weekBar);
+    } else {
+        window.addEventListener("resize", setBarHeight);
+    }
+});

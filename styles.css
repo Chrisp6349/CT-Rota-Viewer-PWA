@@ -62,6 +62,11 @@ body{
     background:var(--page-bg);
     color:var(--ink);
     padding-bottom:90px;
+    /* Reserves space for the now permanently-fixed Week Commencing bar
+       so the hero header doesn't start out hidden underneath it.
+       --week-bar-h is measured from the real element by app.js, with a
+       fallback close to its actual height for the first paint. */
+    padding-top:var(--week-bar-h, 112px);
 }
 
 /* ===========================
@@ -120,26 +125,65 @@ body{
 /* ===========================
    WEEK COMMENCING CARD
    -----------------------------
-   Same card/card-header treatment as the theatre cards -
-   a coloured header bar above a body - instead of the old
-   plain toolbar strip.
+   Pinned to the very top of the viewport at all times (the hero
+   header scrolls away normally beneath it) - the one thing worth
+   reaching without scrolling back up. body's padding-top and the day
+   headers' sticky offset (both set from --week-bar-h, measured by
+   app.js) reserve exactly its height so nothing starts out hidden
+   underneath it.
    =========================== */
 
-.week-picker-card{
-    max-width:520px;
-    margin-top:10px;
-    margin-bottom:20px;
-    /* Unlike the hero header and main (which get their side gutter from
-       padding on a wrapper), this card has no wrapper of its own, so it
-       was sitting flush against the screen edges on phones - at least
-       an 18px gutter either side, same as the hero header's, growing
-       into ordinary centering once there's room to spare. */
-    margin-left:max(18px, calc((100% - 520px) / 2));
-    margin-right:max(18px, calc((100% - 520px) / 2));
+.week-picker-card.card{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:400;
+    max-width:none;
+    margin:0;
+    border-radius:0;
+    border:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
 .week-header-bar{
     background:var(--nhs-blue);
+    position:relative;
+}
+
+#scrollTopBtn{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.2);
+    color:#fff;
+    font-size:15px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .2s ease, visibility .2s, background .15s ease, transform .15s ease;
+}
+
+#scrollTopBtn.show{
+    opacity:1;
+    visibility:visible;
+}
+
+#scrollTopBtn:hover{
+    background:rgba(255,255,255,.32);
+}
+
+#scrollTopBtn:active{
+    transform:translateY(-50%) scale(.88);
 }
 
 .week-picker-body{
@@ -349,7 +393,10 @@ main{
     width:100%;
     text-align:center;
     position:sticky;
-    top:0;
+    /* Stops just below the fixed Week Commencing bar, not at the very
+       top of the viewport, now that the bar is permanently pinned
+       there. */
+    top:var(--week-bar-h, 112px);
     z-index:5;
     background:var(--page-bg);
     padding:10px 0 2px;
@@ -911,53 +958,6 @@ footer{
 #rotaContainer.slide-right{
     opacity:0;
     transform:translateX(40px);
-}
-
-/* ===========================
-   SCROLL-TO-TOP BUTTON
-   -----------------------------
-   Full weeks of cards make for a long scroll - this floats once
-   you've scrolled down a bit, so getting back to the hero header and
-   week picker doesn't mean scrolling back up by hand.
-   =========================== */
-
-#scrollTopBtn{
-    position:fixed;
-    right:18px;
-    bottom:18px;
-    width:48px;
-    height:48px;
-    border:none;
-    border-radius:50%;
-    background:var(--nhs-blue);
-    color:#fff;
-    font-size:21px;
-    font-weight:700;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:var(--shadow-lift);
-    opacity:0;
-    visibility:hidden;
-    transform:translateY(8px);
-    transition:opacity .2s ease, transform .2s ease, visibility .2s, background .15s ease;
-    z-index:500;
-}
-
-#scrollTopBtn.show{
-    opacity:1;
-    visibility:visible;
-    transform:translateY(0);
-}
-
-#scrollTopBtn:hover{
-    background:var(--nhs-dark);
-}
-
-#scrollTopBtn:active{
-    transform:scale(.92);
 }
 
 /* ===========================
