@@ -2,19 +2,19 @@
    Cardiothoracic Theatre Viewer
    week.css
    -----------------------------------------------------
-   Week-at-a-glance board. Five weekday columns of
-   colour-coded theatre rows; weekend cover strip below.
-   Colour stripes match the daily dashboard's theatre
-   colours so the two views read as one system.
+   Week-at-a-glance board: a compact grid of terse rows
+   (not full cards) so the whole week is visible with far
+   less scrolling than the daily dashboard. Same one-accent
+   palette as the dashboard - two shades of the one blue,
+   not a different hue per theatre - so the two views read
+   as one system.
    ===================================================== */
 
 :root {
-    --wk-t1:   #005EB8;   /* CT1  - NHS blue      */
-    --wk-t2:   #00A9CE;   /* CT2  - aqua          */
-    --wk-t4:   #007F3B;   /* CT4  - green         */
-    --wk-t5:   #7C2855;   /* CT5  - aubergine     */
-    --wk-cath: #ED8B00;   /* Cath - orange        */
-    --wk-red:  #DA291C;
+    --wk-accent:      #2563EB;   /* theatres, the normal accent */
+    --wk-accent-mid:  #1D4ED8;   /* On Call / Waiting List      */
+    --wk-accent-dark: #1E3A8A;   /* header bar, today's emphasis */
+    --wk-tint:        #E6EEFD;   /* light fill for list/flag pills */
 
     --wk-ink:      #212B32;
     --wk-ink-soft: #4C6272;
@@ -37,18 +37,28 @@ body {
    Header
    ------------------------------------------------------ */
 
-.week-header { text-align: center; margin-bottom: 16px; }
+.week-header {
+    text-align: center;
+    margin-bottom: 16px;
+    background: var(--wk-accent-dark);
+    color: #fff;
+    padding: 18px 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
 
 .back-button {
     text-decoration: none;
-    color: #005EB8;
+    color: #BFD3F5;
     font-weight: 700;
+    font-size: 13px;
     display: inline-block;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
+.back-button:hover { color: #fff; }
 
-.week-header h1 { margin: 0; color: #005EB8; font-size: 24px; }
-#weekTitle { margin-top: 4px; color: var(--wk-ink-soft); font-weight: 600; }
+.week-header h1 { margin: 0; color: #fff; font-size: 21px; font-weight: 800; }
+#weekTitle { margin-top: 4px; color: #BFD3F5; font-weight: 600; font-size: 13.5px; }
 
 .wk-loading, .wk-error { text-align: center; color: var(--wk-ink-soft); font-size: 17px; }
 
@@ -68,13 +78,13 @@ body {
 .wk-day {
     background: var(--wk-surface);
     border: 1px solid var(--wk-line);
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(33,43,50,.07);
 }
 
 .wk-day-head {
-    background: #003087;
+    background: var(--wk-accent);
     color: #fff;
     padding: 10px 12px;
     display: flex;
@@ -84,12 +94,12 @@ body {
 }
 
 .wk-day-name { font-weight: 800; font-size: 15px; }
-.wk-day-date { font-size: 12px; color: #B8D4F0; font-weight: 700; white-space: nowrap; }
+.wk-day-date { font-size: 12px; color: #D6E4FB; font-weight: 700; white-space: nowrap; }
 
-/* Today's column glows */
-.wk-today { box-shadow: 0 0 0 3px #ED8B00, 0 3px 12px rgba(237,139,0,.25); }
-.wk-today .wk-day-head { background: #B45F00; }
-.wk-today .wk-day-date { color: #FFE2B8; }
+/* Today's column stands out a shade darker, same accent family */
+.wk-today { box-shadow: 0 0 0 3px var(--wk-accent-dark), 0 3px 12px rgba(30,58,138,.25); }
+.wk-today .wk-day-head { background: var(--wk-accent-dark); }
+.wk-today .wk-day-date { color: #BFD3F5; }
 
 .wk-day-body { display: flex; flex-direction: column; }
 
@@ -108,20 +118,20 @@ body {
 
 .wk-row:last-child { border-bottom: none; }
 
-.wk-t1   { border-left-color: var(--wk-t1); }
-.wk-t2   { border-left-color: var(--wk-t2); }
-.wk-t4   { border-left-color: var(--wk-t4); }
-.wk-t5   { border-left-color: var(--wk-t5); }
-.wk-cath { border-left-color: var(--wk-cath); }
+.wk-t1,
+.wk-t2,
+.wk-t4,
+.wk-t5,
+.wk-cath { border-left-color: var(--wk-accent); }
 
-.wk-support { border-left-color: #4C6272; background: #F4F6F8; }
+.wk-support { border-left-color: var(--wk-ink-soft); background: var(--wk-page); }
 
 .wk-oncall {
-    border-left-color: var(--wk-red);
-    background: #FBF0EF;
+    border-left-color: var(--wk-accent-mid);
+    background: var(--wk-tint);
 }
 
-.wk-wlist { border-left-color: #005EB8; background: #F0F6FB; }
+.wk-wlist { border-left-color: var(--wk-accent); background: var(--wk-tint); }
 
 .wk-tag {
     flex: none;
@@ -133,12 +143,11 @@ body {
     padding-top: 3px;
 }
 
-.wk-t1 .wk-tag   { color: var(--wk-t1); }
-.wk-t2 .wk-tag   { color: var(--wk-t2); }
-.wk-t4 .wk-tag   { color: var(--wk-t4); }
-.wk-t5 .wk-tag   { color: var(--wk-t5); }
-.wk-cath .wk-tag { color: var(--wk-cath); }
-.wk-oncall .wk-tag { color: var(--wk-red); }
+.wk-t1 .wk-tag,
+.wk-t2 .wk-tag,
+.wk-t4 .wk-tag,
+.wk-t5 .wk-tag,
+.wk-cath .wk-tag { color: var(--wk-accent); }
 
 .wk-cell {
     display: flex;
@@ -155,8 +164,8 @@ body {
     font-size: 10.5px;
     font-weight: 800;
     letter-spacing: .03em;
-    color: #fff;
-    background: #7A8794;
+    color: var(--wk-accent);
+    background: var(--wk-tint);
     border-radius: 4px;
     padding: 1px 6px;
     white-space: nowrap;
@@ -164,8 +173,8 @@ body {
 .wk-flag {
     font-size: 10.5px;
     font-weight: 800;
-    color: var(--wk-red);
-    background: #FBDFDC;
+    color: var(--wk-accent-mid);
+    background: var(--wk-tint);
     border-radius: 4px;
     padding: 1px 6px;
     white-space: nowrap;
@@ -181,13 +190,13 @@ body {
     margin: 14px auto 0;
     background: var(--wk-surface);
     border: 1px solid var(--wk-line);
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(33,43,50,.07);
 }
 
 .wk-wend-head {
-    background: var(--wk-red);
+    background: var(--wk-accent-dark);
     color: #fff;
     font-weight: 800;
     letter-spacing: .05em;
@@ -202,12 +211,12 @@ body {
 .wk-wend-half { border-right: 1px solid var(--wk-line); }
 .wk-wend-half:last-child { border-right: none; }
 
-.wk-wend-half.wk-today { box-shadow: inset 0 0 0 3px #ED8B00; }
+.wk-wend-half.wk-today { box-shadow: inset 0 0 0 3px var(--wk-accent-dark); }
 
 .wk-wend-day {
     font-weight: 800;
     padding: 8px 12px 2px;
-    color: #005EB8;
+    color: var(--wk-accent);
 }
 
 /* ------------------------------------------------------
@@ -221,13 +230,13 @@ html[data-theme="dark"] .wk-weekend { background: #1B2430; border-color: #3A4656
 
 html[data-theme="dark"] .wk-row { border-bottom-color: #2A3542; }
 html[data-theme="dark"] .wk-support { background: #232E3C; }
-html[data-theme="dark"] .wk-oncall  { background: #3A2022; }
-html[data-theme="dark"] .wk-wlist   { background: #1E2C3C; }
+html[data-theme="dark"] .wk-oncall,
+html[data-theme="dark"] .wk-wlist   { background: #1A2740; }
 html[data-theme="dark"] .wk-anaes,
 html[data-theme="dark"] .wk-tag { color: #93A1B1; }
 html[data-theme="dark"] .wk-empty { color: #5B6B7D; }
-html[data-theme="dark"] #weekTitle { color: #93A1B1; }
-html[data-theme="dark"] .wk-flag { background: #4A2528; }
+html[data-theme="dark"] .wk-list,
+html[data-theme="dark"] .wk-flag { background: #1E3A5F; color: #9DBFF2; }
 
 /* ------------------------------------------------------
    Smaller screens: 5 -> 2 -> 1 columns
