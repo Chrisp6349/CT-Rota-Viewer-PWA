@@ -95,6 +95,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const rota = await RotaAPI.loadWeek(week);
                        window.__currentWeek = rota.week;
             Viewer.render(rota);
+            // Switching weeks (prev/next arrows or the dropdown) always
+            // opens at the top of the page - otherwise the scroll
+            // position just carries over from whatever was on screen,
+            // landing on the same day-of-week in the new week rather
+            // than actually showing it from the start.
+            window.scrollTo(0, 0);
         } catch (err) {
             console.error(err);
             error.classList.remove("hidden");
