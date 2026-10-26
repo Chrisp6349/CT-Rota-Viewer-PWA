@@ -111,7 +111,17 @@ class Viewer {
 
         if (scrollToToday) {
             const todayEl = container.querySelector(".day-today");
-            if (todayEl) todayEl.scrollIntoView({ block: "start" });
+            if (todayEl) {
+                // Plain scrollIntoView({block:"start"}) lines today's
+                // section up with the very top of the viewport - but the
+                // Week Commencing bar is permanently fixed over that top
+                // strip, so it ended up covering today's heading and the
+                // first row of cards. Land just below the bar instead.
+                const bar = document.querySelector(".week-picker-card");
+                const barHeight = bar ? bar.offsetHeight : 0;
+                const targetTop = todayEl.getBoundingClientRect().top + window.scrollY - barHeight;
+                window.scrollTo({ top: Math.max(0, targetTop) });
+            }
         }
     }
 
