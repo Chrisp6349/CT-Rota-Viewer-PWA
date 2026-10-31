@@ -197,6 +197,73 @@
 }
 
 /* ------------------------------------------------------
+   Day-jump strip
+   ------------------------------------------------------
+   Deliberately small (compact pills, one slim row, no
+   wrapping at phone width) and NOT pinned - it scrolls
+   away with the hero, so it costs no permanent screen
+   space the way a sticky strip would.
+   ------------------------------------------------------ */
+
+.day-jump {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 12px 0 2px;
+    padding: 0 16px;
+}
+
+.day-jump-pill {
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 0;
+    width: 46px;
+    flex: none;
+    cursor: pointer;
+    transition: transform .1s ease, border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.day-jump-pill:hover {
+    border-color: var(--nhs-blue);
+    color: var(--nhs-blue);
+}
+
+.day-jump-pill:active {
+    transform: scale(.94);
+}
+
+.day-jump-pill.is-today {
+    background: var(--nhs-blue);
+    border-color: var(--nhs-blue);
+    color: #fff;
+}
+
+html[data-theme="dark"] .day-jump-pill {
+    background: #1B2430;
+    color: #93A1B1;
+    border-color: #3A4656;
+}
+html[data-theme="dark"] .day-jump-pill.is-today {
+    background: var(--nhs-blue);
+    color: #fff;
+}
+
+@media (max-width: 400px) {
+    .day-jump-pill {
+        width: auto;
+        flex: 1;
+        padding: 6px 2px;
+        font-size: 10px;
+    }
+}
+
+/* ------------------------------------------------------
    Dark mode
    ------------------------------------------------------
    Toggled by setting data-theme="dark" on <html>. Uses

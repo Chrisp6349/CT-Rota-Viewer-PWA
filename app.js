@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             window.__currentWeek = rota.week;
             Viewer.render(rota, true); // jump straight to today's section on first load
+            DayJump.updateToday();
         } catch (err) {
             console.error(err);
             error.classList.remove("hidden");
@@ -95,6 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const rota = await RotaAPI.loadWeek(week);
                        window.__currentWeek = rota.week;
             Viewer.render(rota);
+            DayJump.updateToday();
             // Switching weeks (prev/next arrows or the dropdown) always
             // opens at the top of the page - otherwise the scroll
             // position just carries over from whatever was on screen,
@@ -344,4 +346,56 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         window.addEventListener("resize", setBarHeight);
     }
+});
+
+
+/* ==========================================
+   Day-jump strip
+   ------------------------------------------
+   Jumps straight to a day's section instead of scrolling past
+   every one before it. Which pill (if any) is marked "today" is
+   refreshed after every render - called from showLatest()/showWeek()
+   above - since that's the only thing that changes between weeks.
+========================================== */
+
+const DayJump = {
+
+    scrollToSection(el) {
+        if (!el) return;
+        const bar = document.querySelector(".week-picker-card");
+        const barHeight = bar ? bar.offsetHeight : 0;
+        const targetTop = el.getBoundingClientRect().top + window.scrollY - barHeight;
+        window.scrollTo(0, Math.max(0, targetTop));
+    },
+
+    findSection(day) {
+        if (day === "Weekend") return document.querySelector(".weekend-section");
+        return [...document.querySelectorAll(".daySection")]
+            .find(s => s.querySelector(".day-heading")?.textContent.trim().startsWith(day));
+    },
+
+    updateToday() {
+        document.querySelectorAll(".day-jump-pill").forEach(p => p.classList.remove("is-today"));
+
+        let dayName = null;
+        const todaySection = document.querySelector(".daySection.day-today");
+        if (todaySection) {
+            dayName = todaySection.querySelector(".day-heading")?.textContent.trim().split(" ")[0];
+        } else if (document.querySelector(".weekend-card.day-today")) {
+            dayName = "Weekend";
+        }
+
+        if (dayName) {
+            const pill = document.querySelector(`.day-jump-pill[data-day="${dayName}"]`);
+            if (pill) pill.classList.add("is-today");
+        }
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".day-jump-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+            DayJump.scrollToSection(DayJump.findSection(pill.dataset.day));
+        });
+    });
 });

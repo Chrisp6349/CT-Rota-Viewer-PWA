@@ -101,6 +101,19 @@ if (savedTextSize) {
     <button id="settingsBtn" class="feature-btn">⚙ Settings</button>
 </div>
 
+<!-- Jump straight to a day's section instead of scrolling past every
+     one before it. Not pinned like the Week Commencing bar - it
+     scrolls away with the hero, so it never eats into the screen
+     space the cards get. -->
+<nav class="day-jump" id="dayJump" aria-label="Jump to day">
+    <button class="day-jump-pill" data-day="Monday">MON</button>
+    <button class="day-jump-pill" data-day="Tuesday">TUE</button>
+    <button class="day-jump-pill" data-day="Wednesday">WED</button>
+    <button class="day-jump-pill" data-day="Thursday">THU</button>
+    <button class="day-jump-pill" data-day="Friday">FRI</button>
+    <button class="day-jump-pill" data-day="Weekend">W/E</button>
+</nav>
+
 <!-- ===============================
      Settings Panel
      (sits outside statusBar - it's an overlay, not status text)
